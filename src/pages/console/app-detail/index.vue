@@ -19,6 +19,9 @@
           <el-button link type="primary" @click="showSecret = !showSecret">
             {{ showSecret ? '隐藏' : '显示' }}
           </el-button>
+          <el-button link type="danger" @click="handleResetSecret">
+            重置密钥
+          </el-button>
         </el-descriptions-item>
         <el-descriptions-item label="应用名称">
           {{ appInfo?.name }}
@@ -45,6 +48,18 @@
           :closable="false"
           style="margin-bottom: 20px"
         />
+        
+        <el-card shadow="never" style="margin-top: 20px">
+          <template #header>
+            <span>密钥管理</span>
+          </template>
+          <p style="color: #909399; margin-bottom: 15px">
+            重置密钥后，旧密钥将立即失效，请使用新密钥重新配置您的应用。
+          </p>
+          <el-button type="danger" @click="handleResetSecret">
+            重置 AppSecret
+          </el-button>
+        </el-card>
       </el-tab-pane>
       <el-tab-pane label="Webhook 配置" name="webhook">
         <el-empty description="Webhook 配置功能开发中" />
@@ -59,8 +74,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { getAppDetailApi, type IAppInfo } from '@/api/open'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getAppDetailApi, resetAppSecretApi, type IAppInfo } from '@/api/open'
 
 const route = useRoute()
 const appId = route.params.appId as string
@@ -87,6 +102,46 @@ const copyToClipboard = async (text?: string) => {
     ElMessage.success('复制成功')
   } catch (err) {
     ElMessage.error('复制失败')
+  }
+}
+
+const handleResetSecret = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '重置密钥后，旧密钥将立即失效，确定要重置吗？',
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    const res = await resetAppSecretApi({ appId })
+    if (res.appSecret) {
+      // 更新本地数据
+      if (appInfo.value) {
+        appInfo.value.appSecret = res.appSecret
+      }
+      showSecret.value = true
+      
+      // 显示新密钥
+      await ElMessageBox.alert(
+        `新密钥：${res.appSecret}\n\n请妥善保存，关闭后将无法再次查看！`,
+        '密钥重置成功',
+        {
+          confirmButtonText: '我已保存',
+          type: 'success'
+        }
+      )
+      
+      ElMessage.success(res.message || '密钥重置成功')
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('重置密钥失败:', error)
+      ElMessage.error('重置密钥失败，请稍后重试')
+    }
   }
 }
 

@@ -282,6 +282,19 @@ export function configAppPermissionApi(data: IConfigAppPermissionReq) {
 
 // ==================== 开发者管理 ====================
 
+export interface IApplyDeveloperReq {
+  realName: string
+  companyName?: string
+  phone: string
+  email: string
+  description: string
+}
+
+export interface IApplyDeveloperRes {
+  success: boolean
+  message: string
+}
+
 export interface IDeveloperInfo {
   id: number
   userId: string
@@ -326,6 +339,15 @@ export interface IAuditDeveloperRes {
   success: boolean
 }
 
+// 申请成为开发者
+export function applyDeveloperApi(data: IApplyDeveloperReq) {
+  return ajax<IApplyDeveloperRes>({
+    method: "POST",
+    url: `${config.baseAPI}/admin/open/developer/apply`,
+    data
+  })
+}
+
 // 获取开发者列表
 export function getDeveloperListApi(params: IGetDeveloperListReq) {
   return ajax<IGetDeveloperListRes>({
@@ -352,55 +374,3 @@ export function auditDeveloperApi(data: IAuditDeveloperReq) {
   })
 }
 
-// ==================== 配额管理 ====================
-
-export interface IQuotaInfo {
-  id: number
-  appId: string
-  dailyApiLimit: number
-  monthlyApiLimit: number
-  dailyWebhookLimit: number
-  usedToday: number
-  usedThisMonth: number
-  updatedAt: number
-}
-
-export interface IGetQuotaListReq {
-  page?: number
-  pageSize?: number
-  appId?: string
-}
-
-export interface IGetQuotaListRes {
-  total: number
-  list: IQuotaInfo[]
-}
-
-export interface IConfigQuotaReq {
-  appId: string
-  dailyApiLimit?: number
-  monthlyApiLimit?: number
-  dailyWebhookLimit?: number
-}
-
-export interface IConfigQuotaRes {
-  success: boolean
-}
-
-// 获取配额列表
-export function getQuotaListApi(params: IGetQuotaListReq) {
-  return ajax<IGetQuotaListRes>({
-    method: "GET",
-    url: `${config.baseAPI}/admin/open/quota/list`,
-    params
-  })
-}
-
-// 配置应用配额
-export function configQuotaApi(data: IConfigQuotaReq) {
-  return ajax<IConfigQuotaRes>({
-    method: "POST",
-    url: `${config.baseAPI}/admin/open/quota/config`,
-    data
-  })
-}

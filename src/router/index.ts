@@ -4,8 +4,18 @@ import { useUserStore } from "@/pinia/user/user"
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    // 公开页面 (不需要登录)
     {
       path: "/",
+      name: "Home",
+      component: () => import("@/pages/home/index.vue"),
+      meta: {
+        title: 'Beaver 开放平台'
+      }
+    },
+    // 控制台 (需要登录)
+    {
+      path: "/console",
       component: () => import("@/layouts/index.vue"),
       redirect: "/console/dashboard",
       children: [
@@ -59,6 +69,16 @@ const router = createRouter({
             requiresAuth: true
           }
         },
+        // 开发者申请
+        {
+          path: "/console/developer/apply",
+          name: "DeveloperApply",
+          component: () => import("@/pages/console/developer-apply/index.vue"),
+          meta: {
+            title: '开发者申请',
+            requiresAuth: true
+          }
+        },
         // API 文档
         {
           path: "/docs",
@@ -76,7 +96,7 @@ const router = createRouter({
           meta: {
             title: 'SDK 下载'
           }
-        },
+        }
       ]
     },
     {
@@ -105,8 +125,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
-  // 如果要访问登录页，直接放行
-  if (to.path === "/login") {
+  // 如果要访问登录页或公开页面，直接放行
+  if (to.path === "/login" || to.path === "/" || to.path === "/docs" || to.path === "/sdk") {
     next()
     return
   }

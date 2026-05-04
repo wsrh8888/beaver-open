@@ -56,8 +56,8 @@ export const menuConfig: MenuItem[] = [
     icon: Grid,
     children: [
       { path: "/console/apps", title: "应用列表", icon: Grid },
-      { path: "/console/stats", title: "数据统计", icon: TrendCharts },
-      { path: "/console/webhooks", title: "Webhook 管理", icon: Connection }
+      { path: "/console/webhooks", title: "Webhook 管理", icon: Connection },
+      { path: "/console/developer/apply", title: "开发者申请", icon: UserFilled }
     ]
   },
 
