@@ -1,15 +1,17 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue"
+import { computed, defineComponent, onMounted, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { menuConfig } from "../../../config/menu"
+import { menuConfig, type MenuItem } from "../../../config/menu"
+import { getAppListApi, type IAppInfo } from "@/api/open"
 
 export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
 
-    // 使用外部菜单配置
-    const menuItems = ref(menuConfig)
+    // 菜单数据（包含动态应用列表）
+    const menuItems = ref<MenuItem[]>([])
+    const appList = ref<IAppInfo[]>([])
 
     // 当前激活的菜单
     const activeMenu = computed(() => route.path)
@@ -19,7 +21,69 @@ export default defineComponent({
       router.push(path)
     }
 
-    onMounted(() => {})
+    // 加载应用列表并构建菜单
+    const loadMenuItems = async () => {
+      try {
+        const res = await getAppListApi({ page: 1, pageSize: 100 })
+        appList.value = res.result.list
+        
+        // 构建动态菜单
+        const dynamicMenu: MenuItem[] = [
+          // 🏠 控制台首页
+          {
+            path: "/console/dashboard",
+            title: "控制台",
+            icon: menuConfig.find(m => m.path === "/console/dashboard")?.icon || undefined as any
+          },
+          
+          // 💼 我的应用（带子菜单）
+          {
+            path: "/console/apps",
+            title: "我的应用",
+            icon: menuConfig.find(m => m.path === "/console/apps")?.icon || undefined as any,
+            children: [
+              // 应用列表入口
+              {
+                path: "/console/apps",
+                title: "应用列表",
+                icon: undefined as any
+              },
+              // 动态应用子菜单
+              ...appList.value.map(app => ({
+                path: `/console/app/${app.appId}`,
+                title: app.name,
+                icon: undefined as any
+              }))
+            ]
+          },
+          
+          // 👤 开发者申请
+          {
+            path: "/console/developer/apply",
+            title: "开发者申请",
+            icon: menuConfig.find(m => m.path === "/console/developer/apply")?.icon || undefined as any
+          }
+        ]
+        
+        menuItems.value = dynamicMenu
+      } catch (error) {
+        console.error('加载菜单失败:', error)
+        // 失败时使用静态菜单
+        menuItems.value = menuConfig.filter(m => m.path !== '/console/webhooks')
+      }
+    }
+
+    onMounted(() => {
+      loadMenuItems()
+    })
+    
+    // 监听路由变化，刷新菜单（当创建/删除应用后）
+    watch(() => route.path, () => {
+      // 如果从应用列表页或应用详情页返回，刷新菜单
+      if (route.path.startsWith('/console/app/') || route.path === '/console/apps') {
+        loadMenuItems()
+      }
+    })
 
     return {
       menuItems,

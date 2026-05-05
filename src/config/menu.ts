@@ -1,7 +1,8 @@
 import type { Component } from "vue"
 import {
   Grid,
-  House
+  House,
+  UserFilled
 } from "@element-plus/icons-vue"
 
 export interface MenuItem {
@@ -19,10 +20,17 @@ export const menuConfig: MenuItem[] = [
     icon: House
   },
 
-  // 💼 我的应用
+  // 💼 我的应用（子菜单动态生成）
   {
     path: "/console/apps",
     title: "我的应用",
     icon: Grid
+  },
+
+  // 👤 开发者申请（未认证时显示）
+  {
+    path: "/console/developer/apply",
+    title: "开发者申请",
+    icon: UserFilled
   }
 ]

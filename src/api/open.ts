@@ -104,6 +104,159 @@ export function getAppListApi(params: IGetAppListReq) {
   })
 }
 
+// ==================== 权限管理（对标飞书/钉钉）====================
+
+export interface IScopeInfo {
+  scope: string // 权限标识
+  name: string // 权限名称
+  description: string // 权限描述
+  enabled: boolean // 是否已启用
+  required: boolean // 是否需要审核
+}
+
+export interface IGetAppScopesReq {
+  appId: string
+}
+
+export interface IGetAppScopesRes {
+  scopes: IScopeInfo[]
+}
+
+export interface IUpdateAppScopesReq {
+  appId: string
+  scopes: string[] // 权限标识列表
+}
+
+export interface IUpdateAppScopesRes {}
+
+// 获取应用权限列表
+export function getAppScopesApi(params: IGetAppScopesReq) {
+  return ajax<IGetAppScopesRes>({
+    method: "GET",
+    url: `${config.baseAPI}/portal/open/v1/app/scopes`,
+    params
+  })
+}
+
+// 更新应用权限
+export function updateAppScopesApi(data: IUpdateAppScopesReq) {
+  return ajax<IUpdateAppScopesRes>({
+    method: "POST",
+    url: `${config.baseAPI}/portal/open/v1/app/scopes/update`,
+    data
+  })
+}
+
+// ==================== Bot 机器人配置 ====================
+
+export interface IBotConfigInfo {
+  appId: string
+  botName: string
+  botAvatar: string
+  botDescription: string
+  enableSingleChat: boolean
+  enableGroupChat: boolean
+  enableAtMention: boolean
+  autoReplyRules: string[]
+  commands: string[]
+  status: number
+}
+
+export interface IGetBotConfigReq {
+  appId: string
+}
+
+export interface IGetBotConfigRes {
+  config: IBotConfigInfo
+}
+
+export interface IUpdateBotConfigReq {
+  appId: string
+  botName?: string
+  botAvatar?: string
+  botDescription?: string
+  enableSingleChat?: boolean
+  enableGroupChat?: boolean
+  enableAtMention?: boolean
+  autoReplyRules?: string[]
+  commands?: string[]
+  status?: number
+}
+
+export interface IUpdateBotConfigRes {}
+
+// 获取 Bot 配置
+export function getBotConfigApi(params: IGetBotConfigReq) {
+  return ajax<IGetBotConfigRes>({
+    method: "GET",
+    url: `${config.baseAPI}/portal/open/v1/app/bot/config`,
+    params
+  })
+}
+
+// 更新 Bot 配置
+export function updateBotConfigApi(data: IUpdateBotConfigReq) {
+  return ajax<IUpdateBotConfigRes>({
+    method: "POST",
+    url: `${config.baseAPI}/portal/open/v1/app/bot/config/update`,
+    data
+  })
+}
+
+// ==================== OAuth 配置 ====================
+
+export interface IOAuthConfigInfo {
+  appId: string
+  redirectUris: string[]
+  scopes: string[]
+  customLogo: string
+  customTitle: string
+  customColor: string
+  enablePkce: boolean
+  tokenExpiration: number
+  status: number
+}
+
+export interface IGetOAuthConfigReq {
+  appId: string
+}
+
+export interface IGetOAuthConfigRes {
+  config: IOAuthConfigInfo
+}
+
+export interface IUpdateOAuthConfigReq {
+  appId: string
+  redirectUris?: string[]
+  scopes?: string[]
+  customLogo?: string
+  customTitle?: string
+  customColor?: string
+  enablePkce?: boolean
+  tokenExpiration?: number
+  status?: number
+}
+
+export interface IUpdateOAuthConfigRes {}
+
+// 获取 OAuth 配置
+export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
+  return ajax<IGetOAuthConfigRes>({
+    method: "GET",
+    url: `${config.baseAPI}/portal/open/v1/app/oauth/config`,
+    params
+  })
+}
+
+// 更新 OAuth 配置
+export function updateOAuthConfigApi(data: IUpdateOAuthConfigReq) {
+  return ajax<IUpdateOAuthConfigRes>({
+    method: "POST",
+    url: `${config.baseAPI}/portal/open/v1/app/oauth/config/update`,
+    data
+  })
+}
+
 // ==================== Webhook 配置 ====================
 
 export interface IConfigWebhookReq {
