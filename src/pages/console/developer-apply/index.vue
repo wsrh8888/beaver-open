@@ -103,17 +103,13 @@ const handleSubmit = async () => {
     if (valid) {
       submitting.value = true
       try {
-        const res = await applyDeveloperApi(form)
-        if (res.success) {
-          ElMessage.success('申请提交成功，请耐心等待审核')
-          // 跳转到控制台首页
-          router.push('/console/dashboard')
-        } else {
-          ElMessage.error(res.message || '申请失败')
-        }
-      } catch (error) {
+        await applyDeveloperApi(form)
+        ElMessage.success('申请提交成功，请耐心等待审核')
+        // 跳转到控制台首页
+        router.push('/console/dashboard')
+      } catch (error: any) {
         console.error('申请失败:', error)
-        ElMessage.error('申请失败，请稍后重试')
+        ElMessage.error(error.message || '申请失败，请稍后重试')
       } finally {
         submitting.value = false
       }

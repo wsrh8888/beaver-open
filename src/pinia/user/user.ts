@@ -1,12 +1,12 @@
-import type { IApiResponse, IGetUserInfoRes, ILoginReq, ILoginRes } from "@/types/auth"
+import type { IApiResponse, ILoginReq, ILoginRes } from "@/types/auth"
 import { defineStore } from "pinia"
-import { getUserInfoApi, loginApi } from "@/api/auth"
+import { loginApi } from "@/api/auth"
 
 export const useUserStore = defineStore("useUserStore", {
   state: () => ({
     token: localStorage.getItem("token") || "",
     userId: localStorage.getItem("userId") || "",
-    phone: localStorage.getItem("phone") || "",
+    nickName: localStorage.getItem("nickName") || "",
     userInfo: null as any
   }),
 
@@ -15,7 +15,7 @@ export const useUserStore = defineStore("useUserStore", {
     isLoggedIn: state => !!state.token,
 
     // 获取用户显示名称
-    displayName: state => state.phone || "未登录"
+    displayName: state => state.nickName || "未登录"
   },
 
   actions: {
@@ -31,10 +31,10 @@ export const useUserStore = defineStore("useUserStore", {
       localStorage.setItem("userId", userId)
     },
 
-    // 设置手机号
-    setPhone(phone: string) {
-      this.phone = phone
-      localStorage.setItem("phone", phone)
+    // 设置昵称
+    setNickName(nickName: string) {
+      this.nickName = nickName
+      localStorage.setItem("nickName", nickName)
     },
 
     // 设置用户信息
@@ -48,11 +48,11 @@ export const useUserStore = defineStore("useUserStore", {
         const response: IApiResponse<ILoginRes> = await loginApi(loginData)
 
         if (response.code === 0) {
-          const { token, userId } = response.result
+          const { token, userId, nickName } = response.result
 
           this.setToken(token)
           this.setUserId(userId)
-          this.setPhone(loginData.phone)
+          this.setNickName(nickName)
 
           return { success: true, data: response.result }
         } else {
@@ -67,54 +67,20 @@ export const useUserStore = defineStore("useUserStore", {
     logout() {
       this.token = ""
       this.userId = ""
-      this.phone = ""
+      this.nickName = ""
       this.userInfo = null
       localStorage.removeItem("token")
       localStorage.removeItem("userId")
-      localStorage.removeItem("phone")
-    },
-
-    // 获取用户信息 - 调用authentication接口
-    async getUserInfo() {
-      if (!this.token) {
-        throw new Error("未登录")
-      }
-
-      try {
-        const response: IApiResponse<IGetUserInfoRes> = await getUserInfoApi()
-
-        if (response.code === 0) {
-          // 更新userId（以防不一致）
-          this.setUserId(response.result.userId)
-
-          // 构建用户信息对象
-          const userInfo = {
-            userId: response.result.userId,
-            phone: this.phone,
-            displayName: this.phone
-          }
-
-          this.setUserInfo(userInfo)
-          return userInfo
-        } else {
-          throw new Error(response.msg || "获取用户信息失败")
-        }
-      } catch (error: any) {
-        // 获取用户信息失败，可能token过期，清除登录状态
-        this.logout()
-        throw new Error(error.message || "获取用户信息失败")
-      }
+      localStorage.removeItem("nickName")
     },
 
     // 初始化用户信息 - 页面刷新时调用
     async initUserInfo() {
-      if (this.token) {
-        try {
-          await this.getUserInfo()
-        } catch (error) {
-          console.error("初始化用户信息失败:", error)
-          // 静默处理，不抛出错误
-        }
+      // open_portal 登录后已返回完整用户信息，无需额外调用
+      // 如果后续需要刷新用户信息，可以添加对应的 API
+      if (this.token && !this.nickName) {
+        // 如果有 token 但没有昵称，可能需要重新登录
+        console.warn("用户信息不完整，建议重新登录")
       }
     }
   }

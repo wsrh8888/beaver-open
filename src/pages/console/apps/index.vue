@@ -52,7 +52,6 @@
         <el-table-column prop="appId" label="AppID" width="280" />
         <el-table-column prop="name" label="应用名称" min-width="150" />
         <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="webhookUrl" label="Webhook URL" min-width="250" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="row.status === 1 ? 'success' : 'info'">
@@ -65,16 +64,13 @@
             {{ formatTime(row.createdAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="280" fixed="right">
+        <el-table-column label="操作" width="320" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleView(row)">
-              查看
+              查看详情
             </el-button>
             <el-button link type="primary" @click="handleEdit(row)">
               编辑
-            </el-button>
-            <el-button link type="warning" @click="handleConfigWebhook(row)">
-              Webhook
             </el-button>
             <el-button link type="danger" @click="handleDelete(row)">
               删除
@@ -120,26 +116,11 @@
             placeholder="请输入应用描述"
           />
         </el-form-item>
-        <el-form-item label="Webhook URL" prop="webhookUrl">
+        <el-form-item label="图标URL" prop="icon">
           <el-input
-            v-model="formData.webhookUrl"
-            placeholder="请输入Webhook接收地址"
+            v-model="formData.icon"
+            placeholder="请输入应用图标URL（可选）"
           />
-        </el-form-item>
-        <el-form-item label="权限范围" prop="scopes">
-          <el-select
-            v-model="selectedScopes"
-            multiple
-            placeholder="请选择权限范围"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="scope in availableScopes"
-              :key="scope.value"
-              :label="scope.label"
-              :value="scope.value"
-            />
-          </el-select>
         </el-form-item>
         <el-form-item v-if="isEdit" label="状态" prop="status">
           <el-radio-group v-model="formData.status">
@@ -190,8 +171,8 @@
         <el-descriptions-item label="描述">
           {{ currentApp?.description || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="Webhook URL">
-          {{ currentApp?.webhookUrl || '-' }}
+        <el-descriptions-item label="图标" v-if="currentApp?.icon">
+          <img :src="currentApp.icon" alt="应用图标" style="width: 50px; height: 50px;" />
         </el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag :type="currentApp?.status === 1 ? 'success' : 'info'">
@@ -209,8 +190,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+<script lang="ts">
+import { defineComponent, ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
 import {
@@ -224,252 +205,261 @@ import {
   type IUpdateAppReq
 } from '@/api/open'
 
-// 数据
-const loading = ref(false)
-const appList = ref<IAppInfo[]>([])
-const pagination = reactive({
-  page: 1,
-  pageSize: 10,
-  total: 0
-})
-
-const searchForm = reactive({
-  keyword: '',
-  status: undefined as number | undefined
-})
-
-// 表单相关
-const dialogVisible = ref(false)
-const dialogTitle = ref('创建应用')
-const isEdit = ref(false)
-const submitLoading = ref(false)
-const formRef = ref<FormInstance>()
-
-const formData = reactive({
-  appId: '',
-  name: '',
-  description: '',
-  webhookUrl: '',
-  scopes: '',
-  status: 1
-})
-
-const selectedScopes = ref<string[]>([])
-const availableScopes = [
-  { label: '消息发送', value: 'message:send' },
-  { label: '消息接收', value: 'message:receive' },
-  { label: '用户信息', value: 'user:info' },
-  { label: '群组管理', value: 'group:manage' },
-  { label: '好友管理', value: 'friend:manage' }
-]
-
-const formRules: FormRules = {
-  name: [
-    { required: true, message: '请输入应用名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  webhookUrl: [
-    { type: 'url', message: '请输入有效的URL地址', trigger: 'blur' }
-  ]
-}
-
-// 详情对话框
-const detailDialogVisible = ref(false)
-const currentApp = ref<IAppInfo & { appSecret?: string; botUserId?: string } | null>(null)
-
-// 格式化时间
-const formatTime = (timestamp: number) => {
-  if (!timestamp) return '-'
-  const date = new Date(timestamp * 1000)
-  return date.toLocaleString('zh-CN')
-}
-
-// 脱敏显示密钥
-const maskSecret = (secret: string) => {
-  if (!secret) return ''
-  return secret.substring(0, 8) + '****' + secret.substring(secret.length - 8)
-}
-
-// 复制到剪贴板
-const copyToClipboard = async (text?: string) => {
-  if (!text) return
-  try {
-    await navigator.clipboard.writeText(text)
-    ElMessage.success('复制成功')
-  } catch (err) {
-    ElMessage.error('复制失败')
-  }
-}
-
-// 加载应用列表
-const loadAppList = async () => {
-  loading.value = true
-  try {
-    const res = await getAppListApi({
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      status: searchForm.status
+export default defineComponent({
+  name: 'OpenApps',
+  setup() {
+    // 数据
+    const loading = ref(false)
+    const appList = ref<IAppInfo[]>([])
+    const pagination = reactive({
+      page: 1,
+      pageSize: 10,
+      total: 0
     })
-    appList.value = res.result.list
-    pagination.total = res.result.total
-  } catch (error) {
-    ElMessage.error('加载应用列表失败')
-  } finally {
-    loading.value = false
-  }
-}
 
-// 搜索
-const handleSearch = () => {
-  pagination.page = 1
-  loadAppList()
-}
+    const searchForm = reactive({
+      keyword: '',
+      status: undefined as number | undefined
+    })
 
-// 重置
-const handleReset = () => {
-  searchForm.keyword = ''
-  searchForm.status = undefined
-  handleSearch()
-}
+    // 表单相关
+    const dialogVisible = ref(false)
+    const dialogTitle = ref('创建应用')
+    const isEdit = ref(false)
+    const submitLoading = ref(false)
+    const formRef = ref<FormInstance>()
 
-// 分页
-const handleSizeChange = () => {
-  loadAppList()
-}
+    const formData = reactive({
+      appId: '',
+      name: '',
+      description: '',
+      icon: '',
+      status: 1
+    })
 
-const handlePageChange = () => {
-  loadAppList()
-}
-
-// 创建应用
-const handleCreate = () => {
-  isEdit.value = false
-  dialogTitle.value = '创建应用'
-  resetForm()
-  dialogVisible.value = true
-}
-
-// 编辑应用
-const handleEdit = (row: IAppInfo) => {
-  isEdit.value = true
-  dialogTitle.value = '编辑应用'
-  formData.appId = row.appId
-  formData.name = row.name
-  formData.description = row.description
-  formData.webhookUrl = row.webhookUrl
-  formData.status = row.status
-  dialogVisible.value = true
-}
-
-// 查看应用
-const handleView = async (row: IAppInfo) => {
-  try {
-    const res = await getAppDetailApi({ appId: row.appId })
-    currentApp.value = res.result.app
-    detailDialogVisible.value = true
-  } catch (error) {
-    ElMessage.error('获取应用详情失败')
-  }
-}
-
-// 配置 Webhook（跳转到 Webhook 页面）
-const handleConfigWebhook = (row: IAppInfo) => {
-  // TODO: 跳转到 Webhook 配置页面
-  ElMessage.info('Webhook 配置功能开发中')
-}
-
-// 删除应用
-const handleDelete = (row: IAppInfo) => {
-  ElMessageBox.confirm(
-    `确定要删除应用 "${row.name}" 吗？此操作不可恢复！`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    const formRules: FormRules = {
+      name: [
+        { required: true, message: '请输入应用名称', trigger: 'blur' },
+        { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+      ]
     }
-  ).then(async () => {
-    try {
-      await deleteAppApi({ appId: row.appId })
-      ElMessage.success('删除成功')
-      loadAppList()
-    } catch (error) {
-      ElMessage.error('删除失败')
-    }
-  }).catch(() => {})
-}
 
-// 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (!valid) return
-    
-    submitLoading.value = true
-    try {
-      // 将选中的权限转换为 JSON 字符串
-      formData.scopes = JSON.stringify(selectedScopes.value)
-      
-      if (isEdit.value) {
-        await updateAppApi({
-          appId: formData.appId,
-          name: formData.name,
-          description: formData.description,
-          webhookUrl: formData.webhookUrl,
-          status: formData.status
-        })
-        ElMessage.success('更新成功')
-      } else {
-        const res = await createAppApi({
-          name: formData.name,
-          description: formData.description,
-          webhookUrl: formData.webhookUrl,
-          scopes: formData.scopes
-        })
-        ElMessage.success('创建成功')
-        // 显示 AppSecret
-        currentApp.value = {
-          appId: res.result.appId,
-          appSecret: res.result.appSecret,
-          botUserId: res.result.botUserId,
-          name: formData.name,
-          description: formData.description,
-          webhookUrl: formData.webhookUrl,
-          status: 1,
-          createdAt: Math.floor(Date.now() / 1000)
-        }
-        detailDialogVisible.value = true
+    // 详情对话框
+    const detailDialogVisible = ref(false)
+    const currentApp = ref<IAppInfo & { appSecret?: string; botUserId?: string } | null>(null)
+
+    // 格式化时间
+    const formatTime = (timestamp: number) => {
+      if (!timestamp) return '-'
+      const date = new Date(timestamp * 1000)
+      return date.toLocaleString('zh-CN')
+    }
+
+    // 脱敏显示密钥
+    const maskSecret = (secret: string) => {
+      if (!secret) return ''
+      return secret.substring(0, 8) + '****' + secret.substring(secret.length - 8)
+    }
+
+    // 复制到剪贴板
+    const copyToClipboard = async (text?: string) => {
+      if (!text) return
+      try {
+        await navigator.clipboard.writeText(text)
+        ElMessage.success('复制成功')
+      } catch (err) {
+        ElMessage.error('复制失败')
       }
-      dialogVisible.value = false
-      loadAppList()
-    } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
-    } finally {
-      submitLoading.value = false
     }
-  })
-}
 
-// 重置表单
-const resetForm = () => {
-  formData.appId = ''
-  formData.name = ''
-  formData.description = ''
-  formData.webhookUrl = ''
-  formData.scopes = ''
-  formData.status = 1
-  selectedScopes.value = []
-  formRef.value?.clearValidate()
-}
+    // 加载应用列表
+    const loadAppList = async () => {
+      loading.value = true
+      try {
+        const res = await getAppListApi({
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          status: searchForm.status
+        })
+        appList.value = res.result.list
+        pagination.total = res.result.total
+      } catch (error) {
+        ElMessage.error('加载应用列表失败')
+      } finally {
+        loading.value = false
+      }
+    }
 
-// 关闭对话框
-const handleDialogClose = () => {
-  resetForm()
-}
+    // 搜索
+    const handleSearch = () => {
+      pagination.page = 1
+      loadAppList()
+    }
 
-onMounted(() => {
-  loadAppList()
+    // 重置
+    const handleReset = () => {
+      searchForm.keyword = ''
+      searchForm.status = undefined
+      handleSearch()
+    }
+
+    // 分页
+    const handleSizeChange = () => {
+      loadAppList()
+    }
+
+    const handlePageChange = () => {
+      loadAppList()
+    }
+
+    // 创建应用
+    const handleCreate = () => {
+      isEdit.value = false
+      dialogTitle.value = '创建应用'
+      resetForm()
+      dialogVisible.value = true
+    }
+
+    // 编辑应用
+    const handleEdit = (row: IAppInfo) => {
+      isEdit.value = true
+      dialogTitle.value = '编辑应用'
+      formData.appId = row.appId
+      formData.name = row.name
+      formData.description = row.description
+      formData.icon = row.icon || ''
+      formData.status = row.status
+      dialogVisible.value = true
+    }
+
+    // 查看应用
+    const handleView = async (row: IAppInfo) => {
+      try {
+        const res = await getAppDetailApi({ appId: row.appId })
+        currentApp.value = res.result.app
+        detailDialogVisible.value = true
+      } catch (error) {
+        ElMessage.error('获取应用详情失败')
+      }
+    }
+
+    // 删除应用
+    const handleDelete = (row: IAppInfo) => {
+      ElMessageBox.confirm(
+        `确定要删除应用 "${row.name}" 吗？此操作不可恢复！`,
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).then(async () => {
+        try {
+          await deleteAppApi({ appId: row.appId })
+          ElMessage.success('删除成功')
+          loadAppList()
+        } catch (error) {
+          ElMessage.error('删除失败')
+        }
+      }).catch(() => {})
+    }
+
+    // 提交表单
+    const handleSubmit = async () => {
+      if (!formRef.value) return
+      
+      await formRef.value.validate(async (valid) => {
+        if (!valid) return
+        
+        submitLoading.value = true
+        try {
+          if (isEdit.value) {
+            await updateAppApi({
+              appId: formData.appId,
+              name: formData.name,
+              description: formData.description,
+              icon: formData.icon,
+              status: formData.status
+            })
+            ElMessage.success('更新成功')
+          } else {
+            const res = await createAppApi({
+              name: formData.name,
+              description: formData.description,
+              icon: formData.icon
+            })
+            ElMessage.success('创建成功')
+            // 显示 AppSecret
+            currentApp.value = {
+              appId: res.result.appId,
+              appSecret: res.result.appSecret,
+              botUserId: res.result.botUserId,
+              name: formData.name,
+              description: formData.description,
+              icon: formData.icon,
+              status: 1,
+              createdAt: Math.floor(Date.now() / 1000)
+            }
+            detailDialogVisible.value = true
+          }
+          dialogVisible.value = false
+          loadAppList()
+        } catch (error) {
+          ElMessage.error(isEdit.value ? '更新失败' : '创庺失败')
+        } finally {
+          submitLoading.value = false
+        }
+      })
+    }
+
+    // 重置表单
+    const resetForm = () => {
+      formData.appId = ''
+      formData.name = ''
+      formData.description = ''
+      formData.icon = ''
+      formData.status = 1
+      formRef.value?.clearValidate()
+    }
+
+    // 关闭对话框
+    const handleDialogClose = () => {
+      resetForm()
+    }
+
+    onMounted(() => {
+      loadAppList()
+    })
+
+    return {
+      loading,
+      appList,
+      pagination,
+      searchForm,
+      dialogVisible,
+      dialogTitle,
+      isEdit,
+      submitLoading,
+      formRef,
+      formData,
+      formRules,
+      detailDialogVisible,
+      currentApp,
+      formatTime,
+      maskSecret,
+      copyToClipboard,
+      handleSearch,
+      handleReset,
+      handleSizeChange,
+      handlePageChange,
+      handleCreate,
+      handleEdit,
+      handleView,
+      handleDelete,
+      handleSubmit,
+      handleDialogClose
+    }
+  }
 })
 </script>
 

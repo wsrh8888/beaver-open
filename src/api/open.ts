@@ -6,8 +6,7 @@ import { ajax } from "@/utils/request"
 export interface ICreateAppReq {
   name: string
   description?: string
-  webhookUrl?: string
-  scopes?: string
+  icon?: string
 }
 
 export interface ICreateAppRes {
@@ -20,7 +19,7 @@ export interface IUpdateAppReq {
   appId: string
   name?: string
   description?: string
-  webhookUrl?: string
+  icon?: string
   status?: number
 }
 
@@ -36,8 +35,8 @@ export interface IAppInfo {
   appId: string
   name: string
   description: string
+  icon?: string
   status: number
-  webhookUrl: string
   createdAt: number
 }
 
@@ -64,7 +63,7 @@ export interface IGetAppListRes {
 export function createAppApi(data: ICreateAppReq) {
   return ajax<ICreateAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/app/create`,
+    url: `${config.baseAPI}/portal/open/v1/app/create`,
     data
   })
 }
@@ -73,7 +72,7 @@ export function createAppApi(data: ICreateAppReq) {
 export function updateAppApi(data: IUpdateAppReq) {
   return ajax<IUpdateAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/app/update`,
+    url: `${config.baseAPI}/portal/open/v1/app/update`,
     data
   })
 }
@@ -82,7 +81,7 @@ export function updateAppApi(data: IUpdateAppReq) {
 export function deleteAppApi(data: IDeleteAppReq) {
   return ajax<IDeleteAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/app/delete`,
+    url: `${config.baseAPI}/portal/open/v1/app/delete`,
     data
   })
 }
@@ -91,7 +90,7 @@ export function deleteAppApi(data: IDeleteAppReq) {
 export function getAppDetailApi(params: IGetAppDetailReq) {
   return ajax<IGetAppDetailRes>({
     method: "GET",
-    url: `${config.baseAPI}/admin/open/app/detail`,
+    url: `${config.baseAPI}/portal/open/v1/app/detail`,
     params
   })
 }
@@ -100,7 +99,7 @@ export function getAppDetailApi(params: IGetAppDetailReq) {
 export function getAppListApi(params: IGetAppListReq) {
   return ajax<IGetAppListRes>({
     method: "GET",
-    url: `${config.baseAPI}/admin/open/app/list`,
+    url: `${config.baseAPI}/portal/open/v1/app/list`,
     params
   })
 }
@@ -146,7 +145,7 @@ export interface IGetWebhookLogsRes {
 export function configWebhookApi(data: IConfigWebhookReq) {
   return ajax<IConfigWebhookRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/webhook/config`,
+    url: `${config.baseAPI}/portal/open/v1/webhook/config`,
     data
   })
 }
@@ -155,61 +154,7 @@ export function configWebhookApi(data: IConfigWebhookReq) {
 export function getWebhookLogsApi(params: IGetWebhookLogsReq) {
   return ajax<IGetWebhookLogsRes>({
     method: "GET",
-    url: `${config.baseAPI}/admin/open/webhook/logs`,
-    params
-  })
-}
-
-// ==================== 统计数据 ====================
-
-export interface IGetApiCallsStatsReq {
-  appId?: string
-  startTime?: number
-  endTime?: number
-}
-
-export interface IApiCallsStatsRes {
-  totalCalls: number
-  successCalls: number
-  failedCalls: number
-  avgResponseTime: number
-  trend: Array<{
-    time: string
-    calls: number
-  }>
-}
-
-export interface IGetWebhookStatsReq {
-  appId?: string
-  startTime?: number
-  endTime?: number
-}
-
-export interface IWebhookStatsRes {
-  totalEvents: number
-  successEvents: number
-  failedEvents: number
-  avgDeliveryTime: number
-  trend: Array<{
-    time: string
-    events: number
-  }>
-}
-
-// 获取 API 调用统计
-export function getApiCallsStatsApi(params?: IGetApiCallsStatsReq) {
-  return ajax<IApiCallsStatsRes>({
-    method: "GET",
-    url: `${config.baseAPI}/admin/open/stats/api-calls`,
-    params
-  })
-}
-
-// 获取 Webhook 统计
-export function getWebhookStatsApi(params?: IGetWebhookStatsReq) {
-  return ajax<IWebhookStatsRes>({
-    method: "GET",
-    url: `${config.baseAPI}/admin/open/stats/webhook`,
+    url: `${config.baseAPI}/portal/open/v1/webhook/logs`,
     params
   })
 }
@@ -230,7 +175,7 @@ export interface IResetAppSecretRes {
 export function resetAppSecretApi(data: IResetAppSecretReq) {
   return ajax<IResetAppSecretRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/app/secret/reset`,
+    url: `${config.baseAPI}/portal/open/v1/app/secret/reset`,
     data
   })
 }
@@ -267,7 +212,8 @@ export interface IConfigAppPermissionRes {
 export function getAppPermissionsApi(params: IGetAppPermissionsReq) {
   return ajax<IGetAppPermissionsRes>({
     method: "GET",
-    url: `${config.baseAPI}/admin/open/app/${params.appId}/permissions`
+    url: `${config.baseAPI}/portal/open/v1/app/permissions`,
+    params
   })
 }
 
@@ -275,7 +221,7 @@ export function getAppPermissionsApi(params: IGetAppPermissionsReq) {
 export function configAppPermissionApi(data: IConfigAppPermissionReq) {
   return ajax<IConfigAppPermissionRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/app/permission/config`,
+    url: `${config.baseAPI}/portal/open/v1/app/permission/config`,
     data
   })
 }
@@ -291,8 +237,6 @@ export interface IApplyDeveloperReq {
 }
 
 export interface IApplyDeveloperRes {
-  success: boolean
-  message: string
 }
 
 export interface IDeveloperInfo {
@@ -336,14 +280,13 @@ export interface IAuditDeveloperReq {
 }
 
 export interface IAuditDeveloperRes {
-  success: boolean
 }
 
 // 申请成为开发者
 export function applyDeveloperApi(data: IApplyDeveloperReq) {
   return ajax<IApplyDeveloperRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/developer/apply`,
+    url: `${config.baseAPI}/portal/open/v1/developer/apply`,
     data
   })
 }
@@ -352,7 +295,7 @@ export function applyDeveloperApi(data: IApplyDeveloperReq) {
 export function getDeveloperListApi(params: IGetDeveloperListReq) {
   return ajax<IGetDeveloperListRes>({
     method: "GET",
-    url: `${config.baseAPI}/admin/open/developer/list`,
+    url: `${config.baseAPI}/portal/open/v1/developer/list`,
     params
   })
 }
@@ -361,7 +304,7 @@ export function getDeveloperListApi(params: IGetDeveloperListReq) {
 export function getDeveloperDetailApi(params: IGetDeveloperDetailReq) {
   return ajax<IGetDeveloperDetailRes>({
     method: "GET",
-    url: `${config.baseAPI}/admin/open/developer/${params.id}`
+    url: `${config.baseAPI}/portal/open/v1/developer/${params.id}`
   })
 }
 
@@ -369,7 +312,7 @@ export function getDeveloperDetailApi(params: IGetDeveloperDetailReq) {
 export function auditDeveloperApi(data: IAuditDeveloperReq) {
   return ajax<IAuditDeveloperRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/open/developer/audit`,
+    url: `${config.baseAPI}/portal/open/v1/developer/audit`,
     data
   })
 }

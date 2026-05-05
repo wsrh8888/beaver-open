@@ -17,15 +17,27 @@ export default defineComponent({
 
     // 表单数据
     const loginForm = reactive({
-      phone: "15383645663",
+      username: "751135385@qq.com",  // 邮箱
       password: "123456"
     })
 
     // 表单验证规则
     const loginRules: FormRules = {
-      phone: [
-        { required: true, message: "请输入手机号", trigger: "blur" },
-        { pattern: /^1[3-9]\d{9}$/, message: "请输入正确的手机号", trigger: "blur" }
+      username: [
+        { required: true, message: "请输入邮箱", trigger: "blur" },
+        {
+          validator: (rule: any, value: string, callback: any) => {
+            // 验证邮箱格式
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+            
+            if (emailRegex.test(value)) {
+              callback()
+            } else {
+              callback(new Error("请输入正确的邮箱格式"))
+            }
+          },
+          trigger: "blur"
+        }
       ],
       password: [
         { required: true, message: "请输入密码", trigger: "blur" },
@@ -46,7 +58,7 @@ export default defineComponent({
 
         // 使用 pinia store 登录
         const result = await userStore.login({
-          phone: loginForm.phone,
+          username: loginForm.username,  // 邮箱
           password: MD5(loginForm.password).toString()
         })
 
@@ -90,10 +102,10 @@ export default defineComponent({
         :rules="loginRules"
         @keyup.enter="handleLogin"
       >
-        <el-form-item prop="phone">
+        <el-form-item prop="username">
           <el-input
-            v-model.trim="loginForm.phone"
-            placeholder="请输入手机号"
+            v-model.trim="loginForm.username"
+            placeholder="请输入邮箱"
             :prefix-icon="User"
             size="large"
           />

@@ -1,6 +1,6 @@
 // 登录请求参数
 export interface ILoginReq {
-  phone: string
+  username: string  // 邮箱
   password: string
 }
 
@@ -12,10 +12,12 @@ export interface IUserInfo {
   fileName: string
 }
 
-// 登录响应数据 - 修改为匹配实际API返回结构
+// 登录响应数据 - 匹配 open_portal API 返回结构
 export interface ILoginRes {
   token: string
   userId: string
+  nickName: string
+  expireAt: number
 }
 
 // API通用响应结构

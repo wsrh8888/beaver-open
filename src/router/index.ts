@@ -49,17 +49,7 @@ const router = createRouter({
             requiresAuth: true
           }
         },
-        // 数据统计
-        {
-          path: "/console/stats",
-          name: "ConsoleStats",
-          component: () => import("@/pages/console/stats/index.vue"),
-          meta: {
-            title: '数据统计',
-            requiresAuth: true
-          }
-        },
-        // Webhook 配置
+        // Webhook 配置（已整合到应用详情中，保留路由以兼容）
         {
           path: "/console/webhooks",
           name: "ConsoleWebhooks",
@@ -77,24 +67,6 @@ const router = createRouter({
           meta: {
             title: '开发者申请',
             requiresAuth: true
-          }
-        },
-        // API 文档
-        {
-          path: "/docs",
-          name: "ApiDocs",
-          component: () => import("@/pages/docs/index.vue"),
-          meta: {
-            title: 'API 文档'
-          }
-        },
-        // SDK 下载
-        {
-          path: "/sdk",
-          name: "SdkDownload",
-          component: () => import("@/pages/sdk/index.vue"),
-          meta: {
-            title: 'SDK 下载'
           }
         }
       ]
@@ -126,7 +98,7 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
   // 如果要访问登录页或公开页面，直接放行
-  if (to.path === "/login" || to.path === "/" || to.path === "/docs" || to.path === "/sdk") {
+  if (to.path === "/login" || to.path === "/") {
     next()
     return
   }
