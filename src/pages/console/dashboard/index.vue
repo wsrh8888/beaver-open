@@ -6,7 +6,7 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon" style="background: #409eff">
-              <el-icon :size="30"><Grid /></el-icon>
+              <img src="@/assets/icons/grid.svg" alt="" class="stat-icon-img" />
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ stats.appCount }}</div>
@@ -20,7 +20,7 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon" style="background: #67c23a">
-              <el-icon :size="30"><Connection /></el-icon>
+              <img src="@/assets/icons/connection.svg" alt="" class="stat-icon-img" />
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ stats.todayApiCalls }}</div>
@@ -34,7 +34,7 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon" style="background: #e6a23c">
-              <el-icon :size="30"><Bell /></el-icon>
+              <img src="@/assets/icons/bell.svg" alt="" class="stat-icon-img" />
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ stats.todayWebhooks }}</div>
@@ -48,7 +48,7 @@
         <el-card class="stat-card">
           <div class="stat-content">
             <div class="stat-icon" style="background: #f56c6c">
-              <el-icon :size="30"><Warning /></el-icon>
+              <img src="@/assets/icons/warning.svg" alt="" class="stat-icon-img" />
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ stats.errorRate }}%</div>
@@ -69,21 +69,21 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <div class="quick-item" @click="$router.push('/console/apps')">
-            <el-icon :size="40" color="#409eff"><Plus /></el-icon>
+            <img src="@/assets/icons/plus.svg" alt="" class="quick-icon" />
             <h3>创建应用</h3>
             <p>创建你的第一个应用，获取 AppID 和 AppSecret</p>
           </div>
         </el-col>
         <el-col :span="8">
           <div class="quick-item" @click="$router.push('/docs')">
-            <el-icon :size="40" color="#67c23a"><Document /></el-icon>
+            <img src="@/assets/icons/document.svg" alt="" class="quick-icon" />
             <h3>查看文档</h3>
             <p>阅读 API 文档，了解如何集成 Beaver IM</p>
           </div>
         </el-col>
         <el-col :span="8">
           <div class="quick-item" @click="$router.push('/sdk')">
-            <el-icon :size="40" color="#e6a23c"><Download /></el-icon>
+            <img src="@/assets/icons/download.svg" alt="" class="quick-icon" />
             <h3>下载 SDK</h3>
             <p>下载官方 SDK，快速开始开发</p>
           </div>
@@ -140,51 +140,62 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
+<script lang="ts">
+import { defineComponent, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Grid, Connection, Bell, Warning, Plus, Document, Download } from '@element-plus/icons-vue'
-import { getAppListApi, type IAppInfo } from '@/api/open'
+import { getAppListApi, type IAppInfo } from '@/api/app'
 
-const router = useRouter()
+export default defineComponent({
+  name: 'ConsoleDashboard',
+  setup() {
+    const router = useRouter()
 
-// 统计数据
-const stats = ref({
-  appCount: 0,
-  todayApiCalls: 0,
-  todayWebhooks: 0,
-  errorRate: 0
-})
+    // 统计数据
+    const stats = ref({
+      appCount: 0,
+      todayApiCalls: 0,
+      todayWebhooks: 0,
+      errorRate: 0
+    })
 
-// 最近应用
-const recentApps = ref<IAppInfo[]>([])
+    // 最近应用
+    const recentApps = ref<IAppInfo[]>([])
 
-// 格式化时间
-const formatTime = (timestamp: number) => {
-  if (!timestamp) return '-'
-  const date = new Date(timestamp * 1000)
-  return date.toLocaleString('zh-CN')
-}
+    // 格式化时间
+    const formatTime = (timestamp: number) => {
+      if (!timestamp) return '-'
+      const date = new Date(timestamp * 1000)
+      return date.toLocaleString('zh-CN')
+    }
 
-// 查看应用详情
-const viewAppDetail = (appId: string) => {
-  router.push(`/console/app/${appId}`)
-}
+    // 查看应用详情
+    const viewAppDetail = (appId: string) => {
+      router.push(`/console/app/${appId}`)
+    }
 
-// 加载数据
-const loadData = async () => {
-  try {
-    const res = await getAppListApi({ page: 1, pageSize: 5 })
-    recentApps.value = res.result.list
-    stats.value.appCount = res.result.total
-  } catch (error) {
-    ElMessage.error('加载数据失败')
+    // 加载数据
+    const loadData = async () => {
+      try {
+        const res = await getAppListApi({ page: 1, pageSize: 5 })
+        recentApps.value = res.result.list
+        stats.value.appCount = res.result.total
+      } catch (error) {
+        ElMessage.error('加载数据失败')
+      }
+    }
+
+    onMounted(() => {
+      loadData()
+    })
+
+    return {
+      stats,
+      recentApps,
+      formatTime,
+      viewAppDetail
+    }
   }
-}
-
-onMounted(() => {
-  loadData()
 })
 </script>
 
@@ -206,6 +217,12 @@ onMounted(() => {
         justify-content: center;
         color: white;
         margin-right: 15px;
+
+        .stat-icon-img {
+          width: 30px;
+          height: 30px;
+          filter: brightness(0) invert(1);
+        }
       }
       
       .stat-info {
@@ -236,6 +253,11 @@ onMounted(() => {
       &:hover {
         border-color: #409eff;
         background: #f5f7fa;
+      }
+
+      .quick-icon {
+        width: 40px;
+        height: 40px;
       }
       
       h3 {

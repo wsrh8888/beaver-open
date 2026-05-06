@@ -49,21 +49,11 @@ const router = createRouter({
             requiresAuth: true
           }
         },
-        // Webhook 配置（已整合到应用详情中，保留路由以兼容）
-        {
-          path: "/console/webhooks",
-          name: "ConsoleWebhooks",
-          component: () => import("@/pages/console/webhooks/index.vue"),
-          meta: {
-            title: 'Webhook 管理',
-            requiresAuth: true
-          }
-        },
         // 开发者申请
         {
-          path: "/console/developer/apply",
+          path: "/developer/apply",
           name: "DeveloperApply",
-          component: () => import("@/pages/console/developer-apply/index.vue"),
+          component: () => import("@/pages/developer-apply/index.vue"),
           meta: {
             title: '开发者申请',
             requiresAuth: true

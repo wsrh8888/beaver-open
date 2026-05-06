@@ -64,13 +64,16 @@
             {{ formatTime(row.createdAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="320" fixed="right">
+        <el-table-column label="操作" width="380" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleView(row)">
               查看详情
             </el-button>
             <el-button link type="primary" @click="handleEdit(row)">
               编辑
+            </el-button>
+            <el-button link type="success" @click="handleConfig(row)">
+              配置
             </el-button>
             <el-button link type="danger" @click="handleDelete(row)">
               删除
@@ -159,12 +162,6 @@
             请妥善保管，仅在创建时显示
           </el-text>
         </el-descriptions-item>
-        <el-descriptions-item label="Bot UserID" v-if="currentApp?.botUserId">
-          {{ currentApp.botUserId }}
-          <el-button link type="primary" @click="copyToClipboard(currentApp.botUserId)">
-            复制
-          </el-button>
-        </el-descriptions-item>
         <el-descriptions-item label="应用名称">
           {{ currentApp?.name }}
         </el-descriptions-item>
@@ -192,6 +189,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus, Search } from '@element-plus/icons-vue'
 import {
@@ -203,11 +201,13 @@ import {
   type IAppInfo,
   type ICreateAppReq,
   type IUpdateAppReq
-} from '@/api/open'
+} from '@/api/app'
 
 export default defineComponent({
   name: 'OpenApps',
   setup() {
+    const router = useRouter()
+    
     // 数据
     const loading = ref(false)
     const appList = ref<IAppInfo[]>([])
@@ -246,7 +246,7 @@ export default defineComponent({
 
     // 详情对话框
     const detailDialogVisible = ref(false)
-    const currentApp = ref<IAppInfo & { appSecret?: string; botUserId?: string } | null>(null)
+    const currentApp = ref<IAppInfo & { appSecret?: string } | null>(null)
 
     // 格式化时间
     const formatTime = (timestamp: number) => {
@@ -275,19 +275,16 @@ export default defineComponent({
     // 加载应用列表
     const loadAppList = async () => {
       loading.value = true
-      try {
-        const res = await getAppListApi({
-          page: pagination.page,
-          pageSize: pagination.pageSize,
-          status: searchForm.status
-        })
+      const res = await getAppListApi({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        status: searchForm.status
+      })
+      if (res.code === 0) {
         appList.value = res.result.list
         pagination.total = res.result.total
-      } catch (error) {
-        ElMessage.error('加载应用列表失败')
-      } finally {
-        loading.value = false
       }
+      loading.value = false
     }
 
     // 搜索
@@ -332,7 +329,12 @@ export default defineComponent({
       dialogVisible.value = true
     }
 
-    // 查看应用
+    // 配置应用（跳转到详情页）
+    const handleConfig = (row: IAppInfo) => {
+      router.push(`/console/app/${row.appId}`)
+    }
+
+    // 查看应用详情（弹窗）
     const handleView = async (row: IAppInfo) => {
       try {
         const res = await getAppDetailApi({ appId: row.appId })
@@ -372,28 +374,29 @@ export default defineComponent({
         if (!valid) return
         
         submitLoading.value = true
-        try {
-          if (isEdit.value) {
-            await updateAppApi({
-              appId: formData.appId,
-              name: formData.name,
-              description: formData.description,
-              icon: formData.icon,
-              status: formData.status
-            })
+        if (isEdit.value) {
+          const res = await updateAppApi({
+            appId: formData.appId,
+            name: formData.name,
+            description: formData.description,
+            icon: formData.icon,
+            status: formData.status
+          })
+          if (res.code === 0) {
             ElMessage.success('更新成功')
-          } else {
-            const res = await createAppApi({
-              name: formData.name,
-              description: formData.description,
-              icon: formData.icon
-            })
+          }
+        } else {
+          const res = await createAppApi({
+            name: formData.name,
+            description: formData.description,
+            icon: formData.icon
+          })
+          if (res.code === 0) {
             ElMessage.success('创建成功')
             // 显示 AppSecret
             currentApp.value = {
               appId: res.result.appId,
               appSecret: res.result.appSecret,
-              botUserId: res.result.botUserId,
               name: formData.name,
               description: formData.description,
               icon: formData.icon,
@@ -402,13 +405,10 @@ export default defineComponent({
             }
             detailDialogVisible.value = true
           }
-          dialogVisible.value = false
-          loadAppList()
-        } catch (error) {
-          ElMessage.error(isEdit.value ? '更新失败' : '创庺失败')
-        } finally {
-          submitLoading.value = false
         }
+        dialogVisible.value = false
+        loadAppList()
+        submitLoading.value = false
       })
     }
 
@@ -454,6 +454,7 @@ export default defineComponent({
       handlePageChange,
       handleCreate,
       handleEdit,
+      handleConfig,
       handleView,
       handleDelete,
       handleSubmit,

@@ -1,14 +1,10 @@
-import type { Component } from "vue"
-import {
-  Grid,
-  House,
-  UserFilled
-} from "@element-plus/icons-vue"
+import HouseIcon from "@/assets/icons/house.svg"
+import GridIcon from "@/assets/icons/grid.svg"
 
 export interface MenuItem {
   path: string
   title: string
-  icon: Component
+  icon?: string // SVG 图标路径
   children?: MenuItem[]
 }
 
@@ -17,20 +13,13 @@ export const menuConfig: MenuItem[] = [
   {
     path: "/console/dashboard",
     title: "控制台",
-    icon: House
+    icon: HouseIcon
   },
 
   // 💼 我的应用（子菜单动态生成）
   {
     path: "/console/apps",
     title: "我的应用",
-    icon: Grid
-  },
-
-  // 👤 开发者申请（未认证时显示）
-  {
-    path: "/console/developer/apply",
-    title: "开发者申请",
-    icon: UserFilled
+    icon: GridIcon
   }
 ]
