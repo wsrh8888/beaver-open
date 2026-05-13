@@ -38,6 +38,9 @@ export interface IAppInfo {
   enableBot: number // 是否启用机器人能力
   enableOAuth: number // 是否启用OAuth能力
   enableWebhook: number // 是否启用Webhook能力
+  // 安全配置
+  ipWhitelist?: string // IP白名单(JSON数组)
+  webhookUrl?: string // Webhook回调地址
   createdAt: number
 }
 

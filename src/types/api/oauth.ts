@@ -3,6 +3,8 @@
 export interface IOAuthConfigInfo {
   appId: string
   redirectUris: string[]
+  ipWhitelist: string
+  h5TrustedDomains: string[]
   scopes: string[]
   customLogo: string
   customTitle: string
@@ -23,6 +25,8 @@ export interface IGetOAuthConfigRes {
 export interface IUpdateOAuthConfigReq {
   appId: string
   redirectUris?: string[]
+  ipWhitelist?: string
+  h5TrustedDomains?: string[]
   scopes?: string[]
   customLogo?: string
   customTitle?: string

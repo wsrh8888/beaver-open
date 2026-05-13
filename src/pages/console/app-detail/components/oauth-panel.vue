@@ -2,7 +2,7 @@
   <div class="oauth-panel">
     <el-card shadow="never">
       <el-form label-width="120px" class="config-form">
-        <el-form-item label="回调地址">
+        <el-form-item label="重定向 URL">
           <div v-for="(uri, index) in localConfig.redirectUris" :key="index" class="redirect-uri-item">
             <el-input 
               v-model="localConfig.redirectUris[index]" 
@@ -17,39 +17,39 @@
           </div>
           <el-button text type="primary" @click="addRedirectUri" style="margin-top: 8px">
             <img src="@/assets/icons/plus.svg" alt="" class="btn-icon" />
-            添加回调地址
+            添加重定向 URL
           </el-button>
-          <div class="form-tip">用户授权后跳转的地址,可以配置多个</div>
+          <div class="form-tip">授权回调地址，支持多个</div>
         </el-form-item>
 
-        <el-form-item label="自定义 Logo">
+        <el-form-item label="IP 白名单（可选）">
           <el-input 
-            v-model="localConfig.customLogo" 
-            placeholder="授权页面显示的 Logo URL"
+            v-model="localConfig.ipWhitelist" 
+            type="textarea"
+            :rows="3"
+            placeholder="192.168.1.1, 10.0.0.1"
           />
+          <div class="form-tip">限制服务端 API 调用的源 IP，留空不限制</div>
         </el-form-item>
 
-        <el-form-item label="自定义标题">
-          <el-input 
-            v-model="localConfig.customTitle" 
-            placeholder="授权页面显示的标题文字"
-          />
-        </el-form-item>
-
-        <el-form-item label="主题颜色">
-          <el-color-picker v-model="localConfig.customColor" />
-          <span class="color-value">{{ localConfig.customColor }}</span>
-        </el-form-item>
-
-        <el-form-item label="Token 有效期">
-          <el-input-number 
-            v-model="localConfig.tokenExpiration" 
-            :min="3600" 
-            :max="86400"
-            :step="3600"
-          />
-          <span class="unit-text">秒</span>
-          <div class="form-tip">Access Token 的有效时长,范围 1-24 小时</div>
+        <el-form-item label="H5 可信域名（可选）">
+          <div v-for="(domain, index) in localConfig.h5TrustedDomains" :key="index" class="redirect-uri-item">
+            <el-input 
+              v-model="localConfig.h5TrustedDomains[index]" 
+              placeholder="https://your-domain.com"
+            >
+              <template #append>
+                <el-button @click="removeH5Domain(index)" type="danger" text>
+                  <img src="@/assets/icons/delete.svg" alt="" class="btn-icon" />
+                </el-button>
+              </template>
+            </el-input>
+          </div>
+          <el-button text type="primary" @click="addH5Domain" style="margin-top: 8px">
+            <img src="@/assets/icons/plus.svg" alt="" class="btn-icon" />
+            添加 H5 可信域名
+          </el-button>
+          <div class="form-tip">嵌入 IM 客户端的 H5 应用需配置</div>
         </el-form-item>
 
         <el-form-item>
@@ -58,27 +58,6 @@
           </el-button>
         </el-form-item>
       </el-form>
-    </el-card>
-
-    <el-card shadow="never" class="code-example-card">
-      <template #header>
-        <div class="card-title">
-          <img src="@/assets/icons/code.svg" alt="" class="icon" />
-          <span>集成示例代码</span>
-        </div>
-      </template>
-
-      <el-tabs type="border-card">
-        <el-tab-pane label="JavaScript">
-          <pre class="code-block"><code>{{ jsCodeExample }}</code></pre>
-        </el-tab-pane>
-        <el-tab-pane label="Python">
-          <pre class="code-block"><code>{{ pythonCodeExample }}</code></pre>
-        </el-tab-pane>
-        <el-tab-pane label="Go">
-          <pre class="code-block"><code>{{ goCodeExample }}</code></pre>
-        </el-tab-pane>
-      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -90,10 +69,8 @@ import { getOAuthConfigApi, updateOAuthConfigApi } from '@/api/oauth'
 
 interface IOAuthConfig {
   redirectUris: string[]
-  customLogo: string
-  customTitle: string
-  customColor: string
-  tokenExpiration: number
+  ipWhitelist: string
+  h5TrustedDomains: string[]
 }
 
 export default defineComponent({
@@ -107,10 +84,8 @@ export default defineComponent({
   setup(props) {
     const localConfig = reactive<IOAuthConfig>({
       redirectUris: [],
-      customLogo: '',
-      customTitle: '',
-      customColor: '#FF7D45',
-      tokenExpiration: 7200
+      ipWhitelist: '',
+      h5TrustedDomains: []
     })
     const saving = ref(false)
     const loading = ref(false)
@@ -122,10 +97,8 @@ export default defineComponent({
       if (res.code === 0 && res.result?.config) {
         Object.assign(localConfig, {
           redirectUris: res.result.config.redirectUris || [],
-          customLogo: res.result.config.customLogo || '',
-          customTitle: res.result.config.customTitle || '',
-          customColor: res.result.config.customColor || '#FF7D45',
-          tokenExpiration: res.result.config.tokenExpiration || 7200
+          ipWhitelist: res.result.config.ipWhitelist || '',
+          h5TrustedDomains: res.result.config.h5TrustedDomains || []
         })
       }
       loading.value = false
@@ -139,15 +112,31 @@ export default defineComponent({
       localConfig.redirectUris.splice(index, 1)
     }
 
+    const addH5Domain = () => {
+      localConfig.h5TrustedDomains.push('')
+    }
+
+    const removeH5Domain = (index: number) => {
+      localConfig.h5TrustedDomains.splice(index, 1)
+    }
+
     const handleSave = async () => {
       if (localConfig.redirectUris.length === 0) {
-        ElMessage.warning('请至少添加一个回调地址')
+        ElMessage.warning('请至少添加一个重定向 URL')
         return
       }
       
       for (const uri of localConfig.redirectUris) {
-        if (!uri || !uri.startsWith('http')) {
-          ElMessage.warning('请输入有效的回调地址')
+        if (!uri) {
+          ElMessage.warning('请输入有效的重定向 URL')
+          return
+        }
+      }
+      
+      // 验证 H5 可信域名
+      for (const domain of localConfig.h5TrustedDomains) {
+        if (domain && !domain.startsWith('http')) {
+          ElMessage.warning('H5 可信域名必须以 http 或 https 开头')
           return
         }
       }
@@ -156,10 +145,8 @@ export default defineComponent({
       const res = await updateOAuthConfigApi({
         appId: props.appId,
         redirectUris: localConfig.redirectUris,
-        customLogo: localConfig.customLogo,
-        customTitle: localConfig.customTitle,
-        customColor: localConfig.customColor,
-        tokenExpiration: localConfig.tokenExpiration
+        ipWhitelist: localConfig.ipWhitelist,
+        h5TrustedDomains: localConfig.h5TrustedDomains
       })
       if (res.code === 0) {
         ElMessage.success('OAuth 配置保存成功')
@@ -172,131 +159,13 @@ export default defineComponent({
       loadOAuthConfig()
     })
 
-    const jsCodeExample = `// 1. 引导用户跳转到授权页面
-const authUrl = \`https://beaver.com/oauth/authorize?
-  client_id=\${appId}&
-  redirect_uri=\${encodeURIComponent(redirectUri)}&
-  response_type=code&
-  scope=openid,user_profile\`
-
-window.location.href = authUrl
-
-// 2. 在回调地址接收 code
-const urlParams = new URLSearchParams(window.location.search)
-const code = urlParams.get('code')
-
-// 3. 用 code 换取 access_token
-const response = await fetch('https://beaver.com/oauth/token', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    grant_type: 'authorization_code',
-    code: code,
-    client_id: appId,
-    client_secret: appSecret,
-    redirect_uri: redirectUri
-  })
-})
-
-const { access_token } = await response.json()
-
-// 4. 用 token 获取用户信息
-const userInfo = await fetch('https://beaver.com/oauth/userinfo', {
-  headers: { 'Authorization': \`Bearer \${access_token}\` }
-}).then(res => res.json())
-
-console.log('用户信息:', userInfo)`
-
-    const pythonCodeExample = `import requests
-
-# 1. 构建授权 URL
-auth_url = (
-    "https://beaver.com/oauth/authorize?"
-    f"client_id={app_id}&"
-    f"redirect_uri={redirect_uri}&"
-    "response_type=code&"
-    "scope=openid,user_profile"
-)
-
-# 2. 用户授权后,从回调获取 code
-# code = request.args.get('code')
-
-# 3. 用 code 换取 access_token
-response = requests.post(
-    "https://beaver.com/oauth/token",
-    json={
-        "grant_type": "authorization_code",
-        "code": code,
-        "client_id": app_id,
-        "client_secret": app_secret,
-        "redirect_uri": redirect_uri
-    }
-)
-access_token = response.json()["access_token"]
-
-# 4. 获取用户信息
-user_info = requests.get(
-    "https://beaver.com/oauth/userinfo",
-    headers={"Authorization": f"Bearer {access_token}"}
-).json()
-
-print("用户信息:", user_info)`
-
-    const goCodeExample = `package main
-
-import (
-    "encoding/json"
-    "fmt"
-    "net/http"
-)
-
-// 1. 构建授权 URL
-authURL := fmt.Sprintf(
-    "https://beaver.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=openid,user_profile",
-    appID, redirectURI,
-)
-
-// 2. 用户授权后,从回调获取 code
-// code := r.URL.Query().Get("code")
-
-// 3. 用 code 换取 access_token
-resp, _ := http.Post(
-    "https://beaver.com/oauth/token",
-    "application/json",
-    strings.NewReader(fmt.Sprintf(\`{
-        "grant_type": "authorization_code",
-        "code": "%s",
-        "client_id": "%s",
-        "client_secret": "%s",
-        "redirect_uri": "%s"
-    }\`, code, appID, appSecret, redirectURI)),
-)
-
-var tokenResp struct {
-    AccessToken string \`json:"access_token"\`
-}
-json.NewDecoder(resp.Body).Decode(&tokenResp)
-
-// 4. 获取用户信息
-req, _ := http.NewRequest("GET", "https://beaver.com/oauth/userinfo", nil)
-req.Header.Set("Authorization", "Bearer "+tokenResp.AccessToken)
-
-userResp, _ := http.DefaultClient.Do(req)
-var userInfo map[string]interface{}
-json.NewDecoder(userResp.Body).Decode(&userInfo)
-
-fmt.Println("用户信息:", userInfo)`
-
     return {
       localConfig,
       saving,
       loading,
       addRedirectUri,
       removeRedirectUri,
-      handleSave,
-      jsCodeExample,
-      pythonCodeExample,
-      goCodeExample
+      handleSave
     }
   }
 })
@@ -339,18 +208,6 @@ fmt.Println("用户信息:", userInfo)`
       &:last-child {
         margin-bottom: 0;
       }
-    }
-
-    .color-value {
-      margin-left: var(--spacing-sm);
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .unit-text {
-      margin-left: var(--spacing-sm);
-      font-size: 13px;
-      color: var(--text-secondary);
     }
 
     .btn-icon {
