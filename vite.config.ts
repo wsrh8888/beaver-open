@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
       }),
       Components({
         dts: "types/auto/components.d.ts",
-        resolvers: [ElementPlusResolver()]
+        resolvers: [ElementPlusResolver({ importStyle: "css" })]
       })
     ]
   }

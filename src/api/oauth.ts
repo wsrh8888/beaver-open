@@ -3,13 +3,12 @@ import { ajax } from "@/utils/request"
 import type {
   IGetOAuthConfigReq,
   IGetOAuthConfigRes,
-  IUpdateOAuthConfigReq,
-  IUpdateOAuthConfigRes
+  IUpdateOAuthConfigReq
 } from "@/types/api/oauth"
 
-// ==================== OAuth 配置 ====================
-
-// 获取 OAuth 配置
+/**
+ * 获取 OAuth 配置
+ */
 export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
   return ajax<IGetOAuthConfigRes>({
     method: "GET",
@@ -18,9 +17,11 @@ export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
   })
 }
 
-// 更新 OAuth 配置
+/**
+ * 更新 OAuth 配置
+ */
 export function updateOAuthConfigApi(data: IUpdateOAuthConfigReq) {
-  return ajax<IUpdateOAuthConfigRes>({
+  return ajax({
     method: "POST",
     url: `${config.baseAPI}/portal/open/v1/oauth/config_update`,
     data

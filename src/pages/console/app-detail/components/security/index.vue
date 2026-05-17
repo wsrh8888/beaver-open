@@ -36,43 +36,23 @@
     <el-card shadow="never" class="security-card">
       <template #header>
         <div class="card-title">
-          <img src="@/assets/icons/link.svg" alt="" class="icon" />
-          <span>OAuth 重定向 URL</span>
-        </div>
-      </template>
-
-      <el-form label-width="120px">
-        <el-form-item label="重定向 URL">
-          <div v-for="(url, index) in securityConfig.redirectUrls" :key="index" class="url-item">
-            <el-input 
-              v-model="securityConfig.redirectUrls[index]" 
-              placeholder="https://your-domain.com/callback"
-            >
-              <template #append>
-                <el-button @click="removeUrl(index)" type="danger" text>
-                  <img src="@/assets/icons/delete.svg" alt="" class="btn-icon" />
-                </el-button>
-              </template>
-            </el-input>
-          </div>
-          <el-button text type="primary" @click="addUrl" style="margin-top: 8px">
-            <img src="@/assets/icons/plus.svg" alt="" class="btn-icon" />
-            添加 URL
-          </el-button>
-          <div class="form-tip">
-            OAuth 授权后跳转的地址，必须与 OAuth 配置中的回调地址一致
-          </div>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
-    <el-card shadow="never" class="security-card">
-      <template #header>
-        <div class="card-title">
           <img src="@/assets/icons/globe.svg" alt="" class="icon" />
-          <span>H5 可信域名</span>
+          <span>H5 免登配置</span>
+          <el-tag size="small" type="success" style="margin-left: 8px">企业内部应用</el-tag>
         </div>
       </template>
+
+      <el-alert
+        title="H5 应用免登"
+        type="success"
+        :closable="false"
+        style="margin-bottom: 16px"
+      >
+        <template #default>
+          <p>当应用在 IM 客户端内以 H5 形式运行时，需配置可信域名以实现免登。</p>
+          <p style="margin-top: 4px"><strong>典型场景：</strong>企业内部 OA 系统、审批流应用。</p>
+        </template>
+      </el-alert>
 
       <el-form label-width="120px">
         <el-form-item label="可信域名">
@@ -83,7 +63,9 @@
             placeholder="每行一个域名，如：&#10;example.com&#10;sub.example.com"
           />
           <div class="form-tip">
-            用于嵌入网页应用的域名白名单，每行一个域名
+            H5 应用免登可信域名。用于在 IM 客户端内嵌的 H5 页面中实现免登。
+            <br/>对标飞书/钉钉的“企业内部应用免登”功能。
+            <br/>每行一个域名，如：example.com、sub.example.com
           </div>
         </el-form-item>
 
@@ -104,7 +86,6 @@ import { getSecurityConfigApi, updateSecurityConfigApi } from '@/api/security'
 
 interface ISecurityConfig {
   ipWhitelist: string[]
-  redirectUrls: string[]
   h5Domains: string
 }
 
@@ -119,7 +100,6 @@ export default defineComponent({
   setup(props) {
     const securityConfig = reactive<ISecurityConfig>({
       ipWhitelist: [],
-      redirectUrls: [],
       h5Domains: ''
     })
     const saving = ref(false)
@@ -132,8 +112,7 @@ export default defineComponent({
       if (res.code === 0 && res.result?.config) {
         const config = res.result.config
         securityConfig.ipWhitelist = config.ipWhitelist || []
-        securityConfig.redirectUrls = config.redirectUris || []
-        securityConfig.h5Domains = config.trustedDomains?.join(',') || ''
+        securityConfig.h5Domains = config.trustedDomains?.join('\n') || ''
       }
       loading.value = false
     }
@@ -144,14 +123,6 @@ export default defineComponent({
 
     const removeIp = (index: number) => {
       securityConfig.ipWhitelist.splice(index, 1)
-    }
-
-    const addUrl = () => {
-      securityConfig.redirectUrls.push('')
-    }
-
-    const removeUrl = (index: number) => {
-      securityConfig.redirectUrls.splice(index, 1)
     }
 
     // 保存安全设置
@@ -170,8 +141,7 @@ export default defineComponent({
       const res = await updateSecurityConfigApi({
         appId: props.appId,
         ipWhitelist: securityConfig.ipWhitelist.filter(ip => ip.trim()),
-        redirectUris: securityConfig.redirectUrls.filter(url => url.trim()),
-        trustedDomains: securityConfig.h5Domains.split(',').map(d => d.trim()).filter(d => d)
+        trustedDomains: securityConfig.h5Domains.split('\n').map(d => d.trim()).filter(d => d)
       })
       
       if (res.code === 0) {
@@ -206,8 +176,6 @@ export default defineComponent({
       loading,
       addIp,
       removeIp,
-      addUrl,
-      removeUrl,
       handleSave
     }
   }

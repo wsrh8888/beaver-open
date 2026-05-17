@@ -17,6 +17,9 @@ export interface IUpdateAppReq {
   description?: string
   icon?: string
   status?: number
+  scheme?: string // 客户端回调协议
+  logoUrl?: string // 授权页展示的应用LOGO
+  agentId?: string // 微应用ID(用于JSSDK鉴权)
 }
 
 export interface IUpdateAppRes {}
@@ -38,6 +41,10 @@ export interface IAppInfo {
   enableBot: number // 是否启用机器人能力
   enableOAuth: number // 是否启用OAuth能力
   enableWebhook: number // 是否启用Webhook能力
+  // 客户端配置（对标知音楼）
+  scheme?: string // 客户端回调协议
+  logoUrl?: string // 授权页展示的应用LOGO
+  agentId?: string // 微应用ID(用于JSSDK鉴权)
   // 安全配置
   ipWhitelist?: string // IP白名单(JSON数组)
   webhookUrl?: string // Webhook回调地址

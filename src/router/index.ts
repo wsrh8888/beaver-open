@@ -23,7 +23,7 @@ const router = createRouter({
         {
           path: "/console/dashboard",
           name: "ConsoleDashboard",
-          component: () => import("@/pages/console/dashboard/index.vue"),
+          component: () => import("@/pages/dashboard/index.vue"),
           meta: {
             title: '控制台',
             requiresAuth: true

@@ -64,15 +64,9 @@
             {{ formatTime(row.createdAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="380" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleView(row)">
-              查看详情
-            </el-button>
-            <el-button link type="primary" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button link type="success" @click="handleConfig(row)">
+            <el-button link type="primary" @click="handleConfig(row)">
               配置
             </el-button>
             <el-button link type="danger" @click="handleDelete(row)">
@@ -139,51 +133,6 @@
         </el-button>
       </template>
     </el-dialog>
-
-    <!-- 查看应用详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="应用详情"
-      width="700px"
-    >
-      <el-descriptions :column="1" border>
-        <el-descriptions-item label="AppID">
-          {{ currentApp?.appId }}
-          <el-button link type="primary" @click="copyToClipboard(currentApp?.appId)">
-            复制
-          </el-button>
-        </el-descriptions-item>
-        <el-descriptions-item label="AppSecret" v-if="currentApp?.appSecret">
-          {{ maskSecret(currentApp.appSecret) }}
-          <el-button link type="primary" @click="copyToClipboard(currentApp.appSecret)">
-            复制
-          </el-button>
-          <el-text type="warning" size="small" style="margin-left: 10px">
-            请妥善保管，仅在创建时显示
-          </el-text>
-        </el-descriptions-item>
-        <el-descriptions-item label="应用名称">
-          {{ currentApp?.name }}
-        </el-descriptions-item>
-        <el-descriptions-item label="描述">
-          {{ currentApp?.description || '-' }}
-        </el-descriptions-item>
-        <el-descriptions-item label="图标" v-if="currentApp?.icon">
-          <img :src="currentApp.icon" alt="应用图标" style="width: 50px; height: 50px;" />
-        </el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-tag :type="currentApp?.status === 1 ? 'success' : 'info'">
-            {{ currentApp?.status === 1 ? '启用' : '禁用' }}
-          </el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="创建时间">
-          {{ currentApp?.createdAt ? formatTime(currentApp.createdAt) : '-' }}
-        </el-descriptions-item>
-      </el-descriptions>
-      <template #footer>
-        <el-button @click="detailDialogVisible = false">关闭</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -244,32 +193,11 @@ export default defineComponent({
       ]
     }
 
-    // 详情对话框
-    const detailDialogVisible = ref(false)
-    const currentApp = ref<IAppInfo & { appSecret?: string } | null>(null)
-
     // 格式化时间
     const formatTime = (timestamp: number) => {
       if (!timestamp) return '-'
       const date = new Date(timestamp * 1000)
       return date.toLocaleString('zh-CN')
-    }
-
-    // 脱敏显示密钥
-    const maskSecret = (secret: string) => {
-      if (!secret) return ''
-      return secret.substring(0, 8) + '****' + secret.substring(secret.length - 8)
-    }
-
-    // 复制到剪贴板
-    const copyToClipboard = async (text?: string) => {
-      if (!text) return
-      try {
-        await navigator.clipboard.writeText(text)
-        ElMessage.success('复制成功')
-      } catch (err) {
-        ElMessage.error('复制失败')
-      }
     }
 
     // 加载应用列表
@@ -317,32 +245,9 @@ export default defineComponent({
       dialogVisible.value = true
     }
 
-    // 编辑应用
-    const handleEdit = (row: IAppInfo) => {
-      isEdit.value = true
-      dialogTitle.value = '编辑应用'
-      formData.appId = row.appId
-      formData.name = row.name
-      formData.description = row.description
-      formData.icon = row.icon || ''
-      formData.status = row.status
-      dialogVisible.value = true
-    }
-
     // 配置应用（跳转到详情页）
     const handleConfig = (row: IAppInfo) => {
       router.push(`/console/app/${row.appId}`)
-    }
-
-    // 查看应用详情（弹窗）
-    const handleView = async (row: IAppInfo) => {
-      try {
-        const res = await getAppDetailApi({ appId: row.appId })
-        currentApp.value = res.result.app
-        detailDialogVisible.value = true
-      } catch (error) {
-        ElMessage.error('获取应用详情失败')
-      }
     }
 
     // 删除应用
@@ -393,17 +298,6 @@ export default defineComponent({
           })
           if (res.code === 0) {
             ElMessage.success('创建成功')
-            // 显示 AppSecret
-            currentApp.value = {
-              appId: res.result.appId,
-              appSecret: res.result.appSecret,
-              name: formData.name,
-              description: formData.description,
-              icon: formData.icon,
-              status: 1,
-              createdAt: Math.floor(Date.now() / 1000)
-            }
-            detailDialogVisible.value = true
           }
         }
         dialogVisible.value = false
@@ -443,19 +337,13 @@ export default defineComponent({
       formRef,
       formData,
       formRules,
-      detailDialogVisible,
-      currentApp,
       formatTime,
-      maskSecret,
-      copyToClipboard,
       handleSearch,
       handleReset,
       handleSizeChange,
       handlePageChange,
       handleCreate,
-      handleEdit,
       handleConfig,
-      handleView,
       handleDelete,
       handleSubmit,
       handleDialogClose

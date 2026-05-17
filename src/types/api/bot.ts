@@ -41,3 +41,44 @@ export interface IUpdateBotConfigReq {
 }
 
 export interface IUpdateBotConfigRes {}
+
+// ==================== Incoming Webhook 管理 ====================
+
+export interface IIncomingWebhookInfo {
+  id: string
+  token: string
+  appId: string
+  groupId: string
+  botUserId: string
+  name: string
+  webhookUrl: string
+  status: number
+  createdAt: number
+}
+
+export interface ICreateIncomingWebhookReq {
+  appId: string
+  groupId: string
+  name?: string
+}
+
+export interface ICreateIncomingWebhookRes {
+  webhook: IIncomingWebhookInfo
+}
+
+export interface IListIncomingWebhooksReq {
+  appId: string
+  page?: number
+  pageSize?: number
+}
+
+export interface IListIncomingWebhooksRes {
+  total: number
+  list: IIncomingWebhookInfo[]
+}
+
+export interface IDeleteIncomingWebhookReq {
+  id: string
+}
+
+export interface IDeleteIncomingWebhookRes {}
