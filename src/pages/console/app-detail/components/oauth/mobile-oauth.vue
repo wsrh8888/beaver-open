@@ -73,9 +73,8 @@ export default defineComponent({
     const saving = ref(false)
 
     const loadConfig = async () => {
-      const res = await getOAuthConfigApi({ 
-        appId: props.appId,
-        oauthType: 'mobile'
+      const res = await getOAuthConfigApi({
+        appId: props.appId
       })
       if (res.code === 0 && res.result?.mobileConfig) {
         const config = res.result.mobileConfig

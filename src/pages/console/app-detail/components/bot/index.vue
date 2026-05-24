@@ -239,17 +239,17 @@ export default defineComponent({
       type: String,
       required: true
     },
-    enableBot: {
+    enableRobot: {
       type: Number,
       default: 0
     }
   },
-  emits: ['update:enableBot'],
+  emits: ['update:enableRobot'],
   setup(props, { emit }) {
     const activeTab = ref('basic')
     const isBotEnabled = computed({
-      get: () => props.enableBot === 1,
-      set: (val) => emit('update:enableBot', val ? 1 : 0)
+      get: () => props.enableRobot === 1,
+      set: (val) => emit('update:enableRobot', val ? 1 : 0)
     })
     const toggling = ref(false)
     const localConfig = reactive<IBotConfig>({
@@ -283,7 +283,7 @@ export default defineComponent({
         toggling.value = true
         const res = await toggleAppCapabilityApi({
           appId: props.appId,
-          capability: 'bot',
+          capability: 'robot',
           enable: enabled
         })
         if (res.code === 0) {

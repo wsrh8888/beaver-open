@@ -8,11 +8,11 @@
         </div>
       </el-form-item>
 
-      <el-form-item label="授权回调域名">
+      <el-form-item label="授权回调地址">
         <div v-for="(domain, index) in redirectDomains" :key="index" class="domain-item">
           <el-input 
             v-model="redirectDomains[index]" 
-            placeholder="example.com"
+            placeholder="https://example.com/callback"
           >
             <template #append>
               <el-button @click="removeDomain(index)" type="danger" text>
@@ -23,10 +23,10 @@
         </div>
         <el-button text type="primary" @click="addDomain" style="margin-top: 8px">
           <el-icon><Plus /></el-icon>
-          添加域名
+          添加回调地址
         </el-button>
         <div class="form-tip">
-          用户授权后跳转的域名，支持多个。如：example.com、oa.example.com
+          用户授权后跳转的完整 URL，支持多个。如：https://example.com/callback、http://localhost:3000/callback
         </div>
       </el-form-item>
 
@@ -62,10 +62,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Delete, Plus } from '@element-plus/icons-vue'
-import { getOAuthConfigApi, updateOAuthConfigApi } from '@/api/oauth'
+import { updateOAuthConfigApi } from '@/api/oauth'
+import type { IGetOAuthConfigRes } from '@/types/api/oauth'
 
 export default defineComponent({
   name: 'H5OAuth',
@@ -77,6 +78,10 @@ export default defineComponent({
     appId: {
       type: String,
       required: true
+    },
+    oauthConfig: {
+      type: Object as () => IGetOAuthConfigRes,
+      default: () => ({})
     }
   },
   setup(props) {
@@ -85,26 +90,19 @@ export default defineComponent({
     const jsSdkDomains = ref<string[]>([])
     const saving = ref(false)
 
-    const loadConfig = async () => {
-      const res = await getOAuthConfigApi({ 
-        appId: props.appId,
-        oauthType: 'h5'
-      })
-      if (res.code === 0 && res.result?.h5Config) {
-        const config = res.result.h5Config
-        enabled.value = config.enabled || false
-        // 从 redirectUris 提取域名
-        redirectDomains.value = (config.redirectUris || []).map((uri: string) => {
-          try {
-            return new URL(uri).hostname
-          } catch {
-            return uri
-          }
-        })
-        // JS-SDK 安全域名暂时使用相同的值
-        jsSdkDomains.value = [...redirectDomains.value]
-      }
-    }
+    // 监听父组件传来的配置
+    watch(
+      () => props.oauthConfig?.h5Config,
+      (config) => {
+        if (config) {
+          enabled.value = config.enabled || false
+          // 直接使用完整的 redirectUris
+          redirectDomains.value = config.redirectUris || []
+          jsSdkDomains.value = config.jsSdkDomains || []
+        }
+      },
+      { immediate: true }
+    )
 
     const addDomain = () => {
       redirectDomains.value.push('')
@@ -125,10 +123,8 @@ export default defineComponent({
     const handleSave = async () => {
       saving.value = true
 
-      // 将域名转换为完整的 URL（假设使用 https）
-      const redirectUris = redirectDomains.value
-        .filter(d => d.trim())
-        .map(d => `https://${d.trim()}`)
+      // 过滤空值，直接使用用户输入的完整 URL
+      const redirectUris = redirectDomains.value.filter(d => d.trim())
 
       const config = {
         enabled: enabled.value,
@@ -150,10 +146,6 @@ export default defineComponent({
 
       saving.value = false
     }
-
-    onMounted(() => {
-      loadConfig()
-    })
 
     return {
       enabled,

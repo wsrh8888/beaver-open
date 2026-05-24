@@ -1,25 +1,5 @@
 <template>
   <div class="desktop-oauth">
-    <!-- 集成指南 -->
-    <el-alert
-      title="集成指南"
-      type="info"
-      :closable="false"
-      style="margin-bottom: 20px;"
-    >
-      <template #default>
-        <p><strong>在您的 PC 客户端中嵌入以下 iframe：</strong></p>
-        <pre>&lt;iframe
-  width="100%"
-  height="100%"
-  frameborder="0"
-  src="{{ authPageUrl }}"
-&gt;&lt;/iframe&gt;</pre>
-        <p style="margin-top: 8px; color: #909399;">
-          用户扫码或快速登录后，会通过 Scheme 回调到您的客户端：<code>{{ customScheme || 'yourapp://...' }}?code=xxx</code>
-        </p>
-      </template>
-    </el-alert>
 
     <el-form label-width="140px">
       <el-form-item label="启用桌面端应用">
@@ -49,9 +29,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getOAuthConfigApi, updateOAuthConfigApi } from '@/api/oauth'
+import { updateOAuthConfigApi } from '@/api/oauth'
+import type { IGetOAuthConfigRes } from '@/types/api/oauth'
 
 export default defineComponent({
   name: 'DesktopOAuth',
@@ -59,6 +40,10 @@ export default defineComponent({
     appId: {
       type: String,
       required: true
+    },
+    oauthConfig: {
+      type: Object as () => IGetOAuthConfigRes,
+      default: () => ({})
     }
   },
   setup(props) {
@@ -67,18 +52,18 @@ export default defineComponent({
     const authPageUrl = ref('') // 授权页面 URL（从后端获取）
     const saving = ref(false)
 
-    const loadConfig = async () => {
-      const res = await getOAuthConfigApi({ 
-        appId: props.appId,
-        oauthType: 'desktop'
-      })
-      if (res.code === 0 && res.result?.desktopConfig) {
-        const config = res.result.desktopConfig
-        enabled.value = config.enabled || false
-        customScheme.value = config.customScheme || ''
-        authPageUrl.value = config.authPageUrl || '' // 直接使用后端生成的 URL
-      }
-    }
+    // 监听父组件传来的配置
+    watch(
+      () => props.oauthConfig?.desktopConfig,
+      (config) => {
+        if (config) {
+          enabled.value = config.enabled || false
+          customScheme.value = config.customScheme || ''
+          authPageUrl.value = config.authPageUrl || ''
+        }
+      },
+      { immediate: true }
+    )
 
     const handleSave = async () => {
       saving.value = true
@@ -102,10 +87,6 @@ export default defineComponent({
 
       saving.value = false
     }
-
-    onMounted(() => {
-      loadConfig()
-    })
 
     return {
       enabled,

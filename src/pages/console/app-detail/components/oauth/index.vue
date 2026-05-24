@@ -3,12 +3,12 @@
     <el-tabs v-model="activeTab" type="card">
       <!-- Tab 1: H5 应用 -->
       <el-tab-pane label="H5 应用" name="h5">
-        <H5OAuth :app-id="appId" />
+        <H5OAuth :app-id="appId" :oauth-config="oauthConfig" />
       </el-tab-pane>
 
       <!-- Tab 2: 桌面端应用 -->
       <el-tab-pane label="桌面端应用" name="desktop">
-        <DesktopOAuth :app-id="appId" />
+        <DesktopOAuth :app-id="appId" :oauth-config="oauthConfig" />
       </el-tab-pane>
 
     </el-tabs>
@@ -16,7 +16,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
+import { getOAuthConfigApi } from '@/api/oauth'
+import type { IGetOAuthConfigRes } from '@/types/api/oauth'
 import H5OAuth from './h5-oauth.vue'
 import DesktopOAuth from './desktop-oauth.vue'
 import MobileOAuth from './mobile-oauth.vue'
@@ -34,11 +36,27 @@ export default defineComponent({
       required: true
     }
   },
-  setup() {
+  setup(props) {
     const activeTab = ref('h5')
+    const oauthConfig = ref<IGetOAuthConfigRes>({})
+
+    // 一次性加载所有 OAuth 配置
+    const loadOAuthConfig = async () => {
+      const res = await getOAuthConfigApi({
+        appId: props.appId
+      })
+      if (res.code === 0 && res.result) {
+        oauthConfig.value = res.result
+      }
+    }
+
+    onMounted(() => {
+      loadOAuthConfig()
+    })
 
     return {
-      activeTab
+      activeTab,
+      oauthConfig
     }
   }
 })

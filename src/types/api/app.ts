@@ -38,7 +38,7 @@ export interface IAppInfo {
   appSecret: string // 应用密钥（掩码形式）
   status: number // 0=草稿，1=已发布，2=禁用
   // 能力开关（对标飞书）
-  enableBot: number // 是否启用机器人能力
+  enableRobot: number // 是否启用智能机器人能力
   enableOAuth: number // 是否启用OAuth能力
   enableWebhook: number // 是否启用Webhook能力
   // 客户端配置（对标知音楼）
@@ -47,7 +47,6 @@ export interface IAppInfo {
   agentId?: string // 微应用ID(用于JSSDK鉴权)
   // 安全配置
   ipWhitelist?: string // IP白名单(JSON数组)
-  webhookUrl?: string // Webhook回调地址
   createdAt: number
 }
 
@@ -98,7 +97,7 @@ export interface IPublishAppRes {
 
 export interface IToggleAppCapabilityReq {
   appId: string
-  capability: 'bot' | 'oauth' | 'webhook' // 能力类型
+  capability: 'robot' | 'oauth' | 'webhook' // 能力类型：robot/oauth/webhook
   enable: boolean // true=启用，false=禁用
 }
 

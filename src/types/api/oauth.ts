@@ -10,7 +10,6 @@ export interface IUpdateOAuthConfigRes {}
 
 export interface IGetOAuthConfigReq {
   appId: string
-  oauthType: 'h5' | 'desktop' | 'mobile'
 }
 
 export interface IH5OAuthConfig {
@@ -34,7 +33,7 @@ export interface IMobileOAuthConfig {
 }
 
 export interface IGetOAuthConfigRes {
-  oauthType: string
+  // 所有平台的 OAuth 配置（一次性返回）
   h5Config?: IH5OAuthConfig
   desktopConfig?: IDesktopOAuthConfig
   mobileConfig?: IMobileOAuthConfig

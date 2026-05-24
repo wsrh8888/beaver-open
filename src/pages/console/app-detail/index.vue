@@ -57,8 +57,8 @@
           
           <el-menu-item index="bot">
             <img src="@/assets/icons/chat.svg" alt="" class="menu-icon" />
-            <span>机器人</span>
-            <el-tag v-if="appEnableBot === 1" size="small" type="success" style="margin-left: auto">已启用</el-tag>
+            <span>智能机器人</span>
+            <el-tag v-if="appEnableRobot === 1" size="small" type="success" style="margin-left: auto">已启用</el-tag>
           </el-menu-item>
           
           <el-menu-item index="oauth">
@@ -90,7 +90,7 @@
       
       <!-- 右侧内容区 -->
       <el-main class="app-main">
-        <component :is="currentComponent" :app-id="appId" :app-status="appStatus" :enable-bot="appEnableBot" @update:enable-bot="appEnableBot = $event" />
+        <component :is="currentComponent" :app-id="appId" :app-status="appStatus" :enable-robot="appEnableRobot" @update:enable-robot="appEnableRobot = $event" />
       </el-main>
     </div>
   </div>
@@ -130,7 +130,7 @@ export default defineComponent({
     // 状态
     const activeMenu = ref('basic')
     const appStatus = ref<number>(0) // 0=草稿，1=已发布，2=禁用
-    const appEnableBot = ref<number>(0) // Bot 能力开关
+    const appEnableRobot = ref<number>(0) // Robot 能力开关
     const appInfo = ref<IAppInfo>({
       appId: '',
       name: '',
@@ -138,7 +138,7 @@ export default defineComponent({
       icon: '',
       appSecret: '',
       status: 0,
-      enableBot: 0,
+      enableRobot: 0,
       enableOAuth: 0,
       enableWebhook: 0,
       createdAt: 0
@@ -165,7 +165,7 @@ export default defineComponent({
       if (res.code === 0) {
         appInfo.value = res.result.app
         appStatus.value = res.result.app.status
-        appEnableBot.value = res.result.app.enableBot
+        appEnableRobot.value = res.result.app.enableRobot
       }
     }
 
@@ -201,7 +201,7 @@ export default defineComponent({
       appId,
       activeMenu,
       appStatus,
-      appEnableBot,
+      appEnableRobot,
       appInfo,
       currentComponent,
       handleMenuSelect,

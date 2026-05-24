@@ -1,193 +1,130 @@
-<script lang="ts">
-import type { FormRules } from "element-plus"
-import { Lock, User } from "@element-plus/icons-vue"
-import { MD5 } from "crypto-js"
-import { useUserStore } from "@/pinia/user/user"
-
-export default defineComponent({
-  setup() {
-    const router = useRouter()
-    const userStore = useUserStore()
-
-    // 表单引用
-    const loginFormRef = ref()
-
-    // 加载状态
-    const loading = ref(false)
-
-    // 表单数据
-    const loginForm = reactive({
-      username: "751135385@qq.com",  // 邮箱
-      password: "123456"
-    })
-
-    // 表单验证规则
-    const loginRules: FormRules = {
-      username: [
-        { required: true, message: "请输入邮箱", trigger: "blur" },
-        {
-          validator: (rule: any, value: string, callback: any) => {
-            // 验证邮箱格式
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-            
-            if (emailRegex.test(value)) {
-              callback()
-            } else {
-              callback(new Error("请输入正确的邮箱格式"))
-            }
-          },
-          trigger: "blur"
-        }
-      ],
-      password: [
-        { required: true, message: "请输入密码", trigger: "blur" },
-        { min: 6, max: 20, message: "密码长度为6-20位", trigger: "blur" }
-      ]
-    }
-
-    // 登录处理
-    const handleLogin = async () => {
-      try {
-        const valid = await loginFormRef.value?.validate()
-        if (!valid) {
-          ElMessage.error("请检查输入信息")
-          return
-        }
-
-        loading.value = true
-
-        // 使用 pinia store 登录
-        const result = await userStore.login({
-          username: loginForm.username,  // 邮箱
-          password: MD5(loginForm.password).toString()
-        })
-
-        if (result.success) {
-          ElMessage.success("登录成功")
-          router.push("/")
-        }
-      } catch (error: any) {
-        ElMessage.error(error.message || "登录失败")
-      } finally {
-        loading.value = false
-      }
-    }
-
-    onMounted(() => {})
-
-    return {
-      loginFormRef,
-      loading,
-      loginForm,
-      loginRules,
-      handleLogin,
-      User,
-      Lock
-    }
-  }
-})
-</script>
-
 <template>
   <div class="login-container">
-    <div class="login-card">
+    <div class="login-box">
       <div class="login-header">
-        <h2>Beaver IM 后台管理系统</h2>
-        <p>欢迎登录</p>
+        <h1>Beaver 开放平台</h1>
+        <p>使用 Beaver 账号登录</p>
       </div>
-
-      <el-form
-        ref="loginFormRef"
-        :model="loginForm"
-        :rules="loginRules"
-        @keyup.enter="handleLogin"
+      
+      <el-button 
+        type="primary" 
+        size="large" 
+        :loading="loading"
+        @click="handleOAuthLogin"
+        class="oauth-btn"
       >
-        <el-form-item prop="username">
-          <el-input
-            v-model.trim="loginForm.username"
-            placeholder="请输入邮箱"
-            :prefix-icon="User"
-            size="large"
-          />
-        </el-form-item>
-
-        <el-form-item prop="password">
-          <el-input
-            v-model.trim="loginForm.password"
-            type="password"
-            placeholder="请输入密码"
-            :prefix-icon="Lock"
-            size="large"
-            show-password
-          />
-        </el-form-item>
-
-        <el-form-item>
-          <el-button
-            :loading="loading"
-            type="primary"
-            size="large"
-            style="width: 100%"
-            @click="handleLogin"
-          >
-            登录
-          </el-button>
-        </el-form-item>
-      </el-form>
-
-      <div class="login-tips">
-        <p>默认手机号：15383645663</p>
-        <p>默认密码：123456</p>
+        <img src="@/assets/logo.png" alt="" class="logo-icon" />
+        使用 Beaver 账号登录
+      </el-button>
+      
+      <div class="login-tip">
+        登录后即可管理您的应用和 API
       </div>
     </div>
   </div>
 </template>
 
+<script lang="ts">
+import { defineComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import config from '@/config/env'
+
+export default defineComponent({
+  name: 'LoginPage',
+  setup() {
+    const router = useRouter()
+    const loading = ref(false)
+
+    // OAuth 配置
+    const OAUTH_CONFIG = {
+      // OAuth 授权服务地址（beaver-oauth）
+      authBaseUrl: import.meta.env.VITE_OAUTH_BASE_URL,
+      // 开放平台 App ID（需要在 beaver-oauth 中注册）
+      appId: import.meta.env.VITE_OPEN_APP_ID,
+      // 回调地址（当前应用的 redirect 页面）
+      redirectUri: `${window.location.origin}/#/redirect`,
+      // 权限范围
+      scope: 'user_info'
+    }
+
+    // 处理 OAuth 登录
+    const handleOAuthLogin = () => {
+      loading.value = true
+      
+      // 生成 state 用于 CSRF 防护
+      const state = Math.random().toString(36).substring(2, 15)
+      localStorage.setItem('oauth_state', state)
+      
+      // 构建授权 URL
+      const authUrl = new URL(`${OAUTH_CONFIG.authBaseUrl}/auth`)
+      authUrl.searchParams.set('appId', OAUTH_CONFIG.appId)
+      authUrl.searchParams.set('redirectUri', OAUTH_CONFIG.redirectUri)
+      authUrl.searchParams.set('state', state)
+      authUrl.searchParams.set('scope', OAUTH_CONFIG.scope)
+      
+      // 跳转到 OAuth 授权页面
+      window.location.href = authUrl.toString()
+    }
+
+    return {
+      loading,
+      handleOAuthLogin
+    }
+  }
+})
+</script>
+
 <style lang="less" scoped>
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.login-card {
-  width: 400px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.login-box {
+  width: 420px;
+  padding: 48px 40px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  text-align: center;
 }
 
 .login-header {
-  text-align: center;
-  margin-bottom: 30px;
-
-  h2 {
-    margin: 0 0 10px 0;
-    font-size: 24px;
-    color: #333;
-    font-weight: 500;
+  margin-bottom: 40px;
+  
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
   }
-
+  
   p {
-    margin: 0;
-    color: #666;
     font-size: 14px;
+    color: #666;
+    margin: 0;
   }
 }
 
-.login-tips {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  font-size: 12px;
-  color: #666;
-
-  p {
-    margin: 5px 0;
+.oauth-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  border-radius: 8px;
+  
+  .logo-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
   }
+}
+
+.login-tip {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #999;
 }
 </style>
