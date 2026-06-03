@@ -41,8 +41,8 @@ export default defineComponent({
       authBaseUrl: import.meta.env.VITE_OAUTH_BASE_URL,
       // 开放平台 App ID（需要在 beaver-oauth 中注册）
       appId: import.meta.env.VITE_OPEN_APP_ID,
-      // 回调地址（当前应用的 redirect 页面）
-      redirectUri: `${window.location.origin}/#/redirect`,
+      // 回调地址（hash 模式下 code 会落在 origin/?code=xxx 上）
+      redirectUri: window.location.origin + '/',
       // 权限范围
       scope: 'user_info'
     }

@@ -45,7 +45,7 @@ export type {
 export function createAppApi(data: ICreateAppReq) {
   return ajax<ICreateAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/create`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/create`,
     data
   })
 }
@@ -54,7 +54,7 @@ export function createAppApi(data: ICreateAppReq) {
 export function updateAppApi(data: IUpdateAppReq) {
   return ajax<IUpdateAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/update`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/update`,
     data
   })
 }
@@ -63,7 +63,7 @@ export function updateAppApi(data: IUpdateAppReq) {
 export function deleteAppApi(data: IDeleteAppReq) {
   return ajax<IDeleteAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/delete`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/delete`,
     data
   })
 }
@@ -72,7 +72,7 @@ export function deleteAppApi(data: IDeleteAppReq) {
 export function getAppDetailApi(params: IGetAppDetailReq) {
   return ajax<IGetAppDetailRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/app/detail`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/detail`,
     params
   })
 }
@@ -81,7 +81,7 @@ export function getAppDetailApi(params: IGetAppDetailReq) {
 export function getAppListApi(params: IGetAppListReq) {
   return ajax<IGetAppListRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/app/list`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/list`,
     params
   })
 }
@@ -90,7 +90,7 @@ export function getAppListApi(params: IGetAppListReq) {
 export function resetAppSecretApi(data: IResetAppSecretReq) {
   return ajax<IResetAppSecretRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/reset_secret`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/reset_secret`,
     data
   })
 }
@@ -99,7 +99,7 @@ export function resetAppSecretApi(data: IResetAppSecretReq) {
 export function publishAppApi(data: IPublishAppReq) {
   return ajax<IPublishAppRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/publish`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/publish`,
     data
   })
 }
@@ -108,7 +108,7 @@ export function publishAppApi(data: IPublishAppReq) {
 export function toggleAppCapabilityApi(data: IToggleAppCapabilityReq) {
   return ajax<IToggleAppCapabilityRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/capability/toggle`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/capability/toggle`,
     data
   })
 }

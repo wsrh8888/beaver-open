@@ -64,7 +64,7 @@ export interface IDeleteEventSubscriptionRes {}
 export function createEventSubscriptionApi(data: ICreateEventSubscriptionReq) {
   return ajax<ICreateEventSubscriptionRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/event/create`,
+    url: `${config.baseAPI}/api/open_portal/event/v1/create`,
     data
   })
 }
@@ -73,7 +73,7 @@ export function createEventSubscriptionApi(data: ICreateEventSubscriptionReq) {
 export function listEventSubscriptionsApi(params: IListEventSubscriptionsReq) {
   return ajax<IListEventSubscriptionsRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/event/list`,
+    url: `${config.baseAPI}/api/open_portal/event/v1/list`,
     params
   })
 }
@@ -82,7 +82,7 @@ export function listEventSubscriptionsApi(params: IListEventSubscriptionsReq) {
 export function updateEventSubscriptionApi(data: IUpdateEventSubscriptionReq) {
   return ajax<IUpdateEventSubscriptionRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/event/update`,
+    url: `${config.baseAPI}/api/open_portal/event/v1/update`,
     data
   })
 }
@@ -91,7 +91,7 @@ export function updateEventSubscriptionApi(data: IUpdateEventSubscriptionReq) {
 export function deleteEventSubscriptionApi(data: IDeleteEventSubscriptionReq) {
   return ajax<IDeleteEventSubscriptionRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/event/delete`,
+    url: `${config.baseAPI}/api/open_portal/event/v1/delete`,
     data
   })
 }

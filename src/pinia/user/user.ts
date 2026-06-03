@@ -1,6 +1,6 @@
 import type { IApiResponse, ILoginReq, ILoginRes } from "@/types/auth"
 import { defineStore } from "pinia"
-import { loginApi } from "@/api/auth"
+import { loginApi, oauthLoginApi } from "@/api/auth"
 
 export const useUserStore = defineStore("useUserStore", {
   state: () => ({
@@ -58,6 +58,27 @@ export const useUserStore = defineStore("useUserStore", {
         } else {
           throw new Error(response.msg || "登录失败")
         }
+      } catch (error: any) {
+        throw new Error(error.message || "登录失败")
+      }
+    },
+
+    // OAuth 授权码登录
+    async oauthLogin(data: { code: string }) {
+      try {
+        const response: IApiResponse<ILoginRes> = await oauthLoginApi(data)
+
+        if (response.code === 0) {
+          const { token, userId, nickName } = response.result
+
+          this.setToken(token)
+          this.setUserId(userId)
+          this.setNickName(nickName)
+
+          return { success: true, data: response.result }
+        }
+
+        throw new Error(response.msg || "登录失败")
       } catch (error: any) {
         throw new Error(error.message || "登录失败")
       }

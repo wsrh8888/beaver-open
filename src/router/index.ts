@@ -67,8 +67,13 @@ const router = createRouter({
       component: () => import("@/pages/login/index.vue")
     },
     {
-      path: "/redirect/:path(.*)",
+      path: "/redirect",
       name: "Redirect",
+      component: () => import("@/pages/redirect/index.vue")
+    },
+    {
+      path: "/redirect/:path(.*)",
+      name: "RedirectCatch",
       component: () => import("@/pages/redirect/index.vue")
     },
     {
@@ -87,8 +92,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
-  // 如果要访问登录页或公开页面，直接放行
-  if (to.path === "/login" || to.path === "/") {
+  // 公开页面、OAuth 回调页直接放行
+  if (to.path === "/login" || to.path === "/" || to.path.startsWith("/redirect")) {
     next()
     return
   }

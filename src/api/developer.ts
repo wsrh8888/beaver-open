@@ -16,7 +16,7 @@ export type {
 export function applyDeveloperApi(data: IApplyDeveloperReq) {
   return ajax<IApplyDeveloperRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/developer/apply`,
+    url: `${config.baseAPI}/api/open_portal/developer/v1/apply`,
     data
   })
 }

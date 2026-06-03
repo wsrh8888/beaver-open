@@ -17,7 +17,7 @@ import type {
 export function createVersionApi(data: ICreateVersionReq) {
   return ajax<ICreateVersionRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/version/create`,
+    url: `${config.baseAPI}/api/open_portal/version/v1/create`,
     data
   })
 }
@@ -26,7 +26,7 @@ export function createVersionApi(data: ICreateVersionReq) {
 export function getVersionListApi(params: IGetVersionListReq) {
   return ajax<IGetVersionListRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/version/list`,
+    url: `${config.baseAPI}/api/open_portal/version/v1/list`,
     params
   })
 }
@@ -35,7 +35,7 @@ export function getVersionListApi(params: IGetVersionListReq) {
 export function submitVersionReviewApi(data: ISubmitVersionReviewReq) {
   return ajax<ISubmitVersionReviewRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/version/submit_review`,
+    url: `${config.baseAPI}/api/open_portal/version/v1/submit_review`,
     data
   })
 }
@@ -44,7 +44,7 @@ export function submitVersionReviewApi(data: ISubmitVersionReviewReq) {
 export function publishVersionApi(data: IPublishVersionReq) {
   return ajax<IPublishVersionRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/version/publish`,
+    url: `${config.baseAPI}/api/open_portal/version/v1/publish`,
     data
   })
 }

@@ -21,7 +21,7 @@ export type {
 export function getAppScopesApi(params: IGetAppScopesReq) {
   return ajax<IGetAppScopesRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/app/scopes`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/scopes`,
     params
   })
 }
@@ -30,7 +30,7 @@ export function getAppScopesApi(params: IGetAppScopesReq) {
 export function updateAppScopesApi(data: IUpdateAppScopesReq) {
   return ajax<IUpdateAppScopesRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/app/scopes/update`,
+    url: `${config.baseAPI}/api/open_portal/app/v1/scopes/update`,
     data
   })
 }

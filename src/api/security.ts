@@ -13,7 +13,7 @@ import type {
 export function getSecurityConfigApi(params: IGetSecurityConfigReq) {
   return ajax<IGetSecurityConfigRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/security/config`,
+    url: `${config.baseAPI}/api/open_portal/security/v1/config`,
     params
   })
 }
@@ -22,7 +22,7 @@ export function getSecurityConfigApi(params: IGetSecurityConfigReq) {
 export function updateSecurityConfigApi(data: IUpdateSecurityConfigReq) {
   return ajax<IUpdateSecurityConfigRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/security/config_update`,
+    url: `${config.baseAPI}/api/open_portal/security/v1/config_update`,
     data
   })
 }

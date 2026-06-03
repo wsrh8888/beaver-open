@@ -19,7 +19,7 @@ import type {
 export function getBotConfigApi(params: IGetBotConfigReq) {
   return ajax<IGetBotConfigRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/bot/config`,
+    url: `${config.baseAPI}/api/open_portal/bot/v1/config`,
     params
   })
 }
@@ -28,7 +28,7 @@ export function getBotConfigApi(params: IGetBotConfigReq) {
 export function updateBotConfigApi(data: IUpdateBotConfigReq) {
   return ajax<IUpdateBotConfigRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/bot/config_update`,
+    url: `${config.baseAPI}/api/open_portal/bot/v1/config_update`,
     data
   })
 }
@@ -39,7 +39,7 @@ export function updateBotConfigApi(data: IUpdateBotConfigReq) {
 export function createIncomingWebhookApi(data: ICreateIncomingWebhookReq) {
   return ajax<ICreateIncomingWebhookRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/bot/incoming_create`,
+    url: `${config.baseAPI}/api/open_portal/bot/v1/incoming_create`,
     data
   })
 }
@@ -48,7 +48,7 @@ export function createIncomingWebhookApi(data: ICreateIncomingWebhookReq) {
 export function listIncomingWebhooksApi(params: IListIncomingWebhooksReq) {
   return ajax<IListIncomingWebhooksRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/bot/incoming_list`,
+    url: `${config.baseAPI}/api/open_portal/bot/v1/incoming_list`,
     params
   })
 }
@@ -57,7 +57,7 @@ export function listIncomingWebhooksApi(params: IListIncomingWebhooksReq) {
 export function deleteIncomingWebhookApi(data: IDeleteIncomingWebhookReq) {
   return ajax<IDeleteIncomingWebhookRes>({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/bot/incoming_delete`,
+    url: `${config.baseAPI}/api/open_portal/bot/v1/incoming_delete`,
     data
   })
 }

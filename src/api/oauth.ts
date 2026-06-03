@@ -12,7 +12,7 @@ import type {
 export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
   return ajax<IGetOAuthConfigRes>({
     method: "GET",
-    url: `${config.baseAPI}/portal/open/v1/oauth/config`,
+    url: `${config.baseAPI}/api/open_portal/oauth/v1/config`,
     params
   })
 }
@@ -23,7 +23,7 @@ export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
 export function updateOAuthConfigApi(data: IUpdateOAuthConfigReq) {
   return ajax({
     method: "POST",
-    url: `${config.baseAPI}/portal/open/v1/oauth/config_update`,
+    url: `${config.baseAPI}/api/open_portal/oauth/v1/config_update`,
     data
   })
 }
