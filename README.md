@@ -1,118 +1,111 @@
-# Beaver Open Platform - 海狸开放平台
+# 🦫 Beaver Open - 海狸开放平台
 
-Beaver Open Platform 是 Beaver IM 的开放平台，为第三方开发者提供 API 接入、应用管理、Webhook 配置等功能。
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.1-blue.svg)](VERSION)
+[![Vue](https://img.shields.io/badge/Vue-3.x-brightgreen.svg)](https://vuejs.org/)
+[![Element Plus](https://img.shields.io/badge/Element%20Plus-2.x-blue.svg)](https://element-plus.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![QQ群](https://img.shields.io/badge/QQ群-1013328597-blue.svg)](https://qm.qq.com/q/82rbf7QBzO)
 
-## 项目架构
+> 🚀 **海狸 IM 开放平台门户** - 基于 Vue 3 + Element Plus + TypeScript 构建，为第三方开发者提供应用管理、API 接入与 Webhook 配置
 
-```
-beaver-open/
-├── src/
-│   ├── api/              # API 接口定义
-│   ├── assets/           # 静态资源
-│   ├── components/       # 公共组件
-│   ├── config/           # 配置文件
-│   ├── layouts/          # 布局组件
-│   ├── pages/            # 页面组件
-│   │   ├── console/      # 控制台页面
-│   │   │   ├── dashboard/    # 控制台首页
-│   │   │   ├── apps/         # 应用管理
-│   │   │   ├── app-detail/   # 应用详情
-│   │   │   ├── stats/        # 数据统计
-│   │   │   └── webhooks/     # Webhook 管理
-│   │   ├── docs/         # API 文档
-│   │   └── sdk/          # SDK 下载
-│   ├── pinia/            # 状态管理
-│   ├── router/           # 路由配置
-│   ├── types/            # TypeScript 类型定义
-│   └── utils/            # 工具函数
-├── public/               # 公共资源
-└── types/                # 类型声明文件
-```
+**当前版本：[2.0.1](VERSION)**（以仓库根目录 [`VERSION`](VERSION) 文件为准，与 `package.json` 同步）
 
-## 技术栈
+[English](README_EN.md) | [中文](README.md)
 
-- **前端框架**: Vue 3 + TypeScript
-- **UI 组件库**: Element Plus
-- **构建工具**: Vite
-- **状态管理**: Pinia
-- **路由管理**: Vue Router
-- **HTTP 客户端**: Axios
+---
 
-## 开发指南
+## ✨ 核心特性
 
-### 安装依赖
+- 🧩 **应用管理** - 创建应用、管理 AppID / AppSecret、应用状态控制
+- 📊 **数据统计** - API 调用与 Webhook 推送统计
+- 🔔 **Webhook 管理** - 事件订阅与推送日志查看
+- 📖 **API 文档** - 开放平台接口说明
+- 📦 **SDK 下载** - 多语言 SDK 获取入口
+- 🎨 **现代化 UI** - 面向开发者的开放平台门户体验
 
+## 🛠️ 技术栈
+
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| **Vue.js** | 3.5+ | 渐进式前端框架 |
+| **TypeScript** | 5.8+ | 类型安全 |
+| **Element Plus** | 2.10+ | Vue 3 组件库 |
+| **Vite** | 7.0+ | 下一代前端构建工具 |
+| **Pinia** | 3.0+ | Vue 状态管理 |
+| **Vue Router** | 4.5+ | 官方路由管理器 |
+| **Axios** | 1.10+ | HTTP 客户端 |
+
+## 🚀 快速开始
+
+### 环境要求
+- Node.js >= 18.0.0
+
+### 安装步骤
 ```bash
+# 克隆项目
+git clone https://github.com/wsrh8888/beaver-open.git
+cd beaver-open
+
+# 安装依赖
 npm install
-```
 
-### 启动开发服务器
-
-```bash
+# 启动开发服务器
 npm run dev
+
+# 构建生产版本
+npm run build_prod
+
+# 测试环境构建
+npm run build_test
 ```
 
-访问 http://localhost:3334
+### 环境配置
+1. 创建 `.env.development` 文件（开发环境）
+2. 创建 `.env.test` 文件（测试环境）
+3. 创建 `.env.production` 文件（生产环境）
 
-### 构建生产版本
+## 🔗 相关项目
 
-```bash
-npm run build
-```
+| 项目 | 仓库地址 | 说明 |
+|------|----------|------|
+| **beaver-server** | [GitHub](https://github.com/wsrh8888/beaver-server) \| [Gitee](https://gitee.com/dawwdadfrf/beaver-server) | 后端服务 |
+| **beaver-open** | [GitHub](https://github.com/wsrh8888/beaver-open) | 开放平台门户 |
+| **beaver-oauth** | [GitHub](https://github.com/wsrh8888/beaver-oauth) | OAuth 授权登录页 |
+| **beaver-desktop** | [GitHub](https://github.com/wsrh8888/beaver-desktop) \| [Gitee](https://gitee.com/dawwdadfrf/beaver-desktop) | 桌面端应用 |
+| **beaver-manager** | [GitHub](https://github.com/wsrh8888/beaver-manager) | 后台管理系统 |
 
-## 功能模块
+## 📚 文档与帮助
 
-### 1. 控制台 (Console)
+- 📖 **详细文档**: [Beaver IM 文档](https://wsrh8888.github.io/beaver-docs/)
+- 🎥 **视频教程**: [B站教程](https://www.bilibili.com/video/BV1HrrKYeEB4/)
+- 💬 **QQ群**: [1013328597](https://qm.qq.com/q/82rbf7QBzO)
 
-- **控制台首页**: 展示应用统计、API 调用趋势等概览信息
-- **应用管理**: 创建、编辑、删除应用，管理 AppID 和 AppSecret
-- **应用详情**: 查看应用详细信息，配置 Webhook
-- **数据统计**: API 调用统计、Webhook 推送统计
-- **Webhook 管理**: 配置和管理 Webhook 事件订阅
+## 🤝 贡献指南
 
-### 2. API 文档 (Docs)
+我们欢迎所有形式的贡献！
 
-提供完整的 API 接口文档，包括：
-- 认证授权
-- 消息发送
-- 用户管理
-- 群组管理
-- Bot 功能
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
-### 3. SDK 下载 (SDK)
+## ⭐ 支持项目
 
-提供多语言 SDK 下载：
-- JavaScript/TypeScript
-- Python
-- Java
-- Go
-- PHP
+如果这个项目对你有帮助，请给我们一个 ⭐ Star！
 
-## 与 beaver-manager 的区别
+## 📄 开源协议
 
-| 特性 | beaver-manager | beaver-open |
-|------|----------------|-------------|
-| 用户群体 | 平台管理员 | 第三方开发者 |
-| 主要功能 | 系统管理、用户管理、内容审核 | 应用管理、API 接入、数据统计 |
-| 访问权限 | 内部管理员 | 注册开发者 |
-| 界面风格 | 后台管理系统 | 开放平台门户 |
+本项目基于 [MIT](LICENSE) 协议开源。
 
-## 后端接口
+## ⭐ Star历史
 
-开放平台使用的后端接口位于 `beaver-server/app/open`：
+[![Star History Chart](https://api.star-history.com/svg?repos=wsrh8888/beaver-open&type=Date)](https://star-history.com/#wsrh8888/beaver-open&Date)
 
-- **open_api**: 面向开发者的 API 接口（获取 Token、发送消息等）
-- **open_admin**: 开放平台管理接口（应用管理、Webhook 配置等）
+---
 
-## 大厂对标
-
-本开放平台参考了以下大厂的开放平台设计：
-
-- **微信开放平台**: 应用管理、权限控制、Webhook 机制
-- **支付宝开放平台**: API 文档、SDK 下载、沙箱环境
-- **钉钉开放平台**: 企业内部应用、第三方应用
-- **飞书开放平台**: 事件订阅、消息卡片、机器人
-
-## 许可证
-
-MIT License
+<div align="center">
+  <strong>Made with ❤️ by Beaver IM Team</strong><br>
+  <em>企业级即时通讯平台开放平台</em>
+</div>
