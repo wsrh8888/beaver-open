@@ -1,157 +1,146 @@
-<script lang="ts">
-export default defineComponent({
-  setup() {
-    const username = localStorage.getItem("username") || "管理员"
-
-    const stats = ref([
-      { title: "今日访问", value: "1,234", color: "#409eff" },
-      { title: "用户总数", value: "5,678", color: "#67c23a" },
-      { title: "订单总数", value: "9,012", color: "#e6a23c" },
-      { title: "营业额", value: "¥12,345", color: "#f56c6c" }
-    ])
-
-    onMounted(() => {})
-
-    return {
-      username,
-      stats
-    }
-  }
-})
-</script>
-
 <template>
-  <div class="dashboard">
-    <!-- 欢迎区域 -->
-    <div class="welcome-section">
-      <h1>欢迎回来，{{ username }}！</h1>
-      <p>今天是 {{ new Date().toLocaleDateString() }}，祝您工作愉快！</p>
-    </div>
-
-    <!-- 统计卡片 -->
-    <div class="stats-grid">
-      <div
-        v-for="stat in stats"
-        :key="stat.title"
-        class="stat-card"
-        :style="{ borderTopColor: stat.color }"
-      >
-        <div class="stat-icon" :style="{ backgroundColor: stat.color }">
-          📊
+  <div class="dashboard-container">
+    <div class="welcome-card">
+      <h1>欢迎使用 Beaver 开放平台</h1>
+      <p class="subtitle">快速构建企业级应用</p>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <img src="@/assets/icons/app.svg" alt="" />
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">0</div>
+            <div class="stat-label">我的应用</div>
+          </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ stat.value }}</h3>
-          <p>{{ stat.title }}</p>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <img src="@/assets/icons/chat.svg" alt="" />
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">0</div>
+            <div class="stat-label">机器人</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <img src="@/assets/icons/key.svg" alt="" />
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">0</div>
+            <div class="stat-label">OAuth 应用</div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- 快速操作 -->
-    <div class="quick-actions">
-      <h2>快速操作</h2>
-      <div class="actions-grid">
-        <el-button type="primary" size="large">
-          用户管理
+      
+      <div class="quick-actions">
+        <el-button type="primary" size="large" @click="$router.push('/console/apps')">
+          <img src="@/assets/icons/plus.svg" alt="" class="btn-icon" />
+          创建应用
         </el-button>
-        <el-button type="success" size="large">
-          数据统计
-        </el-button>
-        <el-button type="warning" size="large">
-          系统设置
-        </el-button>
-        <el-button type="info" size="large">
-          帮助文档
+        <el-button size="large" @click="$router.push('/developer/apply')">
+          开发者认证
         </el-button>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="less" scoped>
-.dashboard {
-  padding: 20px;
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'Dashboard'
+})
+</script>
+
+<style scoped lang="less">
+.dashboard-container {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.welcome-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
+.welcome-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  
   h1 {
-    margin: 0 0 10px 0;
-    font-size: 24px;
-    color: #333;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 8px;
   }
-
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
+  
+  .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0 0 40px;
   }
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
 }
 
 .stat-card {
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  border-top: 4px solid #409eff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-
+  gap: 16px;
+  padding: 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  
   .stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    margin-right: 15px;
-    color: #fff;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+    
+    img {
+      width: 24px;
+      height: 24px;
+    }
   }
-
-  .stat-content {
-    h3 {
-      margin: 0 0 5px 0;
-      font-size: 28px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    p {
-      margin: 0;
-      color: #666;
-      font-size: 14px;
-    }
+  
+  .stat-info {
+    flex: 1;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  
+  .stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
   }
 }
 
 .quick-actions {
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-  h2 {
-    margin: 0 0 20px 0;
-    font-size: 18px;
-    color: #333;
-  }
-
-  .actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+  display: flex;
+  gap: 16px;
+  
+  .btn-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
   }
 }
 </style>

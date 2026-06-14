@@ -1,4 +1,4 @@
-import type { IGetUserInfoRes, ILoginReq, ILoginRes } from "@/types/auth"
+import type { ILoginReq, ILoginRes } from "@/types/auth"
 import config from "@/config/env"
 import { ajax } from "@/utils/request"
 
@@ -6,15 +6,16 @@ import { ajax } from "@/utils/request"
 export const loginApi = (data: ILoginReq) =>{
   return ajax<ILoginRes>({
     method: "POST",
-    url: `${config.baseAPI}/admin/auth/login`,
+    url: `${config.baseAPI}/api/open_portal/auth_public/v1/login`,
     data
   })
 }
 
-// 用户认证/获取用户信息
-export function getUserInfoApi() {
-  return ajax<IGetUserInfoRes>({
-    method: "GET",
-    url: `${config.baseAPI}/admin/auth/authentication`
+// OAuth 授权码登录（code 由服务端换 token，appSecret 不下发前端）
+export const oauthLoginApi = (data: { code: string }) => {
+  return ajax<ILoginRes>({
+    method: "POST",
+    url: `${config.baseAPI}/api/open_portal/auth_public/v1/oauth_login`,
+    data
   })
 }

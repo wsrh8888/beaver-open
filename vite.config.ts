@@ -17,8 +17,6 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: true,
-      port: 3334,
-      open: true
     },
     // 为了在渲染中使用环境变量
     define: {
@@ -33,7 +31,7 @@ export default defineConfig(({ mode }) => {
       }),
       Components({
         dts: "types/auto/components.d.ts",
-        resolvers: [ElementPlusResolver()]
+        resolvers: [ElementPlusResolver({ importStyle: "css" })]
       })
     ]
   }

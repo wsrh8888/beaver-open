@@ -4,8 +4,18 @@ import { useUserStore } from "@/pinia/user/user"
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    // 公开页面 (不需要登录)
     {
       path: "/",
+      name: "Home",
+      component: () => import("@/pages/home/index.vue"),
+      meta: {
+        title: 'Beaver 开放平台'
+      }
+    },
+    // 控制台 (需要登录)
+    {
+      path: "/console",
       component: () => import("@/layouts/index.vue"),
       redirect: "/console/dashboard",
       children: [
@@ -13,7 +23,7 @@ const router = createRouter({
         {
           path: "/console/dashboard",
           name: "ConsoleDashboard",
-          component: () => import("@/pages/console/dashboard/index.vue"),
+          component: () => import("@/pages/dashboard/index.vue"),
           meta: {
             title: '控制台',
             requiresAuth: true
@@ -39,44 +49,16 @@ const router = createRouter({
             requiresAuth: true
           }
         },
-        // 数据统计
+        // 开发者申请
         {
-          path: "/console/stats",
-          name: "ConsoleStats",
-          component: () => import("@/pages/console/stats/index.vue"),
+          path: "/developer/apply",
+          name: "DeveloperApply",
+          component: () => import("@/pages/developer-apply/index.vue"),
           meta: {
-            title: '数据统计',
+            title: '开发者申请',
             requiresAuth: true
           }
-        },
-        // Webhook 配置
-        {
-          path: "/console/webhooks",
-          name: "ConsoleWebhooks",
-          component: () => import("@/pages/console/webhooks/index.vue"),
-          meta: {
-            title: 'Webhook 管理',
-            requiresAuth: true
-          }
-        },
-        // API 文档
-        {
-          path: "/docs",
-          name: "ApiDocs",
-          component: () => import("@/pages/docs/index.vue"),
-          meta: {
-            title: 'API 文档'
-          }
-        },
-        // SDK 下载
-        {
-          path: "/sdk",
-          name: "SdkDownload",
-          component: () => import("@/pages/sdk/index.vue"),
-          meta: {
-            title: 'SDK 下载'
-          }
-        },
+        }
       ]
     },
     {
@@ -85,8 +67,13 @@ const router = createRouter({
       component: () => import("@/pages/login/index.vue")
     },
     {
-      path: "/redirect/:path(.*)",
+      path: "/redirect",
       name: "Redirect",
+      component: () => import("@/pages/redirect/index.vue")
+    },
+    {
+      path: "/redirect/:path(.*)",
+      name: "RedirectCatch",
       component: () => import("@/pages/redirect/index.vue")
     },
     {
@@ -105,8 +92,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
 
-  // 如果要访问登录页，直接放行
-  if (to.path === "/login") {
+  // 公开页面、OAuth 回调页直接放行
+  if (to.path === "/login" || to.path === "/" || to.path.startsWith("/redirect")) {
     next()
     return
   }

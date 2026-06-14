@@ -1,11 +1,21 @@
 <script lang="ts">
+import { defineComponent, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { parseOAuthCallbackParams } from '@/utils/oauthCallback'
+import { handleOAuthCallback } from '@/utils/handleOAuthCallback'
+
 export default defineComponent({
+  name: 'OAuthRedirect',
   setup() {
-    const route = useRoute()
     const router = useRouter()
 
-    onMounted(() => {
-      router.replace({ path: `/${route.params.path}`, query: route.query })
+    onMounted(async () => {
+      const params = parseOAuthCallbackParams()
+      if (params.code || params.error) {
+        await handleOAuthCallback(params, router)
+      } else {
+        router.replace('/')
+      }
     })
 
     return {}
@@ -15,9 +25,7 @@ export default defineComponent({
 
 <template>
   <div class="redirect-page">
-    <div class="loading">
-      <el-loading-text>页面跳转中...</el-loading-text>
-    </div>
+    <div class="loading">登录处理中...</div>
   </div>
 </template>
 
@@ -27,10 +35,9 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-}
 
-.loading {
-  text-align: center;
-  color: #666;
+  .loading {
+    color: #666;
+  }
 }
 </style>

@@ -1,34 +1,3 @@
-<script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue"
-import { useRoute, useRouter } from "vue-router"
-import { menuConfig } from "../../../config/menu"
-
-export default defineComponent({
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-
-    // 使用外部菜单配置
-    const menuItems = ref(menuConfig)
-
-    // 当前激活的菜单
-    const activeMenu = computed(() => route.path)
-
-    // 处理菜单点击
-    const handleMenuClick = (path: string) => {
-      router.push(path)
-    }
-
-    onMounted(() => {})
-
-    return {
-      menuItems,
-      activeMenu,
-      handleMenuClick
-    }
-  }
-})
-</script>
 
 <template>
   <div class="sidebar">
@@ -51,36 +20,13 @@ export default defineComponent({
         text-color="#bfcbd9"
         active-text-color="#fff"
       >
-        <template v-for="item in menuItems">
-          <!-- 有子菜单 -->
-          <el-sub-menu
-            v-if="item.children && item.children.length > 0"
-            :key="`menu-${item.path}`"
-            :index="item.path"
-          >
-            <template #title>
-              <el-icon><component :is="item.icon" /></el-icon>
-              <span>{{ item.title }}</span>
-            </template>
-            <el-menu-item
-              v-for="child in item.children"
-              :key="`child-${child.path}`"
-              :index="child.path"
-              @click="handleMenuClick(child.path)"
-            >
-              <el-icon><component :is="child.icon" /></el-icon>
-              <span>{{ child.title }}</span>
-            </el-menu-item>
-          </el-sub-menu>
-
-          <!-- 无子菜单 -->
+        <template v-for="item in menuItems" :key="`menu-${item.path}`">
+          <!-- 菜单项 -->
           <el-menu-item
-            v-else
-            :key="`single-${item.path}`"
             :index="item.path"
             @click="handleMenuClick(item.path)"
           >
-            <el-icon><component :is="item.icon" /></el-icon>
+            <img v-if="item.icon" :src="item.icon" alt="" class="menu-icon-img" />
             <span>{{ item.title }}</span>
           </el-menu-item>
         </template>
@@ -88,6 +34,39 @@ export default defineComponent({
     </el-scrollbar>
   </div>
 </template>
+
+<script lang="ts">
+import { computed, defineComponent, onMounted, ref } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { menuConfig, type MenuItem } from "../../../config/menu"
+export default defineComponent({
+  setup() {
+    const route = useRoute()
+    const router = useRouter()
+
+    // 菜单数据
+
+    // 当前激活的菜单
+    const activeMenu = computed(() => route.path)
+
+    // 处理菜单点击
+    const handleMenuClick = (path: string) => {
+      router.push(path)
+    }
+
+
+
+    onMounted(() => {
+    })
+
+    return {
+      activeMenu,
+      handleMenuClick,
+      menuItems: menuConfig
+    }
+  }
+})
+</script>
 
 <style lang="less" scoped>
 .sidebar {
@@ -146,10 +125,11 @@ export default defineComponent({
   border: none;
   width: 100%;
 
-  .el-icon {
+  .menu-icon-img {
     margin-right: 8px;
     width: 16px;
     height: 16px;
+    filter: brightness(0) invert(1);
   }
 
   .el-menu-item,
@@ -175,20 +155,6 @@ export default defineComponent({
       width: 4px;
       height: 100%;
       background-color: #fff;
-    }
-
-    .el-icon {
-      color: #fff !important;
-    }
-  }
-
-  // 子菜单项的选中状态
-  .el-sub-menu .el-menu-item.is-active {
-    background-color: #409eff !important;
-    color: #fff !important;
-
-    .el-icon {
-      color: #fff !important;
     }
   }
 }
