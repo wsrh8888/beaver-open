@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: true,
+      // 端口
+      port: 4012,
     },
     // 为了在渲染中使用环境变量
     define: {

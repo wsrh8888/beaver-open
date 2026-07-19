@@ -50,18 +50,13 @@ export default defineComponent({
     // 处理 OAuth 登录
     const handleOAuthLogin = () => {
       loading.value = true
-      
-      // 生成 state 用于 CSRF 防护
-      const state = Math.random().toString(36).substring(2, 15)
-      localStorage.setItem('oauth_state', state)
-      
+
       // 构建授权 URL
       const authUrl = new URL(`${OAUTH_CONFIG.authBaseUrl}/auth`)
       authUrl.searchParams.set('appId', OAUTH_CONFIG.appId)
       authUrl.searchParams.set('redirectUri', OAUTH_CONFIG.redirectUri)
-      authUrl.searchParams.set('state', state)
       authUrl.searchParams.set('scope', OAUTH_CONFIG.scope)
-      
+
       // 跳转到 OAuth 授权页面
       window.location.href = authUrl.toString()
     }
