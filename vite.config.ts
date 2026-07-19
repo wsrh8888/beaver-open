@@ -10,6 +10,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "")
 
   return {
+    // 相对路径，便于任意子目录 / 静态托管部署
+    base: "./",
     resolve: {
       alias: {
         "@": resolve(__dirname, "src")
@@ -17,6 +19,8 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: true,
+      // 端口
+      port: 4012,
     },
     // 为了在渲染中使用环境变量
     define: {

@@ -1,6 +1,5 @@
 export interface IOAuthCallbackParams {
   code: string | null
-  state: string | null
   error: string | null
 }
 
@@ -9,7 +8,6 @@ export function parseOAuthCallbackParams(): IOAuthCallbackParams {
   const searchParams = new URLSearchParams(window.location.search)
   return {
     code: searchParams.get('code'),
-    state: searchParams.get('state'),
     error: searchParams.get('error'),
   }
 }

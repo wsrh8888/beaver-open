@@ -18,17 +18,6 @@ export async function handleOAuthCallback(params: IOAuthCallbackParams, router: 
     return
   }
 
-  const savedState = localStorage.getItem('oauth_state')
-  if (!params.state || params.state !== savedState) {
-    ElMessage.error('授权验证失败，请重新登录')
-    localStorage.removeItem('oauth_state')
-    clearOAuthCallbackParams()
-    router.replace('/login')
-    return
-  }
-
-  localStorage.removeItem('oauth_state')
-
   try {
     const result = await userStore.oauthLogin({ code: params.code })
     clearOAuthCallbackParams()
@@ -37,7 +26,8 @@ export async function handleOAuthCallback(params: IOAuthCallbackParams, router: 
       ElMessage.success('登录成功')
       router.replace('/console/dashboard')
     }
-  } catch (error: any) {
+  }
+  catch (error: any) {
     clearOAuthCallbackParams()
     ElMessage.error(error.message || '登录失败')
     router.replace('/login')
