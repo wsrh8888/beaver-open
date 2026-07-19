@@ -26,38 +26,21 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import config from '@/config/env'
 
 export default defineComponent({
   name: 'LoginPage',
   setup() {
-    const router = useRouter()
     const loading = ref(false)
 
-    // OAuth 配置
-    const OAUTH_CONFIG = {
-      // OAuth 授权服务地址（beaver-oauth）
-      authBaseUrl: import.meta.env.VITE_OAUTH_BASE_URL,
-      // 开放平台 App ID（需要在 beaver-oauth 中注册）
-      appId: import.meta.env.VITE_OPEN_APP_ID,
-      // 回调地址（hash 模式下 code 会落在 origin/?code=xxx 上）
-      redirectUri: window.location.origin + '/',
-      // 权限范围
-      scope: 'user_info'
-    }
-
-    // 处理 OAuth 登录
     const handleOAuthLogin = () => {
       loading.value = true
 
-      // 构建授权 URL
-      const authUrl = new URL(`${OAUTH_CONFIG.authBaseUrl}/auth`)
-      authUrl.searchParams.set('appId', OAUTH_CONFIG.appId)
-      authUrl.searchParams.set('redirectUri', OAUTH_CONFIG.redirectUri)
-      authUrl.searchParams.set('scope', OAUTH_CONFIG.scope)
+      const authUrl = new URL(`${config.oauthBaseUrl}/auth`)
+      authUrl.searchParams.set('appId', config.openAppId)
+      authUrl.searchParams.set('redirectUri', config.oauthRedirectUri)
+      authUrl.searchParams.set('scope', 'user_info')
 
-      // 跳转到 OAuth 授权页面
       window.location.href = authUrl.toString()
     }
 

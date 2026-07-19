@@ -17,27 +17,28 @@
       <el-empty v-if="!scopes || scopes.length === 0" description="暂无权限数据" />
 
       <div v-else class="permissions-list">
-        <div 
-          v-for="scope in scopes" 
-          :key="scope.scope"
-          class="permission-item"
-          :class="{ 'is-required': scope.required }"
-        >
-          <el-checkbox 
-            v-model="selectedScopes" 
-            :value="scope.scope"
-            :disabled="scope.required"
+        <el-checkbox-group v-model="selectedScopes">
+          <div
+            v-for="scope in scopes"
+            :key="scope.scope"
+            class="permission-item"
+            :class="{ 'is-required': scope.required }"
           >
-            <div class="permission-content">
-              <div class="permission-header">
-                <strong class="permission-name">{{ scope.name }}</strong>
-                <el-tag v-if="scope.required" size="small" type="warning">必需</el-tag>
-                <el-tag v-if="scope.enabled" size="small" type="success">已启用</el-tag>
+            <el-checkbox
+              :value="scope.scope"
+              :disabled="scope.required"
+            >
+              <div class="permission-content">
+                <div class="permission-header">
+                  <strong class="permission-name">{{ scope.name }}</strong>
+                  <el-tag v-if="scope.required" size="small" type="warning">必需</el-tag>
+                  <el-tag v-if="scope.enabled" size="small" type="success">已启用</el-tag>
+                </div>
+                <p class="permission-desc">{{ scope.description }}</p>
               </div>
-              <p class="permission-desc">{{ scope.description }}</p>
-            </div>
-          </el-checkbox>
-        </div>
+            </el-checkbox>
+          </div>
+        </el-checkbox-group>
       </div>
     </el-card>
   </div>

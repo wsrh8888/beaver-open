@@ -11,3 +11,9 @@ interface ImportMeta {
 }
 
 declare const __APP_ENV__: string
+
+declare module 'browser-md5-file' {
+  export default class BMF {
+    md5(file: File, callback: (err: Error | null, md5: string) => void): void
+  }
+}
