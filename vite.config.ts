@@ -35,7 +35,9 @@ export default defineConfig(({ mode }) => {
       }),
       Components({
         dts: "types/auto/components.d.ts",
-        resolvers: [ElementPlusResolver({ importStyle: "css" })]
+        // main.ts 已全量引入 element-plus/dist/index.css，按需再注入组件 CSS 会重复加载
+        // 且造成变量覆盖优先级不确定，故关闭按需样式
+        resolvers: [ElementPlusResolver({ importStyle: false })]
       })
     ]
   }

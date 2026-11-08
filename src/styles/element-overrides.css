@@ -1,0 +1,324 @@
+/* ==================== Element Plus 视觉覆写 ====================
+ * 本工程已全量引入 element-plus/dist/index.css（编译后的 CSS），且未安装 sass，
+ * 因此 SCSS 变量 / @forward 方案不可落地。唯一可靠路径 = 运行时 --el-* 变量覆盖。
+ *
+ * 重要：定义在组件选择器内的变量（--el-table-* / --el-card-* / --el-input-* /
+ * --el-tag-* / --el-dialog-* / --el-tabs-* / --el-empty-* / --el-pagination-* /
+ * --el-menu-*）特异性高于 :root，写在 :root 无效，必须写在同名组件选择器上。
+ * 本文件按此分两段。
+ * ================================================================ */
+
+/* ---------- 第一段：:root 级变量 ---------- */
+:root {
+  /* 品牌主色与 EP 的 mix-white / mix-black 派生色 */
+  --el-color-primary: #BF4A1B;
+  --el-color-primary-light-3: #D2805F;
+  --el-color-primary-light-5: #DFA58D;
+  --el-color-primary-light-7: #ECC9BB;
+  --el-color-primary-light-8: #F2DBD1;
+  --el-color-primary-light-9: #F9EDE8;
+  --el-color-primary-dark-2: #993B16;
+  --el-color-primary-rgb: 191, 74, 27;
+
+  /* 语义色：低饱和，与品牌橙区分 */
+  --el-color-success: #2E7D5B;
+  --el-color-success-light-3: #6DA48C;
+  --el-color-success-light-5: #97BEAD;
+  --el-color-success-light-7: #C0D8CE;
+  --el-color-success-light-8: #D5E5DE;
+  --el-color-success-light-9: #EBF2EF;
+  --el-color-success-dark-2: #256449;
+  --el-color-success-rgb: 46, 125, 91;
+
+  --el-color-warning: #A9660A;
+  --el-color-warning-light-3: #C39454;
+  --el-color-warning-light-5: #D4B385;
+  --el-color-warning-light-7: #E5D1B5;
+  --el-color-warning-light-8: #EEE1CE;
+  --el-color-warning-light-9: #F7F0E6;
+  --el-color-warning-dark-2: #875208;
+  --el-color-warning-rgb: 169, 102, 10;
+
+  --el-color-danger: #C0392B;
+  --el-color-danger-light-3: #D4746B;
+  --el-color-danger-light-5: #E09C95;
+  --el-color-danger-light-7: #ECC4BF;
+  --el-color-danger-light-8: #F2D9D5;
+  --el-color-danger-light-9: #F9EDEA;
+  --el-color-danger-dark-2: #9A2E22;
+  --el-color-danger-rgb: 192, 57, 43;
+
+  --el-color-error: #C0392B;
+  --el-color-error-light-3: #D4746B;
+  --el-color-error-light-5: #E09C95;
+  --el-color-error-light-7: #ECC4BF;
+  --el-color-error-light-8: #F2D9D5;
+  --el-color-error-light-9: #F9EDEA;
+  --el-color-error-dark-2: #9A2E22;
+
+  --el-color-info: #6E6E68;
+  --el-color-info-light-3: #999994;
+  --el-color-info-light-5: #B6B6B2;
+  --el-color-info-light-7: #D2D2CF;
+  --el-color-info-light-8: #E1E1DF;
+  --el-color-info-light-9: #F1F1F0;
+  --el-color-info-dark-2: #585853;
+  --el-color-info-rgb: 110, 110, 104;
+
+  /* 文字 */
+  --el-text-color-primary: #2E2E2B;
+  --el-text-color-regular: #4A4A45;
+  --el-text-color-secondary: #6E6E68;
+  --el-text-color-placeholder: #9B9B95;
+  --el-text-color-disabled: #9B9B95;
+
+  /* 背景 / 填充 */
+  --el-bg-color: #FFFFFF;
+  --el-bg-color-page: #F7F7F6;
+  --el-bg-color-overlay: #FFFFFF;
+  --el-fill-color-blank: #FFFFFF;
+  --el-fill-color-light: #F7F7F6;
+  --el-fill-color-lighter: #F1F1F0;
+  --el-fill-color: #F1F1F0;
+  --el-fill-color-dark: #EFEFED;
+  --el-mask-color: rgba(26, 26, 24, 0.45);
+
+  /* 边框 */
+  --el-border-color: #E3E3DF;
+  --el-border-color-light: #EFEFED;
+  --el-border-color-lighter: #F1F1F0;
+  --el-border-color-extra-light: #F7F7F6;
+  --el-border-color-dark: #C9C9C4;
+  --el-border-color-darker: #9B9B95;
+  --el-border-width: 1px;
+  --el-border-style: solid;
+
+  /* 字体 / 圆角 / 尺寸 */
+  --el-font-family: var(--ds-font-sans);
+  --el-font-size-base: 14px;
+  --el-font-size-small: 13px;
+  --el-font-size-large: 16px;
+  --el-font-size-extra-small: 12px;
+  --el-border-radius-base: 4px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 8px;
+  --el-border-radius-circle: 50%;
+  --el-component-size: 32px;
+  --el-component-size-small: 28px;
+  --el-component-size-large: 40px;
+
+  /* 阴影：只给浮层 */
+  --el-box-shadow: 0 8px 24px rgba(46, 46, 43, 0.12);
+  --el-box-shadow-light: 0 2px 8px rgba(46, 46, 43, 0.08);
+  --el-box-shadow-lighter: 0 2px 8px rgba(46, 46, 43, 0.06);
+  --el-box-shadow-dark: 0 8px 24px rgba(46, 46, 43, 0.16);
+
+  /* 动效：只做状态反馈 */
+  --el-transition-duration: 0.12s;
+  --el-transition-duration-fast: 0.12s;
+  --el-transition-function-ease-in-out-bezier: cubic-bezier(0.33, 1, 0.68, 1);
+  --el-transition-function-fast-bezier: cubic-bezier(0.33, 1, 0.68, 1);
+  --el-transition-all: all 0.12s cubic-bezier(0.33, 1, 0.68, 1);
+  --el-transition-fade: opacity 0.12s cubic-bezier(0.33, 1, 0.68, 1);
+  --el-transition-md-fade: transform 0.12s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.12s cubic-bezier(0.33, 1, 0.68, 1);
+
+  --el-disabled-bg-color: #F1F1F0;
+  --el-disabled-text-color: #9B9B95;
+  --el-disabled-border-color: #E3E3DF;
+  --el-index-normal: 1;
+  --el-overlay-color-lighter: rgba(26, 26, 24, 0.45);
+}
+
+/* ---------- 第二段：组件选择器级变量（写在 :root 无效） ---------- */
+.el-card {
+  --el-card-border-color: var(--ds-border);
+  --el-card-border-radius: var(--ds-radius-md);
+  --el-card-padding: 20px;
+  --el-card-bg-color: var(--ds-neutral-0);
+  box-shadow: none;
+  border: 1px solid var(--ds-border);
+}
+
+.el-card.is-always-shadow,
+.el-card.is-hover-shadow:hover {
+  box-shadow: none;
+}
+
+.el-table {
+  --el-table-border-color: var(--ds-border-light);
+  --el-table-bg-color: var(--ds-neutral-0);
+  --el-table-tr-bg-color: var(--ds-neutral-0);
+  --el-table-header-bg-color: var(--ds-neutral-50);
+  --el-table-header-text-color: var(--ds-neutral-600);
+  --el-table-text-color: var(--ds-neutral-900);
+  --el-table-row-hover-bg-color: var(--ds-neutral-50);
+  --el-table-current-row-bg-color: var(--ds-brand-50);
+  --el-table-expanded-cell-bg-color: var(--ds-neutral-0);
+  font-size: 14px;
+}
+
+.el-input,
+.el-textarea,
+.el-select,
+.el-input-number {
+  --el-input-bg-color: var(--ds-neutral-0);
+  --el-input-text-color: var(--ds-neutral-900);
+  --el-input-border-color: var(--ds-border);
+  --el-input-hover-border-color: var(--ds-neutral-300);
+  --el-input-focus-border-color: var(--ds-brand);
+  --el-input-placeholder-color: var(--ds-neutral-400);
+  --el-input-clear-hover-color: var(--ds-neutral-600);
+}
+
+.el-tag {
+  --el-tag-bg-color: var(--ds-neutral-bg);
+  --el-tag-border-color: var(--ds-neutral-border);
+  --el-tag-text-color: var(--ds-neutral-fg);
+  --el-tag-font-size: 12px;
+  border-radius: var(--ds-radius-sm);
+}
+
+.el-dialog {
+  --el-dialog-border-radius: var(--ds-radius-md);
+  --el-dialog-padding-primary: 20px;
+  --el-dialog-bg-color: var(--ds-neutral-0);
+  box-shadow: var(--ds-shadow-2);
+}
+
+.el-tabs {
+  --el-tabs-header-height: 40px;
+}
+
+.el-empty {
+  --el-empty-padding: 32px 16px;
+  --el-empty-description-margin-top: 12px;
+}
+
+.el-pagination {
+  --el-pagination-bg-color: var(--ds-neutral-0);
+  --el-pagination-text-color: var(--ds-neutral-600);
+  --el-pagination-border-color: var(--ds-border);
+  --el-pagination-hover-color: var(--ds-brand);
+  --el-pagination-button-color: var(--ds-neutral-600);
+  --el-pagination-font-size: 14px;
+}
+
+.el-menu {
+  --el-menu-bg-color: var(--ds-neutral-0);
+  --el-menu-text-color: var(--ds-neutral-700);
+  --el-menu-active-color: var(--ds-brand);
+  --el-menu-hover-bg-color: var(--ds-neutral-50);
+  --el-menu-hover-text-color: var(--ds-neutral-900);
+  --el-menu-item-height: 40px;
+  --el-menu-sub-item-height: 40px;
+  --el-menu-horizontal-height: 44px;
+  --el-menu-border-color: var(--ds-border);
+  --el-menu-base-level-padding: 12px;
+  --el-menu-level-padding: 20px;
+  border-right: none;
+}
+
+.el-button {
+  --el-button-font-size: 14px;
+  --el-button-border-radius: var(--ds-radius-sm);
+  font-weight: 500;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--ds-brand);
+  --el-button-border-color: var(--ds-brand);
+  --el-button-text-color: #FFFFFF;
+  --el-button-hover-bg-color: var(--ds-brand-hover);
+  --el-button-hover-border-color: var(--ds-brand-hover);
+  --el-button-hover-text-color: #FFFFFF;
+  --el-button-active-bg-color: var(--ds-brand-active);
+  --el-button-active-border-color: var(--ds-brand-active);
+  --el-button-disabled-bg-color: #E6CFC6;
+  --el-button-disabled-border-color: #E6CFC6;
+  --el-button-disabled-text-color: #FFFFFF;
+}
+
+/* 说明性文字不该用 el-alert；这里只把默认样式压到中性，避免绿色/蓝色块喧宾夺主 */
+.el-alert--info {
+  --el-alert-bg-color: var(--ds-neutral-50);
+  --el-alert-border-color: var(--ds-border);
+}
+
+/* 状态徽章：一种状态 = 一种颜色 + 一种文案 */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 2px 8px;
+  border-radius: var(--ds-radius-sm);
+  font: 500 12px/18px var(--ds-font-sans);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.ds-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ds-badge--success { color: var(--ds-success-fg); background: var(--ds-success-bg); border-color: var(--ds-success-border); }
+.ds-badge--warning { color: var(--ds-warning-fg); background: var(--ds-warning-bg); border-color: var(--ds-warning-border); }
+.ds-badge--danger  { color: var(--ds-danger-fg);  background: var(--ds-danger-bg);  border-color: var(--ds-danger-border); }
+.ds-badge--neutral { color: var(--ds-neutral-fg); background: var(--ds-neutral-bg); border-color: var(--ds-neutral-border); }
+
+/* 语义色统一：所有 el-tag 变体也走 4 类映射，不再出现 EP 默认的高饱和色 */
+.el-tag--success {
+  --el-tag-bg-color: var(--ds-success-bg);
+  --el-tag-border-color: var(--ds-success-border);
+  --el-tag-text-color: var(--ds-success-fg);
+}
+.el-tag--warning {
+  --el-tag-bg-color: var(--ds-warning-bg);
+  --el-tag-border-color: var(--ds-warning-border);
+  --el-tag-text-color: var(--ds-warning-fg);
+}
+.el-tag--danger {
+  --el-tag-bg-color: var(--ds-danger-bg);
+  --el-tag-border-color: var(--ds-danger-border);
+  --el-tag-text-color: var(--ds-danger-fg);
+}
+.el-tag--info {
+  --el-tag-bg-color: var(--ds-neutral-bg);
+  --el-tag-border-color: var(--ds-neutral-border);
+  --el-tag-text-color: var(--ds-neutral-fg);
+}
+
+/* 普通说明文字不该做成大块彩色 alert：统一压成中性提示条 */
+.el-alert {
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-sm);
+  padding: 8px 12px;
+}
+.el-alert--info,
+.el-alert--success,
+.el-alert--warning,
+.el-alert--danger,
+.el-alert--error {
+  --el-alert-bg-color: var(--ds-neutral-50);
+  background-color: var(--ds-neutral-50);
+  border-color: var(--ds-border);
+}
+.el-alert .el-alert__title,
+.el-alert .el-alert__description {
+  color: var(--ds-neutral-900);
+  font-size: 13px;
+  line-height: var(--ds-lh-body);
+}
+.el-alert .el-alert__icon { color: var(--ds-neutral-600); }
+
+/* 焦点可见 */
+.el-button:focus-visible,
+.el-input__wrapper:has(.el-input__inner:focus-visible),
+.el-select__wrapper:focus-visible,
+.el-menu-item:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--ds-brand);
+  outline-offset: 2px;
+}

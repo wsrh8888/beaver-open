@@ -22,14 +22,95 @@
 import config from "@/config/env"
 import { ajax } from "@/utils/request"
 import type {
+  ICreateOAuthAppReq,
+  ICreateOAuthAppRes,
+  IUpdateOAuthAppReq,
+  IUpdateOAuthAppRes,
+  IDeleteOAuthAppReq,
+  IDeleteOAuthAppRes,
+  IGetOAuthAppDetailReq,
+  IGetOAuthAppDetailRes,
+  IGetOAuthAppListReq,
+  IGetOAuthAppListRes,
+  IResetOAuthSecretReq,
+  IResetOAuthSecretRes,
+  IGetOAuthScopesReq,
+  IGetOAuthScopesRes,
+  IUpdateOAuthScopesReq,
+  IUpdateOAuthScopesRes,
   IGetOAuthConfigReq,
   IGetOAuthConfigRes,
-  IUpdateOAuthConfigReq
+  IUpdateOAuthConfigReq,
+  IUpdateOAuthConfigRes
 } from "@/types/api/oauth"
 
-/**
- * 获取 OAuth 配置
- */
+// OAuth 应用管理（服务端 open_portal/api/app.api，操作 open_oauth 表）
+export function createOAuthAppApi(data: ICreateOAuthAppReq) {
+  return ajax<ICreateOAuthAppRes>({
+    method: "POST",
+    url: `${config.baseAPI}/api/open_portal/app/v1/create`,
+    data
+  })
+}
+
+export function updateOAuthAppApi(data: IUpdateOAuthAppReq) {
+  return ajax<IUpdateOAuthAppRes>({
+    method: "POST",
+    url: `${config.baseAPI}/api/open_portal/app/v1/update`,
+    data
+  })
+}
+
+export function deleteOAuthAppApi(data: IDeleteOAuthAppReq) {
+  return ajax<IDeleteOAuthAppRes>({
+    method: "POST",
+    url: `${config.baseAPI}/api/open_portal/app/v1/delete`,
+    data
+  })
+}
+
+export function getOAuthAppDetailApi(params: IGetOAuthAppDetailReq) {
+  return ajax<IGetOAuthAppDetailRes>({
+    method: "GET",
+    url: `${config.baseAPI}/api/open_portal/app/v1/detail`,
+    params
+  })
+}
+
+export function getOAuthAppListApi(params: IGetOAuthAppListReq) {
+  return ajax<IGetOAuthAppListRes>({
+    method: "GET",
+    url: `${config.baseAPI}/api/open_portal/app/v1/list`,
+    params
+  })
+}
+
+export function resetOAuthSecretApi(data: IResetOAuthSecretReq) {
+  return ajax<IResetOAuthSecretRes>({
+    method: "POST",
+    url: `${config.baseAPI}/api/open_portal/app/v1/reset_secret`,
+    data
+  })
+}
+
+// 权限范围
+export function getOAuthScopesApi(params: IGetOAuthScopesReq) {
+  return ajax<IGetOAuthScopesRes>({
+    method: "GET",
+    url: `${config.baseAPI}/api/open_portal/app/v1/scopes`,
+    params
+  })
+}
+
+export function updateOAuthScopesApi(data: IUpdateOAuthScopesReq) {
+  return ajax<IUpdateOAuthScopesRes>({
+    method: "POST",
+    url: `${config.baseAPI}/api/open_portal/app/v1/scopes/update`,
+    data
+  })
+}
+
+// OAuth 端配置（服务端 open_portal/api/oauth.api）
 export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
   return ajax<IGetOAuthConfigRes>({
     method: "GET",
@@ -38,11 +119,8 @@ export function getOAuthConfigApi(params: IGetOAuthConfigReq) {
   })
 }
 
-/**
- * 更新 OAuth 配置
- */
 export function updateOAuthConfigApi(data: IUpdateOAuthConfigReq) {
-  return ajax({
+  return ajax<IUpdateOAuthConfigRes>({
     method: "POST",
     url: `${config.baseAPI}/api/open_portal/oauth/v1/config_update`,
     data

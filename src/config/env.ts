@@ -28,7 +28,7 @@ export const config = {
   apiApi: import.meta.env.VITE_API_API,
   oauthBaseUrl: import.meta.env.VITE_OAUTH_BASE_URL,
   oauthRedirectUri: import.meta.env.VITE_OAUTH_REDIRECT_URI,
-  openAppId: import.meta.env.VITE_OPEN_APP_ID,
+  openAppId: import.meta.env.VITE_OPEN_OAUTH_ID,
 }
 
 console.info('🚀 当前环境:', config.env)

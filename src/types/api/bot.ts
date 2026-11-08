@@ -19,87 +19,75 @@
  * beaver-open-header-v1
  */
 
-// ==================== Bot 机器人配置 ====================
+// 群通知机器人：一级实体，对应服务端 open_bot 表。
+// Token 与签名密钥仅存哈希，明文只在创建 / 重置时返回一次，详情接口不返回。
 
-export interface IBotConfigInfo {
-  appId: string
-  botName: string
-  botAvatar: string
-  botDescription: string
-  usageGuide: string // 使用说明
-  enableSingleChat: boolean
-  enableGroupChat: boolean
-  enableAtMention: boolean
-  enableMenu: boolean // 是否启用自定义菜单
-  menuItems: string // JSON 字符串，菜单项配置
-  autoReplyRules: string[]
-  commands: string[]
-  status: number
-}
+export type BotVisibility = "private" | "partial" | "public"
 
-export interface IGetBotConfigReq {
-  appId: string
-}
-
-export interface IGetBotConfigRes {
-  config: IBotConfigInfo
-}
-
-export interface IUpdateBotConfigReq {
-  appId: string
-  botName?: string
-  botAvatar?: string
-  botDescription?: string
-  usageGuide?: string // 使用说明
-  enableSingleChat?: boolean
-  enableGroupChat?: boolean
-  enableAtMention?: boolean
-  enableMenu?: boolean // 是否启用自定义菜单
-  menuItems?: string // JSON 字符串，菜单项配置
-  autoReplyRules?: string[]
-  commands?: string[]
-  status?: number
-}
-
-export interface IUpdateBotConfigRes {}
-
-// ==================== Incoming Webhook 管理 ====================
-
-export interface IIncomingWebhookInfo {
-  id: string
-  token: string
-  appId: string
-  groupId: string
-  botUserId: string
+export interface IBotInfo {
+  botId: string
   name: string
+  avatar?: string
+  description?: string
+  visibility: BotVisibility
   webhookUrl: string
-  status: number
+  adminIds?: string[]
+  viewerIds?: string[]
   createdAt: number
 }
 
-export interface ICreateIncomingWebhookReq {
-  appId: string
-  groupId: string
-  name?: string
+export interface ICreateBotReq {
+  name: string
+  description?: string
+  avatar?: string
+  groupId?: string // 创建后拉入该群，不落 bot 表
+  visibility?: BotVisibility
+}
+export interface ICreateBotRes {
+  botId: string
+  webhookUrl: string
+  token: string
+  secret: string
 }
 
-export interface ICreateIncomingWebhookRes {
-  webhook: IIncomingWebhookInfo
-}
-
-export interface IListIncomingWebhooksReq {
-  appId: string
+export interface IListBotReq {
   page?: number
   pageSize?: number
 }
-
-export interface IListIncomingWebhooksRes {
+export interface IListBotRes {
   total: number
-  list: IIncomingWebhookInfo[]
+  list: IBotInfo[]
 }
 
-export interface IDeleteIncomingWebhookReq {
-  id: string
+export interface IGetBotDetailReq {
+  botId: string
+}
+export interface IGetBotDetailRes {
+  bot: IBotInfo
 }
 
-export interface IDeleteIncomingWebhookRes {}
+export interface IUpdateBotReq {
+  botId: string
+  name?: string
+  avatar?: string
+  visibility?: BotVisibility
+}
+export interface IUpdateBotRes {}
+
+export interface IDeleteBotReq {
+  botId: string
+}
+export interface IDeleteBotRes {}
+
+export interface IResetBotSecretReq {
+  botId: string
+}
+export interface IResetBotSecretRes {
+  secret: string
+}
+
+export interface ISetBotMembersReq {
+  botId: string
+  userIds: string[]
+}
+export interface ISetBotMembersRes {}

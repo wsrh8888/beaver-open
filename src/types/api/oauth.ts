@@ -19,43 +19,116 @@
  * beaver-open-header-v1
  */
 
-// ==================== OAuth 配置管理 ====================
+// OAuth 登录：一级实体，对应服务端 open_oauth 表。
+// 门户路由段仍叫 /open_portal/app/*，但语义已是 OAuth 应用管理，标识统一为 oauthId。
 
-export interface IUpdateOAuthConfigReq {
-  appId: string
-  oauthType: 'h5' | 'desktop' | 'mobile'
-  config: string // JSON 字符串
+export interface IOAuthAppInfo {
+  oauthId: string
+  name: string
+  description: string
+  icon?: string
+  oauthSecret: string // 服务端返回掩码
+  status: number // 1 启用 / 0 禁用
+  createdAt: number
 }
 
-export interface IUpdateOAuthConfigRes {}
+export interface ICreateOAuthAppReq {
+  name: string
+  description?: string
+  icon?: string
+}
+export interface ICreateOAuthAppRes {
+  oauthId: string
+  oauthSecret: string // 明文，仅创建时返回一次
+}
 
+export interface IUpdateOAuthAppReq {
+  oauthId: string
+  name?: string
+  description?: string
+  icon?: string
+}
+export interface IUpdateOAuthAppRes {}
+
+export interface IDeleteOAuthAppReq {
+  oauthId: string
+}
+export interface IDeleteOAuthAppRes {}
+
+export interface IGetOAuthAppDetailReq {
+  oauthId: string
+}
+export interface IGetOAuthAppDetailRes {
+  app: IOAuthAppInfo
+}
+
+export interface IGetOAuthAppListReq {
+  page?: number
+  pageSize?: number
+  status?: number
+}
+export interface IGetOAuthAppListRes {
+  total: number
+  list: IOAuthAppInfo[]
+}
+
+export interface IResetOAuthSecretReq {
+  oauthId: string
+}
+export interface IResetOAuthSecretRes {
+  oauthSecret: string // 明文，仅重置时返回一次
+}
+
+// 权限范围
+export interface IScopeInfo {
+  scope: string
+  name: string
+  description: string
+  enabled: boolean
+  required: boolean
+}
+export interface IGetOAuthScopesReq {
+  oauthId: string
+}
+export interface IGetOAuthScopesRes {
+  scopes: IScopeInfo[]
+}
+export interface IUpdateOAuthScopesReq {
+  oauthId: string
+  scopes: string[]
+}
+export interface IUpdateOAuthScopesRes {}
+
+// OAuth 端配置：config 为 JSON 字符串，服务端按 oauthType 解析
 export interface IGetOAuthConfigReq {
-  appId: string
+  oauthId: string
 }
-
 export interface IH5OAuthConfig {
   enabled: boolean
   redirectUris: string[]
-  jsSdkDomains?: string[]
+  enablePKCE: boolean
 }
-
 export interface IDesktopOAuthConfig {
   enabled: boolean
   customScheme: string
-  authPageUrl?: string // 授权页面完整 URL（服务端生成）
+  authPageUrl: string
 }
-
 export interface IMobileOAuthConfig {
   enabled: boolean
   iosBundleId: string
   androidPackageName: string
   universalLink: string
   customScheme: string
+  enablePKCE: boolean
 }
-
 export interface IGetOAuthConfigRes {
-  // 所有平台的 OAuth 配置（一次性返回）
   h5Config?: IH5OAuthConfig
   desktopConfig?: IDesktopOAuthConfig
   mobileConfig?: IMobileOAuthConfig
 }
+export interface IUpdateOAuthConfigReq {
+  oauthId: string
+  oauthType: "h5" | "desktop" | "mobile"
+  config: string
+}
+export interface IUpdateOAuthConfigRes {}

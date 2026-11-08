@@ -19,72 +19,68 @@
   beaver-open-header-v1
 -->
 
-
 <template>
   <div class="sidebar">
-    <!-- Logo区域 -->
     <div class="logo-container">
-      <router-link to="/" class="logo-link">
-        <div class="logo-content">
-          <img src="@/assets/logo.png" alt="logo" class="logo-img" />
-          <span class="logo-text">海狸IM</span>
-        </div>
+      <router-link to="/console/dashboard" class="logo-link">
+        <svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="0" y="0" width="24" height="24" rx="6" fill="#BF4A1B" />
+          <path d="M8 6.5h4.6a3.1 3.1 0 0 1 0 6.2H8V6.5Zm0 6.2h5a3.1 3.1 0 0 1 0 6.2H8v-6.2Z" fill="#FFFFFF" />
+          <path d="M8 6.5h2.2v11H8v-11Z" fill="#FFFFFF" />
+        </svg>
+        <span class="logo-text">Beaver 开放平台</span>
       </router-link>
     </div>
 
-    <!-- 菜单区域 -->
     <el-scrollbar>
-      <el-menu
-        :default-active="activeMenu"
-        mode="vertical"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#fff"
-      >
-        <template v-for="item in menuItems" :key="`menu-${item.path}`">
-          <!-- 菜单项 -->
+      <el-menu :default-active="activeMenu" mode="vertical">
+        <el-menu-item :index="dashboardMenu.path" @click="handleMenuClick(dashboardMenu.path)">
+          <img v-if="dashboardMenu.icon" :src="dashboardMenu.icon" alt="" class="menu-icon-img" aria-hidden="true" />
+          <span>{{ dashboardMenu.title }}</span>
+        </el-menu-item>
+
+        <el-sub-menu v-for="group in menuGroups" :key="group.title" :index="group.title">
+          <template #title>
+            <img v-if="group.icon" :src="group.icon" alt="" class="menu-icon-img" aria-hidden="true" />
+            <span>{{ group.title }}</span>
+          </template>
           <el-menu-item
+            v-for="item in group.items"
+            :key="item.path"
             :index="item.path"
             @click="handleMenuClick(item.path)"
           >
-            <img v-if="item.icon" :src="item.icon" alt="" class="menu-icon-img" />
             <span>{{ item.title }}</span>
           </el-menu-item>
-        </template>
+        </el-sub-menu>
       </el-menu>
     </el-scrollbar>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue"
+import { computed, defineComponent } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { menuConfig, type MenuItem } from "../../../config/menu"
+import { dashboardMenu, menuGroups } from "../../../config/menu"
+
 export default defineComponent({
-  setup() {
+  emits: ["navigate"],
+  setup(_, { emit }) {
     const route = useRoute()
     const router = useRouter()
 
-    // 菜单数据
+    // 三级路由（/console/<模块>/create|:id）下仍高亮二级模块菜单，
+    // 高亮目标由路由 meta.modulePath 声明，不再靠路径前缀猜。
+    const activeMenu = computed(() =>
+      (route.meta.modulePath as string | undefined) || route.path
+    )
 
-    // 当前激活的菜单
-    const activeMenu = computed(() => route.path)
-
-    // 处理菜单点击
     const handleMenuClick = (path: string) => {
       router.push(path)
+      emit("navigate")
     }
 
-
-
-    onMounted(() => {
-    })
-
-    return {
-      activeMenu,
-      handleMenuClick,
-      menuItems: menuConfig
-    }
+    return { activeMenu, dashboardMenu, menuGroups, handleMenuClick }
   }
 })
 </script>
@@ -94,50 +90,38 @@ export default defineComponent({
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: var(--ds-neutral-0);
 }
 
-// Logo样式
 .logo-container {
-  height: 60px;
-  padding: 10px;
-  border-bottom: 1px solid #263445;
+  height: var(--ds-navbar-height);
+  flex: 0 0 var(--ds-navbar-height);
+  padding: 0 var(--ds-space-4);
+  border-bottom: 1px solid var(--ds-border);
 
   .logo-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2);
     height: 100%;
-    text-decoration: none;
+    color: var(--ds-neutral-900);
+  }
 
-    .logo-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
+  .logo-mark {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+  }
 
-      .logo-img {
-        width: 32px;
-        height: 32px;
-        margin-right: 8px;
-        border-radius: 8px;
-        background: #fff;
-        object-fit: cover;
-      }
-
-      .logo-text {
-        font-size: 16px;
-        font-weight: 500;
-        color: #fff;
-      }
-    }
-
-    &:hover {
-      .logo-content {
-        opacity: 0.8;
-      }
-    }
+  .logo-text {
+    font-size: 15px;
+    font-weight: var(--ds-weight-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
-// 菜单样式
 .el-scrollbar {
   flex: 1;
 }
@@ -145,38 +129,38 @@ export default defineComponent({
 .el-menu {
   border: none;
   width: 100%;
+  padding: var(--ds-space-2) 0;
 
   .menu-icon-img {
-    margin-right: 8px;
+    margin-right: var(--ds-space-2);
     width: 16px;
     height: 16px;
-    filter: brightness(0) invert(1);
   }
 
-  .el-menu-item,
-  .el-sub-menu__title {
-    height: 50px;
-    line-height: 50px;
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
+    height: 40px;
+    line-height: 40px;
+    margin: var(--ds-space-1) var(--ds-space-3);
+    border-radius: var(--ds-radius-md);
+    font-size: var(--ds-fs-14);
+    color: var(--ds-neutral-700);
 
     &:hover {
-      background-color: #263445 !important;
-      color: #fff !important;
+      background: var(--ds-neutral-50);
+      color: var(--ds-neutral-900);
     }
   }
 
-  .el-menu-item.is-active {
-    background-color: #409eff !important;
-    color: #fff !important;
+  :deep(.el-menu-item.is-active) {
+    background: var(--ds-brand-50);
+    color: var(--ds-brand);
+    font-weight: var(--ds-weight-medium);
+  }
 
-    &::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 4px;
-      height: 100%;
-      background-color: #fff;
-    }
+  :deep(.el-sub-menu .el-menu-item) {
+    padding-left: 44px !important;
+    min-width: 0;
   }
 }
 </style>

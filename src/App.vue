@@ -55,8 +55,5 @@ export default defineComponent({
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-}
+/* 全局 reset 统一在 styles/global.css，此处不再重复声明，避免抹掉组件默认间距 */
 </style>

@@ -20,27 +20,45 @@
  */
 
 import HouseIcon from "@/assets/icons/house.svg"
-import GridIcon from "@/assets/icons/grid.svg"
+import KeyIcon from "@/assets/icons/key.svg"
+import ChatIcon from "@/assets/icons/chat.svg"
 
 export interface MenuItem {
   path: string
   title: string
-  icon?: string // SVG 图标路径
-  children?: MenuItem[]
+  icon?: string
 }
 
-export const menuConfig: MenuItem[] = [
-  // 🏠 控制台首页
-  {
-    path: "/console/dashboard",
-    title: "控制台",
-    icon: HouseIcon
-  },
+export interface MenuGroup {
+  title: string
+  icon?: string
+  items: MenuItem[]
+}
 
-  // 💼 我的应用（子菜单动态生成）
+// 控制台首页是独立入口，不属于任何能力分组
+export const dashboardMenu: MenuItem = {
+  path: "/console/dashboard",
+  title: "控制台",
+  icon: HouseIcon
+}
+
+// 一级 = 能力分组，二级 = 独立模块。
+// 服务端已把 OAuth / Bot / Digital 拆成三个平级一级实体，前端不再用「应用」容器包装。
+// 每个模块对应 src/pages/console 下的独立目录，后续可整目录拆成独立应用；
+// agent 是独立运行时（app/agent、platform/agent_apps），门户只通过数字伙伴编排配置引用它，
+// 没有门户 CRUD 接口，因此不单列菜单。
+export const menuGroups: MenuGroup[] = [
   {
-    path: "/console/apps",
-    title: "我的应用",
-    icon: GridIcon
+    title: "身份与接入",
+    icon: KeyIcon,
+    items: [{ path: "/console/oauth", title: "OAuth 登录" }]
+  },
+  {
+    title: "机器人能力",
+    icon: ChatIcon,
+    items: [
+      { path: "/console/bots", title: "推送机器人" },
+      { path: "/console/digitals", title: "智能体" }
+    ]
   }
 ]

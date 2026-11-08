@@ -30,7 +30,7 @@ import type { ImageSize } from '@/types/utils/upload'
 export const getMd5 = (file: File): Promise<string> => {
   const bmf = new BMF()
   return new Promise((resolve, reject) => {
-    bmf.md5(file, (err: Error, md5: string) => {
+    bmf.md5(file, (err: Error | null, md5: string) => {
       if (err) {
         return reject(err)
       }

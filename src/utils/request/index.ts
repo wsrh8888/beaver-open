@@ -83,8 +83,8 @@ request.interceptors.response.use(
       localStorage.removeItem("userId")
       localStorage.removeItem("phone")
 
-      // 可以在这里添加路由跳转逻辑
-      window.location.href = "/login"
+      // 本项目使用 hash 路由，直接写 "/login" 会跳到服务器 404
+      window.location.href = `${window.location.pathname}${window.location.search}#/login`
 
       return Promise.reject(new Error("认证失败，请重新登录"))
     }

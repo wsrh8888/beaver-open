@@ -19,23 +19,21 @@
  * beaver-open-header-v1
  */
 
-import * as ElementPlusIconsVue from "@element-plus/icons-vue"
 import { createPinia } from "pinia"
 import { createApp } from "vue"
 import App from "./App.vue"
 
 import router from "./router"
+// 顺序不可调换：先加载 EP 编译后的 CSS，再用 --el-* 变量覆盖它，最后加载全局样式
 import "element-plus/dist/index.css"
 import "./styles/design-system.css"
+import "./styles/element-overrides.css"
+import "./styles/global.css"
 
 const app = createApp(App)
 const pinia = createPinia()
 
-// 注册所有图标
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
-
+// 图标不做全量注册：模板中唯一使用的 User 是组件内 import 后作为 el-avatar 的 :icon 传入
 app.use(pinia)
 app.use(router)
 

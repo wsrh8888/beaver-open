@@ -24,20 +24,15 @@ export default defineComponent({
   setup() {
     const router = useRouter()
 
+    // 直接打开 / 新标签打开时没有历史记录，router.back() 会毫无反应
     const goBack = () => {
-      router.back()
+      if (window.history.length > 1) router.back()
+      else router.push("/")
     }
 
-    const goHome = () => {
-      router.push("/")
-    }
+    const goHome = () => router.push("/")
 
-    onMounted(() => {})
-
-    return {
-      goBack,
-      goHome
-    }
+    return { goBack, goHome }
   }
 })
 </script>
@@ -45,22 +40,12 @@ export default defineComponent({
 <template>
   <div class="error-page">
     <div class="error-content">
-      <div class="error-code">
-        404
-      </div>
-      <div class="error-message">
-        页面不存在
-      </div>
-      <div class="error-desc">
-        抱歉，您访问的页面不存在或已被删除
-      </div>
+      <div class="error-code">404</div>
+      <div class="error-message">页面不存在</div>
+      <div class="error-desc">请检查地址是否正确，或返回首页继续浏览。</div>
       <div class="error-actions">
-        <el-button @click="goBack">
-          返回上页
-        </el-button>
-        <el-button type="primary" @click="goHome">
-          返回首页
-        </el-button>
+        <el-button @click="goBack">返回上页</el-button>
+        <el-button type="primary" @click="goHome">返回首页</el-button>
       </div>
     </div>
   </div>
@@ -72,39 +57,39 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: var(--ds-page-bg);
 }
 
 .error-content {
   text-align: center;
-  padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: var(--ds-space-10) var(--ds-space-6);
 }
 
 .error-code {
-  font-size: 72px;
-  font-weight: bold;
-  color: #409eff;
-  margin-bottom: 20px;
+  font-family: var(--ds-font-mono);
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--ds-neutral-900);
+  letter-spacing: 4px;
+  margin-bottom: var(--ds-space-4);
 }
 
 .error-message {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ds-neutral-900);
+  margin-bottom: var(--ds-space-2);
 }
 
 .error-desc {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 30px;
+  font-size: var(--ds-fs-14);
+  color: var(--ds-neutral-600);
+  margin-bottom: var(--ds-space-6);
 }
 
 .error-actions {
-  .el-button {
-    margin: 0 8px;
-  }
+  display: flex;
+  justify-content: center;
+  gap: var(--ds-space-2);
 }
 </style>

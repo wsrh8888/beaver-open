@@ -1,214 +1,189 @@
-/* ==================== Beaver Open Platform 设计系统 ==================== */
-/* 注意：此文件仅定义 CSS 变量和自定义工具类，不覆盖 Element Plus 默认样式 */
+/* ==================== Beaver 开放平台 · 设计令牌 ====================
+ * 唯一真源：所有颜色 / 字号 / 间距 / 圆角只在本文件定义。
+ * 组件样式与 Element Plus 覆写见 element-overrides.css，全局样式见 global.css。
+ * 加载顺序（main.ts）：element-plus/dist/index.css -> 本文件 -> element-overrides.css -> global.css
+ *
+ * 命名说明：`--ds-*` 是规范命名；文件末尾的兼容别名用于让历史组件里
+ * 从未被定义过的变量（--text-primary / --border-color / --primary 等 67 处）
+ * 立即生效，避免 CSS 变量静默失效。新增代码请一律使用 `--ds-*`。
+ * ================================================================== */
 
-/* 1. CSS 变量定义 - 基于配色规范 */
 :root {
-  /* ===== 品牌色 ===== */
-  --beaver-primary: #FF7D45;
-  --beaver-primary-dark: #E86835;
-  --beaver-primary-light: #FFE6D9;
-  --beaver-primary-gradient: linear-gradient(135deg, #FF7D45 0%, #E86835 100%);
+  /* ===== 品牌 ===== */
+  /* 原 #FF7D45 配白字对比度仅 2.54:1，不达 WCAG AA；降明度后为 4.99:1 */
+  --ds-brand: #BF4A1B;
+  --ds-brand-hover: #A33D14;
+  --ds-brand-active: #8C3411;
+  --ds-brand-50: #F9EDE8;
+  --ds-brand-100: #F2DBD1;
+  --ds-brand-200: #ECC9BB;
+  --ds-brand-accent: #F47B3F; /* 亮橙，仅用于图形 / 数据点缀，禁止承载白字 */
 
-  /* ===== 辅助色 ===== */
-  --beaver-blue: #4A6FA1;
-  --beaver-light-blue: #D9E6FF;
-  --beaver-yellow: #FFD166;
+  /* ===== 中性阶（暖灰） ===== */
+  --ds-neutral-0: #FFFFFF;
+  --ds-neutral-50: #F7F7F6;
+  --ds-neutral-100: #F1F1F0;
+  --ds-neutral-150: #EFEFED;
+  --ds-neutral-200: #E3E3DF;
+  --ds-neutral-300: #C9C9C4;
+  --ds-neutral-400: #9B9B95;
+  --ds-neutral-600: #6E6E68;
+  --ds-neutral-700: #4A4A45;
+  --ds-neutral-900: #2E2E2B;
+  --ds-neutral-950: #1A1A18;
 
-  /* ===== 文本色 ===== */
-  --beaver-text-title: #2D3436;
-  --beaver-text-body: #636E72;
-  --beaver-text-secondary: #B2BEC3;
-  --beaver-text-inverse: #FFFFFF;
+  /* ===== 语义色（4 类，一种状态 = 一种颜色 + 一种文案） ===== */
+  --ds-success-fg: #2E7D5B;
+  --ds-success-bg: #EAF2EF;
+  --ds-success-border: #CDE3D8;
+  --ds-warning-fg: #A9660A;
+  --ds-warning-bg: #F6F0E7;
+  --ds-warning-border: #EBD9B8;
+  --ds-danger-fg: #C0392B;
+  --ds-danger-bg: #F9EBEA;
+  --ds-danger-border: #F0CFCB;
+  --ds-neutral-fg: #6E6E68;
+  --ds-neutral-bg: #F1F1F0;
+  --ds-neutral-border: #E3E3DF;
 
-  /* ===== 背景色 ===== */
-  --beaver-bg-primary: #FFFFFF;
-  --beaver-bg-secondary: #F9FAFB;
-  --beaver-border: #EBEEF5;
+  /* ===== 字体 ===== */
+  --ds-font-sans: "PingFang SC", "Microsoft YaHei", "SF Pro", "Roboto", system-ui, sans-serif;
+  --ds-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --ds-fs-12: 12px;
+  --ds-fs-13: 13px;
+  --ds-fs-14: 14px;
+  --ds-fs-16: 16px;
+  --ds-fs-20: 20px;
+  --ds-fs-24: 24px;
+  --ds-lh-heading: 1.3;
+  --ds-lh-body: 1.6;
+  --ds-weight-regular: 400;
+  --ds-weight-medium: 500;
+  --ds-weight-bold: 600;
 
-  /* ===== 功能色 ===== */
-  --beaver-success: #4CAF50;
-  --beaver-warning: #FFC107;
-  --beaver-error: #FF5252;
-  --beaver-info: #2196F3;
+  /* ===== 间距（4 / 8 网格） ===== */
+  --ds-space-1: 4px;
+  --ds-space-2: 8px;
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 20px;
+  --ds-space-6: 24px;
+  --ds-space-8: 32px;
+  --ds-space-10: 40px;
+  --ds-space-12: 48px;
 
-  /* ===== 暗色模式 ===== */
-  --beaver-dark-bg: #1E2022;
-  --beaver-dark-card: #2D3436;
-  --beaver-dark-text: #F0F3F4;
-  --beaver-dark-border: #3D4548;
+  /* ===== 圆角 / 边框 / 阴影 / 动效 ===== */
+  --ds-radius-sm: 4px;
+  --ds-radius-md: 8px;
+  --ds-radius-lg: 12px;
+  --ds-border: #E3E3DF;
+  --ds-border-light: #EFEFED;
+  /* 阴影只属于浮层（dropdown / dialog / popover / 登录卡），静态容器一律用边框 */
+  --ds-shadow-1: 0 2px 8px rgba(46, 46, 43, 0.08);
+  --ds-shadow-2: 0 8px 24px rgba(46, 46, 43, 0.12);
+  --ds-duration: 120ms;
+  --ds-ease: cubic-bezier(0.33, 1, 0.68, 1);
 
-  /* ===== 间距系统 - 基础单位 8px ===== */
+  /* ===== 布局 ===== */
+  --ds-sidebar-width: 224px;
+  --ds-navbar-height: 56px;
+  --ds-page-bg: #F7F7F6;
+
+  /* ================================================================
+   * 兼容别名区 —— 让历史组件里 67 处悬空变量立即生效
+   * ================================================================ */
+  --text-primary: var(--ds-neutral-900);
+  --text-secondary: var(--ds-neutral-600);
+  --text-tertiary: var(--ds-neutral-400);
+  --bg-white: var(--ds-neutral-0);
+  --bg-secondary: var(--ds-neutral-50);
+  --border-color: var(--ds-border);
+  --primary: var(--ds-brand);
+  --primary-light: var(--ds-brand-50);
+
+  /* 旧 --beaver-* 变量统一收敛到新体系，不再保留第二套颜色 */
+  --beaver-primary: var(--ds-brand);
+  --beaver-primary-dark: var(--ds-brand-hover);
+  --beaver-primary-light: var(--ds-brand-50);
+  --beaver-primary-gradient: var(--ds-brand);
+  --beaver-blue: var(--ds-neutral-600);
+  --beaver-light-blue: var(--ds-neutral-100);
+  --beaver-yellow: var(--ds-warning-fg);
+  --beaver-text-title: var(--ds-neutral-900);
+  --beaver-text-body: var(--ds-neutral-600);
+  --beaver-text-secondary: var(--ds-neutral-400);
+  --beaver-text-inverse: var(--ds-neutral-0);
+  --beaver-bg-primary: var(--ds-neutral-0);
+  --beaver-bg-secondary: var(--ds-page-bg);
+  --beaver-border: var(--ds-border);
+  --beaver-success: var(--ds-success-fg);
+  --beaver-warning: var(--ds-warning-fg);
+  --beaver-error: var(--ds-danger-fg);
+  --beaver-info: var(--ds-neutral-600);
+
+  /* 历史组件仍在引用的 7 个间距 / 3 个圆角变量 */
   --spacing-xs: 8px;
   --spacing-sm: 16px;
   --spacing-md: 24px;
   --spacing-lg: 32px;
-  --spacing-xl: 40px;
-  --spacing-2xl: 48px;
-  --spacing-3xl: 56px;
-  --spacing-4xl: 64px;
-
-  /* ===== 圆角 ===== */
-  --radius-sm: 6px;
+  --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  /* ===== 字体 ===== */
-  --font-family-en: 'SF Pro', 'Roboto', sans-serif;
-  --font-family-cn: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-family: var(--font-family-cn), var(--font-family-en);
-
-  /* ===== 字体大小 ===== */
-  --font-size-h1: 22px;
+  /* 历史组件仍在引用的字体 / 阴影 / 动效变量 */
+  --font-family-en: "SF Pro", "Roboto", sans-serif;
+  --font-family-cn: "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-family: var(--ds-font-sans);
+  --font-size-h1: 24px;
   --font-size-h2: 16px;
   --font-size-h3: 14px;
-  --font-size-body: 13px;
-  --font-size-sm: 12px;
-  --font-size-xs: 11px;
-
-  /* ===== 字重 ===== */
+  --font-size-body: 14px;
+  --font-size-sm: 13px;
+  --font-size-xs: 12px;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 600;
-
-  /* ===== 行高 ===== */
   --line-height-heading: 1.3;
-  --line-height-body: 1.5;
+  --line-height-body: 1.6;
   --line-height-compact: 1.2;
-
-  /* ===== 阴影 ===== */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-
-  /* ===== 过渡动画 ===== */
-  --transition-fast: 200ms;
-  --transition-normal: 300ms;
-  --transition-easing: cubic-bezier(0.33, 1, 0.68, 1);
+  --shadow-sm: var(--ds-shadow-1);
+  --shadow-md: var(--ds-shadow-2);
+  --shadow-lg: var(--ds-shadow-2);
+  --transition-fast: 120ms;
+  --transition-normal: 200ms;
+  --transition-easing: var(--ds-ease);
 }
 
-/* 2. 全局重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* 自定义工具类（保留给既有页面） */
+.text-title { color: var(--ds-neutral-900); }
+.text-body { color: var(--ds-neutral-600); }
+.text-secondary { color: var(--ds-neutral-400); }
+.text-primary { color: var(--ds-brand); }
+.text-success { color: var(--ds-success-fg); }
+.text-warning { color: var(--ds-warning-fg); }
+.text-error { color: var(--ds-danger-fg); }
+.text-info { color: var(--ds-neutral-600); }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  font-family: var(--font-family);
-  font-size: var(--font-size-body);
-  color: var(--beaver-text-body);
-  background-color: var(--beaver-bg-secondary);
-  line-height: var(--line-height-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+.bg-primary { background-color: var(--ds-neutral-0); }
+.bg-secondary { background-color: var(--ds-page-bg); }
+.bg-primary-light { background-color: var(--ds-brand-50); }
 
-#app {
-  width: 100%;
-  height: 100%;
-}
+.text-h1 { font-size: 24px; font-weight: 600; line-height: 1.3; }
+.text-h2 { font-size: 16px; font-weight: 500; line-height: 1.3; }
+.text-h3 { font-size: 14px; font-weight: 500; line-height: 1.3; }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 12px; }
 
-/* 3. 自定义工具类 - 可选使用 */
+.radius-sm { border-radius: var(--ds-radius-sm); }
+.radius-md { border-radius: var(--ds-radius-md); }
+.radius-lg { border-radius: var(--ds-radius-lg); }
+.shadow-sm { box-shadow: var(--ds-shadow-1); }
+.shadow-md { box-shadow: var(--ds-shadow-2); }
 
-/* 文本颜色工具类 */
-.text-title { color: var(--beaver-text-title); }
-.text-body { color: var(--beaver-text-body); }
-.text-secondary { color: var(--beaver-text-secondary); }
-.text-primary { color: var(--beaver-primary); }
-.text-success { color: var(--beaver-success); }
-.text-warning { color: var(--beaver-warning); }
-.text-error { color: var(--beaver-error); }
-.text-info { color: var(--beaver-info); }
-
-/* 背景色工具类 */
-.bg-primary { background-color: var(--beaver-bg-primary); }
-.bg-secondary { background-color: var(--beaver-bg-secondary); }
-.bg-primary-light { background-color: var(--beaver-primary-light); }
-.bg-blue-light { background-color: var(--beaver-light-blue); }
-
-/* 字体大小工具类 */
-.text-h1 { font-size: var(--font-size-h1); font-weight: var(--font-weight-bold); line-height: var(--line-height-heading); }
-.text-h2 { font-size: var(--font-size-h2); font-weight: var(--font-weight-medium); line-height: var(--line-height-heading); }
-.text-h3 { font-size: var(--font-size-h3); font-weight: var(--font-weight-medium); line-height: var(--line-height-heading); }
-.text-body { font-size: var(--font-size-body); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-xs { font-size: var(--font-size-xs); }
-
-/* 间距工具类 */
-.m-xs { margin: var(--spacing-xs); }
-.m-sm { margin: var(--spacing-sm); }
-.m-md { margin: var(--spacing-md); }
-.m-lg { margin: var(--spacing-lg); }
-
-.p-xs { padding: var(--spacing-xs); }
-.p-sm { padding: var(--spacing-sm); }
-.p-md { padding: var(--spacing-md); }
-.p-lg { padding: var(--spacing-lg); }
-
-/* 圆角工具类 */
-.radius-sm { border-radius: var(--radius-sm); }
-.radius-md { border-radius: var(--radius-md); }
-.radius-lg { border-radius: var(--radius-lg); }
-
-/* 阴影工具类 */
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-
-/* 渐变背景 */
-.gradient-primary {
-  background: var(--beaver-primary-gradient);
-}
-
-/* 卡片样式 */
+/* 不再提供渐变按钮 / 卡片：静态容器一律边框 + 无阴影 */
 .beaver-card {
-  background: var(--beaver-bg-primary);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
-}
-
-/* 按钮样式（自定义，不影响 Element Plus） */
-.beaver-btn {
-  height: 36px;
-  padding: 0 var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast) var(--transition-easing);
-  border: 1px solid transparent;
-}
-
-.beaver-btn-primary {
-  background: var(--beaver-primary);
-  color: var(--beaver-text-inverse);
-  border-color: var(--beaver-primary);
-}
-
-.beaver-btn-primary:hover {
-  background: var(--beaver-primary-dark);
-  border-color: var(--beaver-primary-dark);
-}
-
-.beaver-btn-secondary {
-  background: var(--beaver-bg-primary);
-  color: var(--beaver-primary);
-  border-color: var(--beaver-primary);
-}
-
-.beaver-btn-secondary:hover {
-  background: var(--beaver-primary-light);
-}
-
-.beaver-btn-text {
-  background: transparent;
-  color: var(--beaver-primary);
-  border: none;
-}
-
-.beaver-btn-text:hover {
-  background: var(--beaver-primary-light);
+  background: var(--ds-neutral-0);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+  padding: var(--ds-space-5);
 }
