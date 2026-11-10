@@ -40,20 +40,6 @@ import type {
   ISaveDigitalConfigRes,
   IDeleteDigitalReq,
   IDeleteDigitalRes,
-  IListDigitalKnowledgeReq,
-  IListDigitalKnowledgeRes,
-  ISaveDigitalKnowledgeReq,
-  ISaveDigitalKnowledgeRes,
-  IDeleteDigitalKnowledgeReq,
-  IDeleteDigitalKnowledgeRes,
-  IListDigitalKnowledgeDocReq,
-  IListDigitalKnowledgeDocRes,
-  ISaveDigitalKnowledgeDocReq,
-  ISaveDigitalKnowledgeDocRes,
-  IDeleteDigitalKnowledgeDocReq,
-  IDeleteDigitalKnowledgeDocRes,
-  IRetrieveDigitalKnowledgeReq,
-  IRetrieveDigitalKnowledgeRes,
   IListDigitalCatalogRes,
   ISaveDigitalMcpReq,
   ISaveDigitalMcpRes,
@@ -138,64 +124,6 @@ export function saveDigitalConfigApi(data: ISaveDigitalConfigReq) {
   return ajax<ISaveDigitalConfigRes>({
     method: "POST",
     url: `${config.baseAPI}/api/open_portal/digital/v1/config/save`,
-    data
-  })
-}
-
-/* ============ 知识源：平台知识库（数字伙伴只存引用 ID）============ */
-
-export function listDigitalKnowledgeApi(params: IListDigitalKnowledgeReq) {
-  return ajax<IListDigitalKnowledgeRes>({
-    method: "GET",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/list`,
-    params
-  })
-}
-
-export function saveDigitalKnowledgeApi(data: ISaveDigitalKnowledgeReq) {
-  return ajax<ISaveDigitalKnowledgeRes>({
-    method: "POST",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/save`,
-    data
-  })
-}
-
-export function deleteDigitalKnowledgeApi(data: IDeleteDigitalKnowledgeReq) {
-  return ajax<IDeleteDigitalKnowledgeRes>({
-    method: "POST",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/delete`,
-    data
-  })
-}
-
-export function listDigitalKnowledgeDocApi(params: IListDigitalKnowledgeDocReq) {
-  return ajax<IListDigitalKnowledgeDocRes>({
-    method: "GET",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/docs`,
-    params
-  })
-}
-
-export function saveDigitalKnowledgeDocApi(data: ISaveDigitalKnowledgeDocReq) {
-  return ajax<ISaveDigitalKnowledgeDocRes>({
-    method: "POST",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/doc/save`,
-    data
-  })
-}
-
-export function deleteDigitalKnowledgeDocApi(data: IDeleteDigitalKnowledgeDocReq) {
-  return ajax<IDeleteDigitalKnowledgeDocRes>({
-    method: "POST",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/doc/delete`,
-    data
-  })
-}
-
-export function retrieveDigitalKnowledgeApi(data: IRetrieveDigitalKnowledgeReq) {
-  return ajax<IRetrieveDigitalKnowledgeRes>({
-    method: "POST",
-    url: `${config.baseAPI}/api/open_portal/digital/v1/knowledge/retrieve`,
     data
   })
 }

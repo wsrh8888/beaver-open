@@ -22,179 +22,211 @@
 import { createRouter, createWebHashHistory } from "vue-router"
 import { useUserStore } from "@/pinia/user/user"
 
+/**
+ * 路由按业务板块划分，不再把所有东西塞进 /console：
+ * - /oauth      身份与接入（OAuth 登录）
+ * - /bots       机器人能力（推送机器人）
+ * - /digitals   机器人能力（智能体）
+ * - /knowledge  平台资源（知识库，平台级共享资产，不属于任何一个智能体）
+ * 四块都是一级路径，共享同一个 layout 壳；每块在 src/pages 下有独立目录，
+ * 目录内部再按「列表 / 创建 / 详情 / 分区」拆分，整目录可独立拆成应用。
+ * /dashboard 是控制台首页，/login、/redirect、/error/404 属于 pages/common 特殊页。
+ *
+ * meta.modulePath 供侧栏在三级路径下仍高亮二级菜单，也供面包屑回列表。
+ */
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    // 根路径只做分流：未登录进登录页，已登录进控制台。
-    // SDK / 接入 / 接口文档统一由 beaver-docs 承载，本应用只包含登录 + 控制台。
+    // 公开页：登录、OAuth 回调中转、404
+    {
+      path: "/login",
+      name: "Login",
+      component: () => import("@/pages/common/login/index.vue"),
+      meta: { title: "登录", public: true }
+    },
+    {
+      path: "/redirect",
+      name: "Redirect",
+      component: () => import("@/pages/common/redirect/index.vue"),
+      meta: { public: true }
+    },
+    {
+      path: "/redirect/:path(.*)",
+      name: "RedirectCatch",
+      component: () => import("@/pages/common/redirect/index.vue"),
+      meta: { public: true }
+    },
+    {
+      path: "/error/404",
+      name: "Error404",
+      component: () => import("@/pages/common/error/404.vue"),
+      meta: { title: "页面不存在", public: true }
+    },
+
+    // 应用壳：所有业务板块共用的侧栏 / 顶栏
     {
       path: "/",
-      name: "Entry",
-      redirect: () => (useUserStore().isLoggedIn ? "/console/dashboard" : "/login")
-    },
-    // 控制台 (需要登录)
-    {
-      path: "/console",
       component: () => import("@/layouts/index.vue"),
-      redirect: "/console/dashboard",
+      redirect: () => (useUserStore().isLoggedIn ? "/dashboard" : "/login"),
       children: [
         // 控制台首页
         {
-          path: "/console/dashboard",
-          name: "ConsoleDashboard",
+          path: "/dashboard",
+          name: "Dashboard",
           component: () => import("@/pages/dashboard/index.vue"),
-          meta: {
-            title: '控制台',
-            requiresAuth: true
-          }
+          meta: { title: "控制台", requiresAuth: true }
         },
-        // 三级信息架构：一级能力分组（侧栏）→ 二级模块列表 → 三级创建页 / 详情页。
-        // 每个模块一个独立目录，整目录可拆成独立应用；详情页内的分区再由 ?tab= 深链。
-        // meta.modulePath 供侧栏在三级路径下仍高亮二级菜单，也供面包屑回列表。
 
-        // 身份与接入 / OAuth 登录（对应服务端 open_oauth）
+        // ① 身份与接入 / OAuth 登录
         {
-          path: "/console/oauth",
-          name: "ConsoleOAuth",
-          component: () => import("@/pages/console/oauth/index.vue"),
+          path: "/oauth",
+          name: "OAuth",
+          component: () => import("@/pages/oauth/list/index.vue"),
           meta: {
             title: "OAuth 登录",
             requiresAuth: true,
             group: "身份与接入",
             module: "OAuth 登录",
-            modulePath: "/console/oauth"
+            modulePath: "/oauth"
           }
         },
         {
-          path: "/console/oauth/create",
-          name: "ConsoleOAuthCreate",
-          component: () => import("@/pages/console/oauth/create.vue"),
+          path: "/oauth/create",
+          name: "OAuthCreate",
+          component: () => import("@/pages/oauth/create/index.vue"),
           meta: {
             title: "创建 OAuth 应用",
             requiresAuth: true,
             group: "身份与接入",
             module: "OAuth 登录",
-            modulePath: "/console/oauth",
+            modulePath: "/oauth",
             page: "创建应用"
           }
         },
         {
-          path: "/console/oauth/:oauthId",
-          name: "ConsoleOAuthDetail",
-          component: () => import("@/pages/console/oauth/detail/index.vue"),
+          path: "/oauth/:oauthId",
+          name: "OAuthDetail",
+          component: () => import("@/pages/oauth/detail/index.vue"),
           meta: {
             title: "应用详情",
             requiresAuth: true,
             group: "身份与接入",
             module: "OAuth 登录",
-            modulePath: "/console/oauth",
+            modulePath: "/oauth",
             page: "应用详情"
           }
         },
 
-        // 机器人能力 / 推送机器人（对应服务端 open_bot）
+        // ② 机器人能力 / 推送机器人
         {
-          path: "/console/bots",
-          name: "ConsoleBots",
-          component: () => import("@/pages/console/bots/index.vue"),
+          path: "/bots",
+          name: "Bots",
+          component: () => import("@/pages/bots/list/index.vue"),
           meta: {
             title: "推送机器人",
             requiresAuth: true,
             group: "机器人能力",
             module: "推送机器人",
-            modulePath: "/console/bots"
+            modulePath: "/bots"
           }
         },
         {
-          path: "/console/bots/create",
-          name: "ConsoleBotsCreate",
-          component: () => import("@/pages/console/bots/create.vue"),
+          path: "/bots/create",
+          name: "BotsCreate",
+          component: () => import("@/pages/bots/create/index.vue"),
           meta: {
             title: "创建推送机器人",
             requiresAuth: true,
             group: "机器人能力",
             module: "推送机器人",
-            modulePath: "/console/bots",
+            modulePath: "/bots",
             page: "创建机器人"
           }
         },
         {
-          path: "/console/bots/:botId",
-          name: "ConsoleBotsDetail",
-          component: () => import("@/pages/console/bots/detail/index.vue"),
+          path: "/bots/:botId",
+          name: "BotsDetail",
+          component: () => import("@/pages/bots/detail/index.vue"),
           meta: {
             title: "机器人详情",
             requiresAuth: true,
             group: "机器人能力",
             module: "推送机器人",
-            modulePath: "/console/bots",
+            modulePath: "/bots",
             page: "机器人详情"
           }
         },
 
-        // 机器人能力 / 智能体（对应服务端 open_digital）
+        // ③ 机器人能力 / 智能体
         {
-          path: "/console/digitals",
-          name: "ConsoleDigitals",
-          component: () => import("@/pages/console/digitals/index.vue"),
+          path: "/digitals",
+          name: "Digitals",
+          component: () => import("@/pages/digitals/list/index.vue"),
           meta: {
             title: "智能体",
             requiresAuth: true,
             group: "机器人能力",
             module: "智能体",
-            modulePath: "/console/digitals"
+            modulePath: "/digitals"
           }
         },
         // 创建与修改共用一个工作台：create 是草稿态，:digitalId 是实体态。
         // 草稿态填完任一分区点保存即先落库，再原地 replace 到真实 ID。
         {
-          path: "/console/digitals/create",
-          name: "ConsoleDigitalsCreate",
-          component: () => import("@/pages/console/digitals/detail/index.vue"),
+          path: "/digitals/create",
+          name: "DigitalsCreate",
+          component: () => import("@/pages/digitals/detail/index.vue"),
           meta: {
             title: "新建智能体",
             requiresAuth: true,
             group: "机器人能力",
             module: "智能体",
-            modulePath: "/console/digitals",
+            modulePath: "/digitals",
             page: "新建智能体",
             isNew: true
           }
         },
         {
-          path: "/console/digitals/:digitalId",
-          name: "ConsoleDigitalsDetail",
-          component: () => import("@/pages/console/digitals/detail/index.vue"),
+          path: "/digitals/:digitalId",
+          name: "DigitalsDetail",
+          component: () => import("@/pages/digitals/detail/index.vue"),
           meta: {
             title: "智能体详情",
             requiresAuth: true,
             group: "机器人能力",
             module: "智能体",
-            modulePath: "/console/digitals",
+            modulePath: "/digitals",
             page: "智能体详情"
+          }
+        },
+
+        // ④ 平台资源 / 知识库（平台级资产；智能体详情的「知识源」是后端实体，可引入 N 个知识库）
+        {
+          path: "/knowledge",
+          name: "Knowledge",
+          component: () => import("@/pages/knowledge/list/index.vue"),
+          meta: {
+            title: "知识库",
+            requiresAuth: true,
+            group: "平台资源",
+            module: "知识库",
+            modulePath: "/knowledge"
+          }
+        },
+        {
+          path: "/knowledge/:collectionId",
+          name: "KnowledgeDetail",
+          component: () => import("@/pages/knowledge/detail/index.vue"),
+          meta: {
+            title: "知识库详情",
+            requiresAuth: true,
+            group: "平台资源",
+            module: "知识库",
+            modulePath: "/knowledge",
+            page: "知识库详情"
           }
         }
       ]
-    },
-    {
-      path: "/login",
-      name: "Login",
-      component: () => import("@/pages/login/index.vue")
-    },
-    {
-      path: "/redirect",
-      name: "Redirect",
-      component: () => import("@/pages/redirect/index.vue")
-    },
-    {
-      path: "/redirect/:path(.*)",
-      name: "RedirectCatch",
-      component: () => import("@/pages/redirect/index.vue")
-    },
-    {
-      path: "/error/404",
-      name: "Error404",
-      component: () => import("@/pages/error/404.vue")
     },
     {
       path: "/:pathMatch(.*)*",
@@ -203,22 +235,16 @@ const router = createRouter({
   ]
 })
 
-// 路由守卫
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
-
-  // 公开页面、OAuth 回调页直接放行（"/" 已在路由表分流，不会以此路径到达守卫）
-  if (to.path === "/login" || to.path.startsWith("/redirect") || to.path === "/error/404") {
+// 路由守卫：公开页放行，其余必须已登录
+router.beforeEach((to, _from, next) => {
+  if (to.meta.public === true) {
     next()
     return
   }
-
-  // 检查是否已登录
-  if (!userStore.isLoggedIn) {
+  if (!useUserStore().isLoggedIn) {
     next("/login")
     return
   }
-
   next()
 })
 

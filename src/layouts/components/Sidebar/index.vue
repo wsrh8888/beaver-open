@@ -22,7 +22,7 @@
 <template>
   <div class="sidebar">
     <div class="logo-container">
-      <router-link to="/console/dashboard" class="logo-link">
+      <router-link to="/dashboard" class="logo-link">
         <svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true">
           <rect x="0" y="0" width="24" height="24" rx="6" fill="#BF4A1B" />
           <path d="M8 6.5h4.6a3.1 3.1 0 0 1 0 6.2H8V6.5Zm0 6.2h5a3.1 3.1 0 0 1 0 6.2H8v-6.2Z" fill="#FFFFFF" />
@@ -69,7 +69,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
 
-    // 三级路由（/console/<模块>/create|:id）下仍高亮二级模块菜单，
+    // 三级路由（/<模块>/create|:id）下仍高亮二级模块菜单，
     // 高亮目标由路由 meta.modulePath 声明，不再靠路径前缀猜。
     const activeMenu = computed(() =>
       (route.meta.modulePath as string | undefined) || route.path

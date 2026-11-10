@@ -19,26 +19,6 @@
   beaver-open-header-v1
 -->
 
-<script lang="ts">
-import { defineComponent, ref } from "vue"
-import NavigationBar from "./components/NavigationBar/index.vue"
-import Sidebar from "./components/Sidebar/index.vue"
-
-export default defineComponent({
-  components: {
-    Sidebar,
-    NavigationBar
-  },
-  setup() {
-    const drawerOpen = ref(false)
-
-    return {
-      drawerOpen
-    }
-  }
-})
-</script>
-
 <template>
   <div class="app-wrapper" :class="{ 'is-drawer-open': drawerOpen }">
     <div v-if="drawerOpen" class="drawer-mask" @click="drawerOpen = false" />
@@ -71,6 +51,26 @@ export default defineComponent({
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent, ref } from "vue"
+import NavigationBar from "./components/NavigationBar/index.vue"
+import Sidebar from "./components/Sidebar/index.vue"
+
+export default defineComponent({
+  components: {
+    Sidebar,
+    NavigationBar
+  },
+  setup() {
+    const drawerOpen = ref(false)
+
+    return {
+      drawerOpen
+    }
+  }
+})
+</script>
 
 <style lang="less" scoped>
 .app-wrapper {

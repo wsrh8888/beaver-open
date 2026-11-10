@@ -19,55 +19,6 @@
   beaver-open-header-v1
 -->
 
-<script lang="ts">
-import { computed, defineComponent } from "vue"
-import { useRoute, useRouter } from "vue-router"
-import { User } from "@element-plus/icons-vue"
-import { useUserStore } from "@/pinia/user/user"
-
-interface Crumb {
-  label: string
-  to?: string
-}
-
-export default defineComponent({
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const userStore = useUserStore()
-
-    // 面包屑是全站唯一渲染位置。层级由路由 meta 声明：
-    // 控制台 / 一级能力分组 / 二级模块（可点击回列表）/ 三级页面或实体名。
-    // 详情页加载成功后会把真实名称写入 meta.entityName，避免面包屑只显示「详情」。
-    const crumbs = computed<Crumb[]>(() => {
-      const meta = route.meta
-      const result: Crumb[] = [{ label: "控制台", to: "/console/dashboard" }]
-      if (meta.group) result.push({ label: String(meta.group) })
-      if (meta.module) {
-        const modulePath = String(meta.modulePath || "")
-        result.push({ label: String(meta.module), to: modulePath || undefined })
-      }
-      const leaf = meta.entityName || meta.page
-      if (leaf) result.push({ label: String(leaf) })
-      return result
-    })
-
-    // document.title 统一由 router.afterEach 处理（含登录页），这里不再重复写。
-    const logout = () => {
-      userStore.logout()
-      router.push("/login")
-    }
-
-    return {
-      User,
-      crumbs,
-      userStore,
-      logout
-    }
-  }
-})
-</script>
-
 <template>
   <div class="navigation-bar">
     <nav class="ds-breadcrumb" aria-label="面包屑">
@@ -101,6 +52,55 @@ export default defineComponent({
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import { computed, defineComponent } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { User } from "@element-plus/icons-vue"
+import { useUserStore } from "@/pinia/user/user"
+
+interface Crumb {
+  label: string
+  to?: string
+}
+
+export default defineComponent({
+  setup() {
+    const route = useRoute()
+    const router = useRouter()
+    const userStore = useUserStore()
+
+    // 面包屑是全站唯一渲染位置。层级由路由 meta 声明：
+    // 控制台 / 一级能力分组 / 二级模块（可点击回列表）/ 三级页面或实体名。
+    // 详情页加载成功后会把真实名称写入 meta.entityName，避免面包屑只显示「详情」。
+    const crumbs = computed<Crumb[]>(() => {
+      const meta = route.meta
+      const result: Crumb[] = [{ label: "控制台", to: "/dashboard" }]
+      if (meta.group) result.push({ label: String(meta.group) })
+      if (meta.module) {
+        const modulePath = String(meta.modulePath || "")
+        result.push({ label: String(meta.module), to: modulePath || undefined })
+      }
+      const leaf = meta.entityName || meta.page
+      if (leaf) result.push({ label: String(leaf) })
+      return result
+    })
+
+    // document.title 统一由 router.afterEach 处理（含登录页），这里不再重复写。
+    const logout = () => {
+      userStore.logout()
+      router.push("/login")
+    }
+
+    return {
+      User,
+      crumbs,
+      userStore,
+      logout
+    }
+  }
+})
+</script>
 
 <style lang="less" scoped>
 .navigation-bar {

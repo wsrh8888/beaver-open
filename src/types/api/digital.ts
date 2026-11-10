@@ -40,7 +40,7 @@ export interface IDigitalInfo {
   description: string
   runtime: DigitalRuntime
   visibility: DigitalVisibility
-  /** 1 已发布 / 0 未发布（服务端 OpenDigital.Status）；旧版服务端不返回时按已发布展示 */
+  /** 1 启用 / 0 停用（服务端 OpenDigital.Status，建表默认 1）。这是启用开关，不是发布状态；服务端目前没有发布流程 */
   status?: number
   appKey?: string
   appSecret?: string // 掩码；仅 external 有
@@ -140,113 +140,10 @@ export interface ISaveDigitalConfigReq {
 }
 export interface ISaveDigitalConfigRes {}
 
-/* ==================== 知识源（平台知识库门面）==================== */
-
-export interface IDigitalKnowledge {
-  collectionId: string
-  name: string
-  description: string
-  kind: string
-  /** 1 启用 / 2 停用 */
-  status: number
-  /** 检索条数（indexConfig.top_k），0 = 平台默认 */
-  topK: number
-  documentCount: number
-  /** 是否已绑定当前数字伙伴 */
-  bound: boolean
-  /** 原始 indexConfig JSON，设置页回显分段/检索参数 */
-  indexConfig?: string
-}
-
-export interface IListDigitalKnowledgeReq {
-  digitalId: string
-}
-export interface IListDigitalKnowledgeRes {
-  total: number
-  list: IDigitalKnowledge[]
-}
-
-export interface ISaveDigitalKnowledgeReq {
-  digitalId: string
-  /** 空 = 新建 */
-  collectionId?: string
-  name?: string
-  description?: string
-  topK?: number
-  /** JSON 字符串；只覆盖传入的键，不会清掉向量模型配置 */
-  indexConfig?: string
-}
-export interface ISaveDigitalKnowledgeRes {
-  collectionId: string
-}
-
-export interface IDeleteDigitalKnowledgeReq {
-  digitalId: string
-  collectionId: string
-}
-export interface IDeleteDigitalKnowledgeRes {}
-
-export interface IDigitalKnowledgeDoc {
-  documentId: string
-  title: string
-  docType: string
-  byteSize: number
-  /** pending | indexing | ready | failed */
-  indexStatus: string
-  indexError?: string
-  /** 学习完成时间（秒级时间戳），0 = 未完成 */
-  indexedAt: number
-}
-
-export interface IListDigitalKnowledgeDocReq {
-  digitalId: string
-  collectionId: string
-  keyword?: string
-}
-export interface IListDigitalKnowledgeDocRes {
-  total: number
-  list: IDigitalKnowledgeDoc[]
-}
-
-export interface ISaveDigitalKnowledgeDocReq {
-  digitalId: string
-  /** 新建时必填 */
-  collectionId?: string
-  /** 空 = 新建 */
-  documentId?: string
-  title: string
-  contentText?: string
-  /** 不改正文只重建索引（「更新学习」） */
-  reindex?: boolean
-}
-export interface ISaveDigitalKnowledgeDocRes {
-  documentId: string
-}
-
-export interface IDeleteDigitalKnowledgeDocReq {
-  digitalId: string
-  documentId: string
-}
-export interface IDeleteDigitalKnowledgeDocRes {}
-
-export interface IDigitalKnowledgeHit {
-  documentId: string
-  title: string
-  chunkIndex: number
-  content: string
-  score: number
-}
-export interface IRetrieveDigitalKnowledgeReq {
-  digitalId: string
-  collectionId: string
-  query: string
-  topK?: number
-}
-export interface IRetrieveDigitalKnowledgeRes {
-  hits: IDigitalKnowledgeHit[]
-  /** 无结果的原因（未配置向量模型 / 无命中等） */
-  notice?: string
-}
+// 知识源是 open_knowledge_source 表里的后端一等实体，归某个智能体所有，
+// 一个知识源可引入 N 个知识库；合并去重后的 knowledgeIds 才是运行时实际检索的列表，
+// 由服务端按知识源表重算回填，前端不直接提交。
+// 知识源与平台知识库本体的类型定义都在 types/api/knowledge.ts。
 
 /* ==================== 工具与 MCP 目录 ==================== */
 

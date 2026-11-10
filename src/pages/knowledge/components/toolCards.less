@@ -1,0 +1,387 @@
+/**
+ * Copyright (c) 2024-2026 Beaver IM Team
+ * SPDX-License-Identifier: MIT
+ * Project: beaver-open
+ * https://github.com/wsrh8888/beaver-open
+ *
+ * 中文：
+ * 本文件为海狸 IM（Beaver IM）开源项目源代码。
+ * 版权所有 © 2024-2026 Beaver IM Team，基于 MIT 协议授权。
+ * 禁止删除、篡改或替换本文件头部版权与许可声明。
+ * 使用与商业授权说明：https://wsrh8888.github.io/beaver-docs/community/license.html
+ *
+ * English:
+ * This file is part of the Beaver IM open-source project.
+ * Copyright (c) 2024-2026 Beaver IM Team. Licensed under the MIT License.
+ * Do not remove, alter, or replace this copyright and license header.
+ * Usage & commercial licensing: https://wsrh8888.github.io/beaver-docs/community/license.html
+ *
+ * beaver-open-header-v1
+ *
+ * 工具箱 / MCP / 知识源 共用的卡片网格视觉，风格对齐 cloud-console 的 toolUi.less。
+ */
+
+.agent-tools {
+  --tool-radius: 12px;
+  --tool-shadow: 0 1px 2px rgb(15 23 42 / 4%), 0 4px 16px rgb(15 23 42 / 4%);
+  --tool-shadow-hover: 0 4px 8px rgb(15 23 42 / 6%), 0 12px 28px rgb(15 23 42 / 8%);
+  --tool-surface: var(--el-bg-color);
+  --tool-muted: var(--el-text-color-secondary);
+  --tool-radius-sm: 11px;
+}
+
+.agent-tools__nav {
+  display: inline-flex;
+  padding: 3px;
+  margin-bottom: 20px;
+  border-radius: 999px;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-extra-light);
+}
+
+.agent-tools__nav-btn {
+  position: relative;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--tool-muted);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+
+  &:hover:not(&--active) {
+    color: var(--el-text-color-primary);
+  }
+
+  &--active {
+    color: var(--el-color-primary);
+    background: var(--tool-surface);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 8%);
+  }
+}
+
+.agent-tools__panel {
+  padding: 4px 0 8px;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: 14px;
+  min-height: 120px;
+}
+
+.tool-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-height: 132px;
+  padding: 0;
+  text-align: left;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--tool-radius);
+  background: var(--tool-surface);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--el-border-color);
+    box-shadow: var(--tool-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &--entry {
+    border-style: dashed;
+    border-color: var(--el-border-color);
+    background: linear-gradient(180deg, var(--el-fill-color-blank) 0%, var(--el-fill-color-light) 100%);
+
+    &:hover:not(:disabled) {
+      border-color: var(--el-color-primary-light-5);
+      background: linear-gradient(180deg, var(--el-bg-color) 0%, var(--el-color-primary-light-9) 100%);
+    }
+
+    .tool-card__body--entry {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px 16px;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 16px 14px;
+    flex: 1;
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--tool-radius-sm);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--el-text-color-primary);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 65%);
+  }
+
+  &__icon--mcp {
+    font-size: 0;
+    color: var(--el-color-primary);
+    background: linear-gradient(145deg, var(--el-color-primary-light-8), var(--el-color-primary-light-9));
+
+    .el-icon {
+      font-size: 22px;
+    }
+  }
+
+  &__plus-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 22px;
+    color: var(--el-color-primary);
+    background: var(--el-bg-color);
+    box-shadow: var(--tool-shadow);
+  }
+
+  &__status-dot {
+    flex-shrink: 0;
+    align-self: center;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 4px;
+
+    &.is-on {
+      background: var(--el-color-primary);
+      box-shadow: 0 0 0 3px var(--el-color-primary-light-9);
+    }
+
+    &.is-off {
+      background: var(--el-border-color);
+    }
+  }
+
+  &__text {
+    min-width: 0;
+    flex: 1;
+    padding-top: 2px;
+  }
+
+  &__title {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--el-text-color-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__subtitle {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--tool-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--el-text-color-regular);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__entry-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--el-text-color-primary);
+  }
+
+  &__entry-hint {
+    font-size: 12px;
+    color: var(--tool-muted);
+  }
+
+  &__foot {
+    padding: 0 16px 12px;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--el-color-primary);
+    background: var(--el-color-primary-light-9);
+  }
+}
+
+.tool-detail-hero {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: var(--tool-radius-sm);
+  background: linear-gradient(135deg, var(--el-fill-color-light) 0%, var(--el-fill-color-blank) 100%);
+  border: 1px solid var(--el-border-color-extra-light);
+
+  &__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: var(--tool-shadow);
+  }
+
+  &__icon.tool-card__icon--mcp {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    font-size: 0;
+
+    .el-icon {
+      font-size: 26px;
+    }
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  &__code {
+    margin: 6px 0 0;
+    font-size: 12px;
+    font-family: ui-monospace, "Cascadia Code", monospace;
+    color: var(--tool-muted);
+  }
+}
+
+.tool-dialog-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 24px;
+
+  &__title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--el-text-color-primary);
+  }
+
+  &__sub {
+    margin: 0;
+    font-size: 13px;
+    color: var(--tool-muted);
+  }
+}
+
+.tool-info-grid {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 10px;
+  overflow: hidden;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    background: var(--tool-surface);
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--el-border-color-extra-light);
+    }
+  }
+
+  &__label {
+    color: var(--tool-muted);
+    font-size: 12px;
+  }
+
+  &__value {
+    margin: 0;
+    color: var(--el-text-color-primary);
+    word-break: break-word;
+  }
+
+  &__mono {
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+  }
+}
+
+:deep(.tool-dialog) {
+  .el-dialog__header {
+    padding-bottom: 8px;
+    margin-right: 0;
+  }
+
+  .el-dialog__body {
+    padding-top: 8px;
+  }
+}

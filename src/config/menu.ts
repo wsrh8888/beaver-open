@@ -22,6 +22,7 @@
 import HouseIcon from "@/assets/icons/house.svg"
 import KeyIcon from "@/assets/icons/key.svg"
 import ChatIcon from "@/assets/icons/chat.svg"
+import DocumentIcon from "@/assets/icons/document.svg"
 
 export interface MenuItem {
   path: string
@@ -37,28 +38,36 @@ export interface MenuGroup {
 
 // 控制台首页是独立入口，不属于任何能力分组
 export const dashboardMenu: MenuItem = {
-  path: "/console/dashboard",
+  path: "/dashboard",
   title: "控制台",
   icon: HouseIcon
 }
 
-// 一级 = 能力分组，二级 = 独立模块。
-// 服务端已把 OAuth / Bot / Digital 拆成三个平级一级实体，前端不再用「应用」容器包装。
-// 每个模块对应 src/pages/console 下的独立目录，后续可整目录拆成独立应用；
+// 一级 = 能力分组，二级 = 独立模块；每块都占一个一级路由前缀。
+// 三块业务能力 = OAuth 登录(/oauth) / 推送机器人(/bots) / 智能体(/digitals)，
+// 各自对应 src/pages 下的独立目录，整目录可拆成独立应用。
+// 知识库(/knowledge) 是平台级共享资产，与智能体详情里的「知识源」是两套东西：
+// 知识库存文档与索引本体，知识源是 open_knowledge_source 表里的后端实体、
+// 归某个智能体所有且可引入 N 个知识库，因此单列为「平台资源」分组。
 // agent 是独立运行时（app/agent、platform/agent_apps），门户只通过数字伙伴编排配置引用它，
 // 没有门户 CRUD 接口，因此不单列菜单。
 export const menuGroups: MenuGroup[] = [
   {
     title: "身份与接入",
     icon: KeyIcon,
-    items: [{ path: "/console/oauth", title: "OAuth 登录" }]
+    items: [{ path: "/oauth", title: "OAuth 登录" }]
   },
   {
     title: "机器人能力",
     icon: ChatIcon,
     items: [
-      { path: "/console/bots", title: "推送机器人" },
-      { path: "/console/digitals", title: "智能体" }
+      { path: "/bots", title: "推送机器人" },
+      { path: "/digitals", title: "智能体" }
     ]
+  },
+  {
+    title: "平台资源",
+    icon: DocumentIcon,
+    items: [{ path: "/knowledge", title: "知识库" }]
   }
 ]
