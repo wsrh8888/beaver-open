@@ -27,9 +27,10 @@ import { useUserStore } from "@/pinia/user/user"
  * - /oauth      身份与接入（OAuth 登录）
  * - /bots       机器人能力（推送机器人）
  * - /digitals   机器人能力（智能体）
- * - /knowledge  平台资源（知识库，平台级共享资产，不属于任何一个智能体）
- * 四块都是一级路径，共享同一个 layout 壳；每块在 src/pages 下有独立目录，
+ * 三块都是一级路径，共享同一个 layout 壳；每块在 src/pages 下有独立目录，
  * 目录内部再按「列表 / 创建 / 详情 / 分区」拆分，整目录可独立拆成应用。
+ * 智能体详情里的「知识源」是数字伙伴的子实体，挂在 /digitals/:digitalId 下，
+ * 不是一级路由。
  * /dashboard 是控制台首页，/login、/redirect、/error/404 属于 pages/common 特殊页。
  *
  * meta.modulePath 供侧栏在三级路径下仍高亮二级菜单，也供面包屑回列表。
@@ -197,33 +198,6 @@ const router = createRouter({
             module: "智能体",
             modulePath: "/digitals",
             page: "智能体详情"
-          }
-        },
-
-        // ④ 平台资源 / 知识库（平台级资产；智能体详情的「知识源」是后端实体，可引入 N 个知识库）
-        {
-          path: "/knowledge",
-          name: "Knowledge",
-          component: () => import("@/pages/knowledge/list/index.vue"),
-          meta: {
-            title: "知识库",
-            requiresAuth: true,
-            group: "平台资源",
-            module: "知识库",
-            modulePath: "/knowledge"
-          }
-        },
-        {
-          path: "/knowledge/:collectionId",
-          name: "KnowledgeDetail",
-          component: () => import("@/pages/knowledge/detail/index.vue"),
-          meta: {
-            title: "知识库详情",
-            requiresAuth: true,
-            group: "平台资源",
-            module: "知识库",
-            modulePath: "/knowledge",
-            page: "知识库详情"
           }
         }
       ]

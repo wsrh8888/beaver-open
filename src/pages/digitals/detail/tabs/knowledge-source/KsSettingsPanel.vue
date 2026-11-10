@@ -19,7 +19,8 @@
   beaver-open-header-v1
 
   知识源「设置」分区。只暴露后端真实生效的字段（名称 / 检索条数）；
-  分段与索引配置属于知识库本体，在 /knowledge 里维护，这里不放一个改了也不生效的表单。
+  在线文档在「文档」分区通过粘贴海狸内部地址导入，文档正文与索引由平台侧异步拉取，
+  因此这里不放一个改了也不生效的文档表单。
 -->
 
 <template>
@@ -31,10 +32,10 @@
     </el-form-item>
     <el-form-item label="检索条数">
       <el-input-number v-model="topK" :min="1" :max="50" controls-position="right" />
+      <span class="settings-form__hint">检索时从该知识源集合里返回的最多片段数</span>
     </el-form-item>
-    <el-form-item label="引入的知识库">
-      <span class="settings-form__value">{{ source.knowledgeIds.length }} 个</span>
-      <el-button link type="primary" @click="goKnowledge">去知识库维护文档与索引</el-button>
+    <el-form-item label="文档来源">
+      <span class="settings-form__hint">在线文档在「文档」分区通过粘贴海狸内部地址导入，平台会自动拉取并索引，无需搬运。</span>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" :loading="saving" @click="save">保存</el-button>
@@ -53,7 +54,6 @@
 <script lang="ts">
 import type { PropType } from "vue"
 import { ref, watch, defineComponent, toRefs } from "vue"
-import { useRouter } from "vue-router"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { deleteKnowledgeSourceApi, saveKnowledgeSourceApi } from "@/api/knowledge"
 import type { IKnowledgeSourceItem } from "@/types/api/knowledge"
@@ -74,7 +74,6 @@ export default defineComponent({
       return fallback
     }
 
-    const router = useRouter()
     const name = ref(props.source.name)
     const topK = ref(props.source.retrievalTopK || 8)
     const saving = ref(false)
@@ -112,7 +111,7 @@ export default defineComponent({
     const remove = async () => {
       try {
         await ElMessageBox.confirm(
-          `删除「${props.source.name}」后，它引入的 ${props.source.knowledgeIds.length} 个知识库引用会一并移除；知识库本身不受影响。`,
+          `删除「${props.source.name}」后，它引入的在线文档引用会一并移除；在线文档本体不受影响。`,
           "删除知识源",
           { type: "warning" }
         )
@@ -135,10 +134,9 @@ export default defineComponent({
       }
     }
 
-    const goKnowledge = () => router.push("/knowledge")
     return {
-      ...toRefs(props), props, emit, errorMessage, router, name, topK, saving, deleting, save,
-      remove, goKnowledge, ref, watch, useRouter, ElMessage, ElMessageBox,
+      ...toRefs(props), props, emit, errorMessage, name, topK, saving, deleting, save,
+      remove, ref, watch, ElMessage, ElMessageBox,
       deleteKnowledgeSourceApi, saveKnowledgeSourceApi
     }
   }

@@ -62,7 +62,6 @@ import { useRouter } from "vue-router"
 import { getOAuthAppListApi } from "@/api/oauth"
 import { listBotsApi } from "@/api/bot"
 import { listDigitalsApi } from "@/api/digital"
-import { listKnowledgeBaseApi } from "@/api/knowledge"
 
 interface CapabilityCard {
   title: string
@@ -110,34 +109,19 @@ export default defineComponent({
             loading: false,
             failed: false
           },
-          {
-            title: "智能体",
-            desc: "数字伙伴、运行方式与编排配置",
-            unit: "数字伙伴",
-            path: "/digitals",
-            count: 0,
-            recent: [],
-            loading: false,
-            failed: false
-          }
-        ]
-      },
-      {
-        title: "平台资源",
-        cards: [
-          {
-            title: "知识库",
-            desc: "平台级集合、文档与索引配置，可被多个智能体引用",
-            unit: "知识库",
-            path: "/knowledge",
-            count: 0,
-            recent: [],
-            loading: false,
-            failed: false
-          }
-        ]
+                {
+        title: "智能体",
+        desc: "数字伙伴、运行方式与编排配置",
+        unit: "数字伙伴",
+        path: "/digitals",
+        count: 0,
+        recent: [],
+        loading: false,
+        failed: false
       }
-    ])
+    ]
+  }
+])
 
     const loadCapability = async (card: CapabilityCard, fetcher: () => Promise<any>) => {
       card.loading = true
@@ -162,8 +146,6 @@ export default defineComponent({
       loadCapability(groups[0].cards[0], () => getOAuthAppListApi({ page: 1, pageSize: 3 }))
       loadCapability(groups[1].cards[0], () => listBotsApi({ page: 1, pageSize: 3 }))
       loadCapability(groups[1].cards[1], () => listDigitalsApi({ page: 1, pageSize: 3 }))
-      // 平台知识库是不分页的列表，count 由 loadCapability 从 total 读取
-      loadCapability(groups[2].cards[0], () => listKnowledgeBaseApi())
     }
 
     const go = (path: string) => router.push(path)

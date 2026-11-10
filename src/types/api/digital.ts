@@ -140,10 +140,11 @@ export interface ISaveDigitalConfigReq {
 }
 export interface ISaveDigitalConfigRes {}
 
-// 知识源是 open_knowledge_source 表里的后端一等实体，归某个智能体所有，
-// 一个知识源可引入 N 个知识库；合并去重后的 knowledgeIds 才是运行时实际检索的列表，
-// 由服务端按知识源表重算回填，前端不直接提交。
-// 知识源与平台知识库本体的类型定义都在 types/api/knowledge.ts。
+// 知识源是 open_knowledge_source 表里的后端一等实体，归某个数字伙伴所有，
+// 只持有 platform 索引集合的引用（新建时由后端建集合）；合并去重后的 knowledgeIds
+// 才是运行时实际检索的列表，由服务端按知识源表重算回填，前端不直接提交。
+// 在线文档由用户粘贴海狸内部地址导入，正文与索引由 platform 侧异步拉取。
+// 知识源相关的类型定义都在 types/api/knowledge.ts。
 
 /* ==================== 工具与 MCP 目录 ==================== */
 

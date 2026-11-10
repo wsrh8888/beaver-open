@@ -20,109 +20,16 @@
  */
 
 /**
- * 平台知识库：与智能体详情里的「知识源」是两套东西。
- * 知识库 = platform 域的集合 + 文档 + 索引配置，归开发者所有，跨智能体复用；
- * 知识源 = open 库里的后端一等实体（open_knowledge_source 表），归某个智能体所有，
- *          一个知识源可引入 N 个知识库，只存 collectionId 引用，不复制文档。
- * 知识源不再是 builtinConfig JSON 里的本地分组；运行时按所有知识源合并去重后的
- * knowledgeIds 检索，这一列由后端在知识源变更时自动回写，前端不直接提交。
- */
-
-export interface IKnowledgeBase {
-  collectionId: string
-  name: string
-  description: string
-  kind: string
-  /** 1 启用 / 2 停用 */
-  status: number
-  /** 检索条数（indexConfig.top_k），0 = 平台默认 */
-  topK: number
-  documentCount: number
-  /** 原始 indexConfig JSON，设置页回显分段/检索参数 */
-  indexConfig?: string
-}
-
-export interface IListKnowledgeBaseRes {
-  total: number
-  list: IKnowledgeBase[]
-}
-
-export interface ISaveKnowledgeBaseReq {
-  /** 空 = 新建 */
-  collectionId?: string
-  name?: string
-  description?: string
-  topK?: number
-  /** JSON 字符串；只覆盖传入的键，不会清掉向量模型配置 */
-  indexConfig?: string
-}
-export interface ISaveKnowledgeBaseRes {
-  collectionId: string
-}
-
-export interface IDeleteKnowledgeBaseReq {
-  collectionId: string
-}
-
-export interface IKnowledgeDoc {
-  documentId: string
-  title: string
-  docType: string
-  byteSize: number
-  /** pending | indexing | ready | failed */
-  indexStatus: string
-  indexError?: string
-  indexedAt: number
-}
-
-export interface IListKnowledgeDocReq {
-  collectionId: string
-  keyword?: string
-}
-export interface IListKnowledgeDocRes {
-  total: number
-  list: IKnowledgeDoc[]
-}
-
-export interface ISaveKnowledgeDocReq {
-  /** 新建时必填 */
-  collectionId?: string
-  /** 空 = 新建 */
-  documentId?: string
-  title: string
-  contentText?: string
-  /** 不改正文只重建索引 */
-  reindex?: boolean
-}
-export interface ISaveKnowledgeDocRes {
-  documentId: string
-}
-
-export interface IDeleteKnowledgeDocReq {
-  documentId: string
-}
-
-export interface IKnowledgeHit {
-  documentId: string
-  title: string
-  chunkIndex: number
-  content: string
-  score: number
-}
-export interface IRetrieveKnowledgeReq {
-  collectionId: string
-  query: string
-  topK?: number
-}
-export interface IRetrieveKnowledgeRes {
-  hits: IKnowledgeHit[]
-  /** 无结果的原因（未配置向量模型 / 无命中等） */
-  notice?: string
-}
-
-/* ==================== 知识源（后端一等实体） ====================
- * 接口全部带 digitalId，服务端会校验数字伙伴归属。
- * 一个知识源可以引入 N 个知识库，同一个知识库也能被不同知识源引入。
+ * 知识源：智能体详情里的后端一等实体（open_knowledge_source 表），归某个数字伙伴所有。
+ *
+ * 知识源只持有「引用」，不存任何文档正文：
+ * - 文档正文的权威源在 doc 域在线文档库（普通用户所有，按 user_id 鉴权）；
+ * - 新建知识源时在 platform 域建一个专属索引集合，用户粘贴的海狸内部在线文档地址
+ *   经解析 + 鉴权后作为引用挂在这个集合上，由 platform 的 ingest 自动拉取并索引；
+ * - 删除知识源 / 移除引用都不动在线文档本体。
+ *
+ * 一个知识源持有一个 platform 索引集合；运行时按所有知识源合并去重后的 knowledgeIds
+ * 检索，这一列由后端在知识源变更时自动回写，前端不直接提交。
  */
 
 export interface IKnowledgeSourceItem {
@@ -132,9 +39,7 @@ export interface IKnowledgeSourceItem {
   retrievalTopK: number
   /** 分段 / 清洗配置 JSON 字符串 */
   indexConfig?: string
-  /** 引入的平台知识库 ID 列表 */
-  knowledgeIds: string[]
-  /** 引入的所有知识库的文档总数 */
+  /** 该知识源集合下的文档总数 */
   documentCount: number
   /** 秒级时间戳 */
   createdAt: number
@@ -166,27 +71,7 @@ export interface IDeleteKnowledgeSourceReq {
   knowledgeSourceId: string
 }
 
-/** 一次引入多个知识库，服务端会去重并过滤掉已删除的库 */
-export interface IBindKnowledgeSourceReq {
-  digitalId: string
-  knowledgeSourceId: string
-  knowledgeIds: string[]
-}
-export interface IBindKnowledgeSourceRes {
-  /** 变更后该知识源的完整引用列表 */
-  knowledgeIds: string[]
-}
-
-export interface IUnbindKnowledgeSourceReq {
-  digitalId: string
-  knowledgeSourceId: string
-  collectionId: string
-}
-export interface IUnbindKnowledgeSourceRes {
-  knowledgeIds: string[]
-}
-
-/** 知识源引入的所有知识库里的文档（聚合视图，只读） */
+/** 知识源集合下的文档（即用户粘贴的在线文档引用，只读聚合视图） */
 export interface IKnowledgeSourceDoc {
   documentId: string
   title: string
@@ -196,8 +81,12 @@ export interface IKnowledgeSourceDoc {
   indexStatus: string
   indexError?: string
   indexedAt: number
-  collectionId: string
-  collectionName: string
+  /** 引用的在线文档 doc_id */
+  sourceDocId: string
+  /** direct（跟随源文档更新）| import */
+  syncMode: string
+  /** 最近同步时间，RFC3339 字符串，可能为空 */
+  lastSyncedAt?: string
 }
 export interface IListKnowledgeSourceDocReq {
   digitalId: string
@@ -209,10 +98,30 @@ export interface IListKnowledgeSourceDocRes {
   list: IKnowledgeSourceDoc[]
 }
 
+/** 导入在线文档：粘贴海狸内部在线文档地址（URL 或裸 docId），后端解析 + 鉴权后建立引用 */
+export interface IImportKnowledgeSourceDocReq {
+  digitalId: string
+  knowledgeSourceId: string
+  /** 海狸内部在线文档地址，可多个 */
+  docUrls: string[]
+}
+export interface IImportKnowledgeSourceDocRes {
+  /** 成功建立的引用数 */
+  imported: number
+  /** 解析或鉴权失败的地址 */
+  failed?: string[]
+  notice?: string
+}
+
+export interface IDeleteKnowledgeSourceDocReq {
+  digitalId: string
+  knowledgeSourceId: string
+  documentId: string
+}
+export interface IDeleteKnowledgeSourceDocRes {}
+
 export interface IKnowledgeSourceHit {
   documentId: string
-  collectionId: string
-  collectionName: string
   title: string
   chunkIndex: number
   content: string

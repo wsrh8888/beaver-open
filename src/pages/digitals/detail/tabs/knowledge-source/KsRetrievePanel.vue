@@ -18,7 +18,7 @@
 
   beaver-open-header-v1
 
-  知识源「召回测试」分区：跨这个知识源引入的所有知识库做一次真实检索，
+  知识源「召回测试」分区：对这个知识源集合（用户粘贴的在线文档引用）做一次真实检索，
   后端按相关度统一排序截断，结果与运行时扁平 knowledgeIds 的检索口径一致。
 -->
 
@@ -45,10 +45,7 @@
     </el-button>
 
     <el-table v-if="hits.length" :data="hits" size="small" class="retrieve-table" max-height="360">
-      <el-table-column prop="title" label="文档" width="140" show-overflow-tooltip />
-      <el-table-column label="来源知识库" width="140" show-overflow-tooltip>
-        <template #default="{ row }">{{ row.collectionName || row.collectionId }}</template>
-      </el-table-column>
+      <el-table-column prop="title" label="文档" width="180" show-overflow-tooltip />
       <el-table-column label="相关度" width="90">
         <template #default="{ row }">{{ row.score.toFixed(3) }}</template>
       </el-table-column>

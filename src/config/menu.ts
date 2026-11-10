@@ -22,7 +22,6 @@
 import HouseIcon from "@/assets/icons/house.svg"
 import KeyIcon from "@/assets/icons/key.svg"
 import ChatIcon from "@/assets/icons/chat.svg"
-import DocumentIcon from "@/assets/icons/document.svg"
 
 export interface MenuItem {
   path: string
@@ -46,9 +45,8 @@ export const dashboardMenu: MenuItem = {
 // 一级 = 能力分组，二级 = 独立模块；每块都占一个一级路由前缀。
 // 三块业务能力 = OAuth 登录(/oauth) / 推送机器人(/bots) / 智能体(/digitals)，
 // 各自对应 src/pages 下的独立目录，整目录可拆成独立应用。
-// 知识库(/knowledge) 是平台级共享资产，与智能体详情里的「知识源」是两套东西：
-// 知识库存文档与索引本体，知识源是 open_knowledge_source 表里的后端实体、
-// 归某个智能体所有且可引入 N 个知识库，因此单列为「平台资源」分组。
+// 智能体详情里的「知识源」是数字伙伴的子实体（open_knowledge_source 表），
+// 不是一级路由，因此没有独立菜单项。
 // agent 是独立运行时（app/agent、platform/agent_apps），门户只通过数字伙伴编排配置引用它，
 // 没有门户 CRUD 接口，因此不单列菜单。
 export const menuGroups: MenuGroup[] = [
@@ -64,10 +62,5 @@ export const menuGroups: MenuGroup[] = [
       { path: "/bots", title: "推送机器人" },
       { path: "/digitals", title: "智能体" }
     ]
-  },
-  {
-    title: "平台资源",
-    icon: DocumentIcon,
-    items: [{ path: "/knowledge", title: "知识库" }]
   }
 ]
