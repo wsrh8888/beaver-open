@@ -84,6 +84,7 @@ type TabKey = "documents" | "retrieve" | "settings"
 
 export default defineComponent({
   name: "KsDetailView",
+  components: { KsDocumentsPanel, KsRetrievePanel, KsSettingsPanel },
   props: {
     digitalId: { type: String, required: true },
     source: { type: Object as PropType<IKnowledgeSourceItem>, required: true }

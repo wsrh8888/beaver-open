@@ -85,6 +85,7 @@ import FormCard from "@/pages/bots/components/FormCard.vue"
 
 export default defineComponent({
   name: "OverviewTab",
+  components: { FormCard },
   props: {
     bot: { type: Object as PropType<IBotInfo>, required: true }
   },

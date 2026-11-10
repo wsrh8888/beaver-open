@@ -55,6 +55,7 @@ import LongConnectionEditor from "./orchestration/LongConnectionEditor.vue"
 
 export default defineComponent({
   name: "OrchestrationTab",
+  components: { PromptEditor, LongConnectionEditor },
   setup() {
     const ws = useDigitalWorkspace()
     const switching = ref(false)

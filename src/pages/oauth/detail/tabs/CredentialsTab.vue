@@ -63,6 +63,7 @@ import CredentialPanel from "@/pages/oauth/components/CredentialPanel.vue"
 
 export default defineComponent({
   name: "CredentialsTab",
+  components: { FormCard, CredentialPanel },
   props: {
     app: { type: Object as PropType<IOAuthAppInfo>, required: true }
   },

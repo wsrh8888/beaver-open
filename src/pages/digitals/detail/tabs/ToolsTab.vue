@@ -309,6 +309,7 @@ import { iconLetter, iconTint } from "@/pages/digitals/components/cardVisual"
 
 export default defineComponent({
   name: "ToolsTab",
+  components: { Connection, Plus },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

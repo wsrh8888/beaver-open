@@ -105,6 +105,7 @@ type Platform = "h5" | "desktop" | "mobile"
 
 export default defineComponent({
   name: "PlatformsTab",
+  components: { FormCard, IdTagsEditor },
   props: {
     oauthId: { type: String, required: true }
   },

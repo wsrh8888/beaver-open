@@ -72,6 +72,7 @@ import IdTagsEditor from "@/pages/bots/components/IdTagsEditor.vue"
 
 export default defineComponent({
   name: "MembersTab",
+  components: { FormCard, IdTagsEditor },
   props: {
     bot: { type: Object as PropType<IBotInfo>, required: true }
   },

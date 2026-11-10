@@ -85,6 +85,7 @@ import KnowledgeSettingsPanel from "./panels/KnowledgeSettingsPanel.vue"
 
 export default defineComponent({
   name: "KnowledgeDetailPage",
+  components: { KnowledgeDocsPanel, KnowledgeRetrievePanel, KnowledgeSettingsPanel },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

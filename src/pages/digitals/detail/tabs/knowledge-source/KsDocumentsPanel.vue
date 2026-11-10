@@ -130,6 +130,7 @@ import LibraryPickerDialog from "./LibraryPickerDialog.vue"
 
 export default defineComponent({
   name: "KsDocumentsPanel",
+  components: { LibraryPickerDialog },
   props: {
     digitalId: { type: String, required: true },
     source: { type: Object as PropType<IKnowledgeSourceItem>, required: true }

@@ -91,6 +91,7 @@ import CredentialPanel from "@/pages/oauth/components/CredentialPanel.vue"
 
 export default defineComponent({
   name: "OauthCreatePage",
+  components: { PageHeader, CredentialPanel },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

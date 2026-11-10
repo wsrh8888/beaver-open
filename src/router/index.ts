@@ -23,7 +23,7 @@ import { createRouter, createWebHashHistory } from "vue-router"
 import { useUserStore } from "@/pinia/user/user"
 
 /**
- * 路由按业务板块划分，不再把所有东西塞进 /console：
+ * 路由按业务板块划分，不再把所有东西塞进同一个旧版控制台壳：
  * - /oauth      身份与接入（OAuth 登录）
  * - /bots       机器人能力（推送机器人）
  * - /digitals   机器人能力（智能体）

@@ -119,6 +119,7 @@ import IdTagsEditor from "@/pages/digitals/components/IdTagsEditor.vue"
 
 export default defineComponent({
   name: "SettingsTab",
+  components: { CircleCheckFilled, FormCard, IdTagsEditor },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

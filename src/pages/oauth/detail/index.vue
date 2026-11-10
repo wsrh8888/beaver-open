@@ -64,6 +64,7 @@ import PlatformsTab from "./tabs/PlatformsTab.vue"
 
 export default defineComponent({
   name: "OauthDetailPage",
+  components: { PageHeader, TabNav, OverviewTab, CredentialsTab, ScopesTab, PlatformsTab },
   setup() {
     /** 分区与 URL ?tab= 双向同步：刷新、分享、浏览器后退都停在同一分区。本页自己用，不抽公共 composable。 */
     function useTabNav(tabs: { key: string; label: string }[], defaultKey?: string) {

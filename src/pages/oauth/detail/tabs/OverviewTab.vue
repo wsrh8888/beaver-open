@@ -79,6 +79,7 @@ import FormCard from "@/pages/oauth/components/FormCard.vue"
 
 export default defineComponent({
   name: "OverviewTab",
+  components: { FormCard },
   props: {
     app: { type: Object as PropType<IOAuthAppInfo>, required: true }
   },

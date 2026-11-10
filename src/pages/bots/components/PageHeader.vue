@@ -53,6 +53,7 @@ import { useRouter } from "vue-router"
 
 export default defineComponent({
   name: "PageHeader",
+  components: { ArrowLeft },
   props: {
     title: { type: String, required: true },
     backTo: { type: String, required: true },

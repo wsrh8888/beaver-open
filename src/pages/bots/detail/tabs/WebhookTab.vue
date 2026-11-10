@@ -72,6 +72,7 @@ import CredentialPanel from "@/pages/bots/components/CredentialPanel.vue"
 
 export default defineComponent({
   name: "WebhookTab",
+  components: { FormCard, CredentialPanel },
   props: {
     bot: { type: Object as PropType<IBotInfo>, required: true }
   },

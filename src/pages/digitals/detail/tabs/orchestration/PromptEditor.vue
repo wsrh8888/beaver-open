@@ -170,6 +170,7 @@ type GenerationStyle = "stable" | "balanced" | "creative" | "custom"
 
 export default defineComponent({
   name: "PromptEditor",
+  components: { Delete, Plus, FormCard, IdTagsEditor },
   setup() {
     function shortId(prefix: string): string {
       return `${prefix}_${Math.random().toString(36).slice(2, 8)}`

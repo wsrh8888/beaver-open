@@ -67,6 +67,7 @@ interface CredentialItem {
 
 export default defineComponent({
   name: "CredentialPanel",
+  components: { Warning, CopyDocument },
   props: {
     items: { type: Array as PropType<CredentialItem[]>, required: true },
     notice: { type: String }

@@ -118,6 +118,7 @@ import CredentialPanel from "@/pages/bots/components/CredentialPanel.vue"
 
 export default defineComponent({
   name: "BotsCreatePage",
+  components: { PageHeader, CredentialPanel },
   setup() {
     const VISIBILITY_OPTIONS = [
       { value: "private", label: "私有", desc: "仅管理员可见，适合内部调试" },

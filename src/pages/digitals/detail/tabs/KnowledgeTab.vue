@@ -141,6 +141,7 @@ import KsDetailView from "./knowledge-source/KsDetailView.vue"
 
 export default defineComponent({
   name: "KnowledgeTab",
+  components: { Plus, KsDetailView },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

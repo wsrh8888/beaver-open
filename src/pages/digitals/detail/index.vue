@@ -97,6 +97,7 @@ import SettingsTab from "./tabs/SettingsTab.vue"
 
 export default defineComponent({
   name: "DigitalsDetailPage",
+  components: { ArrowLeft, TabNav, OrchestrationTab, KnowledgeTab, ToolsTab, DeveloperOptionsTab, SettingsTab },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

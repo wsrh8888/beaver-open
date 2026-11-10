@@ -121,6 +121,7 @@ import type { IKnowledgeBase } from "@/types/api/knowledge"
 
 export default defineComponent({
   name: "KnowledgeListPage",
+  components: { Plus },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message

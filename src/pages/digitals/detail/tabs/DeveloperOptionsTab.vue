@@ -118,6 +118,7 @@ import {
 
 export default defineComponent({
   name: "DeveloperOptionsTab",
+  components: { FormCard, CredentialPanel },
   setup() {
     async function copyText(text: string, label = "已复制"): Promise<void> {
       if (!text) {

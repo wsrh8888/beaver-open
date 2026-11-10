@@ -55,6 +55,7 @@ import FormCard from "@/pages/oauth/components/FormCard.vue"
 
 export default defineComponent({
   name: "ScopesTab",
+  components: { FormCard },
   props: {
     oauthId: { type: String, required: true }
   },

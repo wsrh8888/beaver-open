@@ -144,6 +144,7 @@ import { iconColorFor, iconLetter, iconTint } from "@/pages/digitals/components/
 
 export default defineComponent({
   name: "DigitalsListPage",
+  components: { Right },
   setup() {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message
