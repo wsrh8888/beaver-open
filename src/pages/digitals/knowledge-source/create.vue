@@ -58,8 +58,8 @@
       <button
         type="button"
         class="empty-card"
-        :disabled="creating"
-        @click="createEmpty"
+        :disabled="creatingEmpty"
+        @click="openEmptyDialog"
       >
         <span class="empty-card__icon">
           <el-icon><FolderAdd /></el-icon>
@@ -69,7 +69,7 @@
           <span class="empty-card__desc">立即创建，进入知识源后再添加文档</span>
         </span>
         <span class="empty-card__action">
-          {{ creating ? "创建中…" : "创建 →" }}
+          创建 →
         </span>
       </button>
     </section>
@@ -140,6 +140,42 @@
       </el-button>
     </div>
 
+    <el-dialog
+      v-model="emptyDialogVisible"
+      title="创建知识源"
+      width="440px"
+      :close-on-click-modal="false"
+      append-to-body
+      destroy-on-close
+      @opened="focusEmptyName"
+    >
+      <div class="empty-dialog">
+        <label class="empty-dialog__label" for="ks-empty-name">知识源名称</label>
+        <el-input
+          id="ks-empty-name"
+          ref="emptyNameInputRef"
+          v-model="emptyName"
+          maxlength="40"
+          show-word-limit
+          placeholder="输入知识源名称"
+          @keyup.enter="confirmEmptyCreate"
+        />
+      </div>
+      <template #footer>
+        <el-button :disabled="creatingEmpty" @click="emptyDialogVisible = false">
+          取消
+        </el-button>
+        <el-button
+          type="primary"
+          :loading="creatingEmpty"
+          :disabled="!emptyName.trim()"
+          @click="confirmEmptyCreate"
+        >
+          创建
+        </el-button>
+      </template>
+    </el-dialog>
+
     <LinkCheckDialog
       v-model="linkDialogVisible"
       :digital-id="digitalId"
@@ -153,6 +189,7 @@
 import { computed, ref } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
+import type { ElInput } from "element-plus"
 import { ArrowLeft, FolderAdd } from "@element-plus/icons-vue"
 import { saveKnowledgeSourceApi } from "@/api/knowledge"
 import { DEFAULT_KNOWLEDGE_INDEX_CONFIG, type IKnowledgeIndexConfig } from "@/types/api/knowledge"
@@ -179,6 +216,12 @@ const localInputRef = ref<HTMLInputElement>()
 const linkDialogVisible = ref(false)
 const linkDocType = ref<KnowledgeDocType>("doc")
 const indexConfig = ref<IKnowledgeIndexConfig>({ ...DEFAULT_KNOWLEDGE_INDEX_CONFIG })
+
+/** 「创建一个空的知识源」：先弹窗输入名称，再落库 */
+const emptyDialogVisible = ref(false)
+const emptyName = ref("")
+const creatingEmpty = ref(false)
+const emptyNameInputRef = ref<InstanceType<typeof ElInput>>()
 
 function backToList() {
   if (!digitalId.value) {
@@ -214,17 +257,29 @@ async function createSource(name: string): Promise<string | null> {
   return id
 }
 
-async function createEmpty() {
-  if (!digitalId.value || creating.value) return
-  creating.value = true
+function openEmptyDialog() {
+  if (creatingEmpty.value) return
+  emptyName.value = ""
+  emptyDialogVisible.value = true
+}
+
+function focusEmptyName() {
+  emptyNameInputRef.value?.focus()
+}
+
+async function confirmEmptyCreate() {
+  const name = emptyName.value.trim()
+  if (!name || creatingEmpty.value || !digitalId.value) return
+  creatingEmpty.value = true
   try {
-    const id = await createSource("新建知识源")
+    const id = await createSource(name)
+    emptyDialogVisible.value = false
     ElMessage.success("已创建空知识源")
     goDetail(id)
   } catch (err) {
     ElMessage.error(pendingErrorMessage(err, "创建知识源失败"))
   } finally {
-    creating.value = false
+    creatingEmpty.value = false
   }
 }
 
@@ -514,6 +569,15 @@ function removePending(index: number) {
     align-items: center;
     gap: 6px;
     font-size: 13px;
+  }
+}
+
+.empty-dialog {
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--el-text-color-regular);
   }
 }
 </style>
