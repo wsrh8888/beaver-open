@@ -62,7 +62,7 @@ export default defineComponent({
 
 <style lang="less" scoped>
 .ds-form-card {
-  max-width: 860px;
+  width: 100%;
   background: var(--ds-neutral-0);
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-md);
