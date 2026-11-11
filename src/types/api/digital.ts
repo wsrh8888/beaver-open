@@ -46,7 +46,7 @@ export interface IDigitalInfo {
   appSecret?: string // 掩码；仅 external 有
   adminIds?: string[]
   viewerIds?: string[]
-  /** 编排配置里的引用数量，列表卡片直接展示（旧版服务端不返回时为 0） */
+  /** 编排配置里的引用数量，列表卡片直接展示 */
   toolCount?: number
   knowledgeCount?: number
   mcpCount?: number

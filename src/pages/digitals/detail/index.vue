@@ -153,7 +153,6 @@ export default defineComponent({
     )
     // 只有提示词编排（平台运行时）才用得到平台托管的知识源与工具；长链接接入与工作流均不开放这两个分区。
     const disabledTabs = computed<string[]>(() => (mode.value === "prompt" ? [] : ["knowledge", "tools"]))
-    const legacyWorkflow = computed(() => false)
     const ready = computed(() => isNew.value || !!digital.value)
     /**
      * 编排分区没有独立保存按钮，改动直接在停顿后静默落库：
@@ -290,8 +289,8 @@ export default defineComponent({
         const res = await updateDigitalApi({ digitalId: id, runtime: modeToRuntime(next) })
         if (res.code !== 0) throw new Error(res.msg || "切换失败")
         await loadDetail(id)
-        // 服务端没落库（旧版本不认 runtime）时不要假装成功，否则界面切了、数据没切
-        if (mode.value !== next) throw new Error("服务端未接受编排方式变更，请确认后端已更新到最新版本")
+        // 回读一次确认已落库：不确认就等于「界面切了、数据没切」
+        if (mode.value !== next) throw new Error("编排方式未能保存")
         // 切到长链接且此前没有凭据时，服务端补发一把明文，必须当场展示
         if (res.result?.appSecret) {
           setCredentialFlash(id, {
@@ -355,7 +354,6 @@ export default defineComponent({
       digital,
       draft,
       mode,
-      legacyWorkflow,
       config,
       ensureCreated,
       saveConfig,
@@ -366,7 +364,7 @@ export default defineComponent({
     return {
       errorMessage, useTabNav, route, router, isNew, digitalId, digital,
       draft, config, creating, loadFailed, tabs, active, select, mode, disabledTabs,
-      legacyWorkflow, ready, goList, goTab, loadDetail, refresh,
+      ready, goList, goTab, loadDetail, refresh,
       ensureCreated, saveConfig, createNow, switchMode, syncFromRoute, computed, onMounted,
       onBeforeUnmount, nextTick, provide, ref, watch, useRoute, useRouter, ElMessage, ArrowLeft,
       createDigitalApi, getDigitalDetailApi, updateDigitalApi, TabNav, modeText, credentialFlash,

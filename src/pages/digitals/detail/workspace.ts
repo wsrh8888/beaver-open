@@ -136,7 +136,6 @@ export interface DigitalWorkspace {
   digital: Ref<IDigitalInfo | null>
   draft: DigitalDraft
   mode: ComputedRef<DigitalMode>
-  legacyWorkflow: ComputedRef<boolean>
   config: DigitalConfigService
   /** 草稿态下先创建实体，再返回可用的 digitalId；已存在时直接返回。 */
   ensureCreated: () => Promise<string>
