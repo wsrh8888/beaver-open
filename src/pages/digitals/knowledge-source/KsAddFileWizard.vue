@@ -157,28 +157,18 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue"
 import { ElMessage } from "element-plus"
-import {
-  importKnowledgeSourceDocApi,
-  saveKnowledgeSourceApi,
-  uploadKnowledgeSourceDocApi
-} from "@/api/knowledge"
 import type { IKnowledgeIndexConfig } from "@/types/api/knowledge"
 import KsSegmentSettingsPanel from "./KsSegmentSettingsPanel.vue"
 import LinkCheckDialog from "./LinkCheckDialog.vue"
 import LibraryTypeIcon from "./LibraryTypeIcon.vue"
-
-type DocType = "doc" | "faq"
-
-interface PendingItem {
-  key: string
-  title: string
-  sourceLabel: string
-  kind: "online" | "local"
-  docType?: DocType
-  docUrl?: string
-  docId?: string
-  file?: File
-}
+import {
+  MAX_PENDING_FILE_BYTES,
+  applyPendingDocs,
+  pendingIconType,
+  pendingTypeLabel,
+  type KnowledgeDocType,
+  type PendingDocItem
+} from "./pending"
 
 const props = defineProps<{
   digitalId: string
@@ -193,16 +183,14 @@ const emit = defineEmits<{
 
 const stepLabels = ["选择数据源", "文本分段与清洗", "处理并完成"]
 const step = ref(0)
-const pending = ref<PendingItem[]>([])
+const pending = ref<PendingDocItem[]>([])
 const indexConfig = ref<IKnowledgeIndexConfig>({ ...props.indexConfigSeed })
 const submitting = ref(false)
 const addedCount = ref(0)
 
 const localInputRef = ref<HTMLInputElement>()
 const linkDialogVisible = ref(false)
-const linkDocType = ref<DocType>("doc")
-
-const MAX_FILE_BYTES = 20 * 1024 * 1024
+const linkDocType = ref<KnowledgeDocType>("doc")
 
 watch(
   () => props.indexConfigSeed,
@@ -226,7 +214,7 @@ function close() {
   emit("cancel")
 }
 
-function openLinkDialog(docType: DocType) {
+function openLinkDialog(docType: KnowledgeDocType) {
   linkDocType.value = docType
   linkDialogVisible.value = true
 }
@@ -263,7 +251,7 @@ function onLocalInputChange(ev: Event) {
       ElMessage.warning(`${raw.name}：仅支持 docx / xlsx`)
       continue
     }
-    if (raw.size > MAX_FILE_BYTES) {
+    if (raw.size > MAX_PENDING_FILE_BYTES) {
       ElMessage.warning(`${raw.name}：文件超过 20MB，暂不支持`)
       continue
     }
@@ -292,107 +280,20 @@ const preprocessDocs = computed(() =>
   }))
 )
 
-function pendingIconType(item: PendingItem): "word" | "excel" | "faq" {
-  if (item.docType === "faq") return "faq"
-  if (item.file?.name.toLowerCase().endsWith(".xlsx")) return "excel"
-  if (/\.xlsx$/i.test(item.title)) return "excel"
-  return "word"
-}
-
-function pendingTypeLabel(item: PendingItem): string {
-  if (item.docType === "faq") return "Q&A"
-  if (item.kind === "local") return pendingIconType(item) === "excel" ? "Excel" : "Word"
-  return "文档"
-}
-
 function onIndexConfigUpdate(value: IKnowledgeIndexConfig) {
   indexConfig.value = value
-}
-
-function readAsBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const text = String(reader.result || "")
-      const comma = text.indexOf(",")
-      resolve(comma >= 0 ? text.slice(comma + 1) : text)
-    }
-    reader.onerror = () => reject(new Error("读取文件失败"))
-    reader.readAsDataURL(file)
-  })
-}
-
-function errorMessage(err: unknown, fallback: string): string {
-  if (err instanceof Error && err.message) return err.message
-  if (err && typeof err === "object" && "msg" in err) {
-    return String((err as { msg?: string }).msg || fallback)
-  }
-  return fallback
 }
 
 async function submit() {
   if (!pending.value.length) return
   submitting.value = true
-  let count = 0
-  const warnings: string[] = []
   try {
-    // 在线文档 / Q&A 文档按 docType 分组批量导入（后端只解析 + 建引用）
-    for (const docType of ["doc", "faq"] as const) {
-      const urls = pending.value
-        .filter(p => p.kind === "online" && p.docType === docType && p.docUrl)
-        .map(p => p.docUrl as string)
-      if (!urls.length) continue
-      const res = await importKnowledgeSourceDocApi({
-        digitalId: props.digitalId,
-        knowledgeSourceId: props.knowledgeSourceId,
-        docUrls: urls,
-        docType
-      })
-      if (res.code !== 0) {
-        warnings.push(`${docType === "faq" ? "Q&A 文档" : "在线文档"}导入失败：${res.msg || "未知原因"}`)
-        continue
-      }
-      count += res.result?.imported ?? 0
-      if (res.result?.failed?.length) {
-        warnings.push(`${res.result.failed.length} 条链接未通过解析或鉴权`)
-      }
-    }
-
-    // 本地文件读成 base64 后逐个交给后端解析正文
-    for (const item of pending.value) {
-      if (item.kind !== "local" || !item.file) continue
-      try {
-        const data = await readAsBase64(item.file)
-        const res = await uploadKnowledgeSourceDocApi({
-          digitalId: props.digitalId,
-          knowledgeSourceId: props.knowledgeSourceId,
-          fileName: item.file.name,
-          data,
-          docType: "doc"
-        })
-        if (res.code === 0 && res.result?.documentId) {
-          count += 1
-        } else {
-          warnings.push(`${item.title}：${res.msg || "上传失败"}`)
-        }
-      } catch (err) {
-        warnings.push(`${item.title}：${errorMessage(err, "上传失败")}`)
-      }
-    }
-
-    // 把这一步选定的分段 / 清洗 / 检索配置落到知识源实体
-    const cfg: IKnowledgeIndexConfig = {
-      ...indexConfig.value,
-      retrievalMode: indexConfig.value.retrievalMode || "auto"
-    }
-    const cfgRes = await saveKnowledgeSourceApi({
+    const { count, warnings } = await applyPendingDocs({
       digitalId: props.digitalId,
       knowledgeSourceId: props.knowledgeSourceId,
-      indexConfig: JSON.stringify(cfg)
+      pending: pending.value,
+      indexConfig: indexConfig.value
     })
-    if (cfgRes.code !== 0) {
-      warnings.push(`分段配置未保存：${cfgRes.msg || "未知原因"}`)
-    }
 
     addedCount.value = count
     step.value = 2

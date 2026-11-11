@@ -20,8 +20,9 @@
 
   知识源分区（列表）：知识源 ≠ 知识库。
   知识源是 open_knowledge_source 表里的后端一等实体，归当前数字伙伴所有，只持有 platform 索引集合的引用。
-  点卡片进入独立子路由 /digitals/:digitalId/knowledge/:knowledgeSourceId，由该页承载
-  「选择数据源」向导与「文档 / 召回测试 / 设置」三分区；本组件只负责列表与新建入口。
+  - 点「创建知识源」进入独立子路由 /digitals/:digitalId/knowledge/create（先选数据源再落库，不在列表页弹输入框）；
+  - 点卡片进入 /digitals/:digitalId/knowledge/:knowledgeSourceId。
+  本组件只负责列表与入口。
 -->
 
 <template>
@@ -45,7 +46,7 @@
       <div>
         <h3 class="ks-head__title">知识源</h3>
         <p class="ks-head__desc">
-          知识源是给这个智能体用的检索分组实体。把海狸内部的在线文档地址或本地文件加进来，平台会自动拉取并索引，
+          知识源是给这个智能体用的检索分组。把海狸内部的在线文档或本地文件加进来，平台会自动拉取并索引，
           检索时按引用实时跟随源文档更新，无需把文档搬到知识源里。
         </p>
       </div>
@@ -53,7 +54,7 @@
         type="primary"
         :icon="Plus"
         :disabled="mode !== 'prompt' || needsSave"
-        @click="createSource"
+        @click="goCreate"
       >
         创建知识源
       </el-button>
@@ -65,12 +66,12 @@
           type="button"
           class="tool-card tool-card--entry"
           :disabled="mode !== 'prompt' || needsSave"
-          @click="createSource"
+          @click="goCreate"
         >
           <div class="tool-card__body tool-card__body--entry">
             <el-icon class="tool-card__plus-icon"><Plus /></el-icon>
             <span class="tool-card__entry-label">创建知识源</span>
-            <span class="tool-card__entry-hint">组合多份在线文档供智能体检索</span>
+            <span class="tool-card__entry-hint">组合多份在线文档或本地文件供智能体检索</span>
           </div>
         </button>
 
@@ -102,132 +103,97 @@
         </button>
 
         <p v-if="!loading && !needsSave && !sources.length" class="ks-empty">
-          还没有知识源。创建一个，再把海狸内部的在线文档地址或本地文件加进来。
+          还没有知识源。创建一个，再把海狸内部的在线文档或本地文件加进来。
         </p>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { computed, onMounted, ref, watch, defineComponent } from "vue"
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue"
 import { useRouter } from "vue-router"
-import { ElMessage, ElMessageBox } from "element-plus"
+import { ElMessage } from "element-plus"
 import { Plus } from "@element-plus/icons-vue"
-import { listKnowledgeSourceApi, saveKnowledgeSourceApi } from "@/api/knowledge"
+import { listKnowledgeSourceApi } from "@/api/knowledge"
 import type { IKnowledgeSourceItem } from "@/types/api/knowledge"
 import { useDigitalWorkspace } from "../workspace"
 import { iconLetter, iconTint } from "@/pages/digitals/components/cardVisual"
 
-export default defineComponent({
-  name: "KnowledgeTab",
-  components: { Plus },
-  setup() {
-    function errorMessage(err: unknown, fallback: string): string {
-      if (err instanceof Error && err.message) return err.message
-      if (err && typeof err === "object" && "msg" in err) {
-        return String((err as { msg?: string }).msg || fallback)
-      }
-      return fallback
-    }
+const router = useRouter()
+const ws = useDigitalWorkspace()
 
-    const router = useRouter()
-    const ws = useDigitalWorkspace()
-    const { mode } = ws
+const mode = ws.mode
+const digitalId = computed(() => ws.digitalId.value)
+const needsSave = computed(() => !digitalId.value)
 
-    const digitalId = computed(() => ws.digitalId.value)
-    const needsSave = computed(() => !digitalId.value)
+const sources = ref<IKnowledgeSourceItem[]>([])
+const loading = ref(false)
+const creating = ref(false)
 
-    const sources = ref<IKnowledgeSourceItem[]>([])
-    const loading = ref(false)
-    const creating = ref(false)
-
-    const loadSources = async () => {
-      if (!digitalId.value) {
-        sources.value = []
-        return
-      }
-      loading.value = true
-      try {
-        const res = await listKnowledgeSourceApi({ digitalId: digitalId.value })
-        if (res.code !== 0) throw new Error(res.msg || "加载知识源失败")
-        sources.value = res.result?.list ?? []
-      } catch (err) {
-        ElMessage.error(errorMessage(err, "加载知识源失败"))
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const sourceSummary = (source: IKnowledgeSourceItem) => {
-      if (source.documentCount > 0) return `${source.documentCount} 篇文档已导入`
-      return "还没有导入文档"
-    }
-
-    const createDigitalFirst = async () => {
-      creating.value = true
-      try {
-        await ws.ensureCreated()
-      } finally {
-        creating.value = false
-      }
-    }
-
-    /** 点卡片进入独立子路由，详情数据由子路由页按 id 自行加载 */
-    const openSource = (knowledgeSourceId: string) => {
-      if (!digitalId.value) return
-      void router.push({
-        name: "DigitalKnowledgeSourceDetail",
-        params: { digitalId: digitalId.value, knowledgeSourceId }
-      })
-    }
-
-    const createSource = async () => {
-      if (mode.value !== "prompt" || !digitalId.value) return
-      let name = ""
-      try {
-        const { value } = await ElMessageBox.prompt("名称", "创建知识源", {
-          inputPattern: /\S+/,
-          inputErrorMessage: "名称不能为空"
-        })
-        name = value?.trim() || ""
-      } catch {
-        // 用户取消输入
-        return
-      }
-      if (!name) return
-      try {
-        const res = await saveKnowledgeSourceApi({ digitalId: digitalId.value, name })
-        if (res.code !== 0) throw new Error(res.msg || "创建失败")
-        const id = res.result?.knowledgeSourceId
-        if (!id) throw new Error("创建成功但未返回知识源 ID")
-        ElMessage.success("已创建")
-        // 空知识源直接进子路由的「选择数据源」向导
-        void router.push({
-          name: "DigitalKnowledgeSourceDetail",
-          params: { digitalId: digitalId.value, knowledgeSourceId: id },
-          query: { add: "1" }
-        })
-      } catch (err) {
-        ElMessage.error(errorMessage(err, "创建失败"))
-      }
-    }
-
-    watch(digitalId, () => {
-      void loadSources()
-    })
-    onMounted(() => {
-      void loadSources()
-    })
-
-    return {
-      errorMessage, ws, mode, digitalId, needsSave, sources, loading,
-      creating, loadSources, sourceSummary, createDigitalFirst, createSource, openSource,
-      computed, onMounted, ref, watch, ElMessage, ElMessageBox, Plus,
-      listKnowledgeSourceApi, saveKnowledgeSourceApi, useDigitalWorkspace,
-      iconLetter, iconTint
-    }
+function errorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error && err.message) return err.message
+  if (err && typeof err === "object" && "msg" in err) {
+    return String((err as { msg?: string }).msg || fallback)
   }
+  return fallback
+}
+
+async function loadSources() {
+  if (!digitalId.value) {
+    sources.value = []
+    return
+  }
+  loading.value = true
+  try {
+    const res = await listKnowledgeSourceApi({ digitalId: digitalId.value })
+    if (res.code !== 0) throw new Error(res.msg || "加载知识源失败")
+    sources.value = res.result?.list ?? []
+  } catch (err) {
+    ElMessage.error(errorMessage(err, "加载知识源失败"))
+  } finally {
+    loading.value = false
+  }
+}
+
+function sourceSummary(source: IKnowledgeSourceItem): string {
+  if (source.documentCount > 0) return `${source.documentCount} 篇文档已导入`
+  return "还没有导入文档"
+}
+
+async function createDigitalFirst() {
+  creating.value = true
+  try {
+    await ws.ensureCreated()
+  } finally {
+    creating.value = false
+  }
+}
+
+/** 创建：直接进独立子路由，先选数据源，再由子路由落库 */
+function goCreate() {
+  if (mode.value !== "prompt" || !digitalId.value) return
+  void router.push({
+    name: "DigitalKnowledgeSourceCreate",
+    params: { digitalId: digitalId.value }
+  })
+}
+
+/** 点卡片进入独立子路由，详情数据由子路由页按 id 自行加载 */
+function openSource(knowledgeSourceId: string) {
+  if (!digitalId.value) return
+  void router.push({
+    name: "DigitalKnowledgeSourceDetail",
+    params: { digitalId: digitalId.value, knowledgeSourceId }
+  })
+}
+
+watch(digitalId, () => {
+  void loadSources()
+})
+
+onMounted(() => {
+  void loadSources()
 })
 </script>
 

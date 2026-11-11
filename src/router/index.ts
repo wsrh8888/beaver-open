@@ -187,6 +187,22 @@ const router = createRouter({
             isNew: true
           }
         },
+        // 创建知识源：点「创建知识源」直接进这个子路由（先选数据源，再落库），
+        // 不再在列表页弹输入框。必须排在 :knowledgeSourceId 之前，否则 create 会被当成 id。
+        {
+          path: "/digitals/:digitalId/knowledge/create",
+          name: "DigitalKnowledgeSourceCreate",
+          component: () => import("@/pages/digitals/knowledge-source/create.vue"),
+          meta: {
+            title: "创建知识源",
+            requiresAuth: true,
+            group: "机器人能力",
+            module: "智能体",
+            modulePath: "/digitals",
+            page: "创建知识源",
+            isNew: true
+          }
+        },
         // 知识源是智能体下的子实体，独立成一级子路由（不再是详情 tab 的内部视图）。
         // ?add=1 表示刚创建完空知识源，进来先走「选择数据源」向导。
         {
