@@ -70,6 +70,7 @@ export interface IUpdateBotReq {
   botId: string
   name?: string
   avatar?: string
+  description?: string
   visibility?: BotVisibility
 }
 export interface IUpdateBotRes {}

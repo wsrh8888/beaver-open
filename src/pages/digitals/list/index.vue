@@ -26,14 +26,18 @@
         <h1 class="page-header__title">智能体</h1>
         <p class="page-header__desc">可被拉入会话的数字伙伴。创建后在同一个工作台里配置编排、知识源与工具。</p>
       </div>
-      <div class="page-header__actions">
-        <span class="ds-hint">共 {{ total }} 个智能体</span>
-        <el-button type="primary" :icon="Plus" @click="openCreate">创建智能体</el-button>
-      </div>
     </div>
 
     <div class="ds-list-panel">
       <div v-loading="loading" class="digital-grid">
+        <button type="button" class="digital-card digital-card--entry" @click="openCreate">
+          <span class="digital-card__entry-icon">
+            <el-icon><Plus /></el-icon>
+          </span>
+          <span class="digital-card__entry-title">创建智能体</span>
+          <span class="digital-card__entry-desc">填名称即可，编排随时可改</span>
+        </button>
+
         <article
           v-for="item in list"
           :key="item.digitalId"
@@ -77,7 +81,6 @@
 
         <div v-if="!loading && !list.length" class="digital-empty">
           <p>{{ emptyText }}</p>
-          <el-button v-if="!loadFailed" type="primary" @click="openCreate">创建智能体</el-button>
         </div>
       </div>
     </div>
@@ -242,10 +245,6 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.page-header__actions {
-  align-items: center;
-}
-
 .digital-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
@@ -358,6 +357,47 @@ export default defineComponent({
     transition:
       opacity 0.2s,
       transform 0.2s;
+  }
+
+  &--entry {
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 168px;
+    padding: var(--ds-space-5);
+    border-style: dashed;
+    background: transparent;
+    font-family: inherit;
+    text-align: center;
+    color: var(--ds-neutral-600);
+
+    &:hover {
+      color: var(--ds-brand);
+      border-color: var(--ds-brand);
+      background: var(--ds-neutral-0);
+    }
+  }
+
+  &__entry-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 2px;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-neutral-100);
+    font-size: 18px;
+  }
+
+  &__entry-title {
+    font-size: var(--ds-fs-14);
+    font-weight: var(--ds-weight-medium);
+  }
+
+  &__entry-desc {
+    font-size: var(--ds-fs-12);
+    color: var(--ds-neutral-500);
   }
 }
 

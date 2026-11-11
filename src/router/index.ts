@@ -132,19 +132,6 @@ const router = createRouter({
           }
         },
         {
-          path: "/bots/create",
-          name: "BotsCreate",
-          component: () => import("@/pages/bots/create/index.vue"),
-          meta: {
-            title: "创建推送机器人",
-            requiresAuth: true,
-            group: "机器人能力",
-            module: "推送机器人",
-            modulePath: "/bots",
-            page: "创建机器人"
-          }
-        },
-        {
           path: "/bots/:botId",
           name: "BotsDetail",
           component: () => import("@/pages/bots/detail/index.vue"),
