@@ -35,8 +35,11 @@
         @clear="loadDocs"
         @keyup.enter="loadDocs"
       />
-      <el-button size="small" type="primary" :icon="Plus" @click="importVisible = true">
-        导入在线文档
+      <el-button size="small" link type="primary" class="panel-toolbar__quick" @click="importVisible = true">
+        批量粘贴链接
+      </el-button>
+      <el-button size="small" type="primary" :icon="Plus" @click="emit('add-file')">
+        添加文件
       </el-button>
     </div>
 
@@ -109,7 +112,7 @@ export default defineComponent({
     digitalId: { type: String, required: true },
     source: { type: Object as PropType<IKnowledgeSourceItem>, required: true }
   },
-  emits: ["refresh"],
+  emits: ["refresh", "add-file"],
   setup(props, { emit }) {
     function errorMessage(err: unknown, fallback: string): string {
       if (err instanceof Error && err.message) return err.message
@@ -223,6 +226,10 @@ export default defineComponent({
   &__search {
     max-width: 240px;
     margin-right: auto;
+  }
+
+  &__quick {
+    font-size: 13px;
   }
 }
 </style>

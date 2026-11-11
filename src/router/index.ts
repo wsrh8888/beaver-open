@@ -187,6 +187,21 @@ const router = createRouter({
             isNew: true
           }
         },
+        // 知识源是智能体下的子实体，独立成一级子路由（不再是详情 tab 的内部视图）。
+        // ?add=1 表示刚创建完空知识源，进来先走「选择数据源」向导。
+        {
+          path: "/digitals/:digitalId/knowledge/:knowledgeSourceId",
+          name: "DigitalKnowledgeSourceDetail",
+          component: () => import("@/pages/digitals/knowledge-source/index.vue"),
+          meta: {
+            title: "知识源",
+            requiresAuth: true,
+            group: "机器人能力",
+            module: "智能体",
+            modulePath: "/digitals",
+            page: "知识源"
+          }
+        },
         {
           path: "/digitals/:digitalId",
           name: "DigitalsDetail",

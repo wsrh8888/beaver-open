@@ -34,7 +34,13 @@ import type {
   IDeleteKnowledgeSourceDocReq,
   IDeleteKnowledgeSourceDocRes,
   IRetrieveKnowledgeSourceReq,
-  IRetrieveKnowledgeSourceRes
+  IRetrieveKnowledgeSourceRes,
+  IDetailKnowledgeSourceReq,
+  IDetailKnowledgeSourceRes,
+  ICheckKnowledgeSourceDocReq,
+  ICheckKnowledgeSourceDocRes,
+  IUploadKnowledgeSourceDocReq,
+  IUploadKnowledgeSourceDocRes
 } from "@/types/api/knowledge"
 
 /**
@@ -65,6 +71,33 @@ export function deleteKnowledgeSourceApi(data: IDeleteKnowledgeSourceReq) {
   return ajax<{}>({
     method: "POST",
     url: `${sourceBase}/delete`,
+    data
+  })
+}
+
+/** 单个知识源详情：进入 /digitals/:digitalId/knowledge/:knowledgeSourceId 子路由时按 id 取回实体 */
+export function detailKnowledgeSourceApi(params: IDetailKnowledgeSourceReq) {
+  return ajax<IDetailKnowledgeSourceRes>({
+    method: "GET",
+    url: `${sourceBase}/detail`,
+    params
+  })
+}
+
+/** 检查在线文档 / 表格链接：解析 doc_id + 鉴权，只校验不建引用。检查通过才允许确认导入 */
+export function checkKnowledgeSourceDocApi(data: ICheckKnowledgeSourceDocReq) {
+  return ajax<ICheckKnowledgeSourceDocRes>({
+    method: "POST",
+    url: `${sourceBase}/doc/check`,
+    data
+  })
+}
+
+/** 本地文件上传：docx/xlsx 读成 base64 传上来，服务端解析正文后建 file 文档 */
+export function uploadKnowledgeSourceDocApi(data: IUploadKnowledgeSourceDocReq) {
+  return ajax<IUploadKnowledgeSourceDocRes>({
+    method: "POST",
+    url: `${sourceBase}/doc/upload`,
     data
   })
 }

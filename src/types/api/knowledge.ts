@@ -104,6 +104,8 @@ export interface IImportKnowledgeSourceDocReq {
   knowledgeSourceId: string
   /** 海狸内部在线文档地址，可多个 */
   docUrls: string[]
+  /** 文档类型：doc=在线文档 / faq=Q&A 文档，默认 doc */
+  docType?: "doc" | "faq"
 }
 export interface IImportKnowledgeSourceDocRes {
   /** 成功建立的引用数 */
@@ -138,4 +140,87 @@ export interface IRetrieveKnowledgeSourceRes {
   hits: IKnowledgeSourceHit[]
   /** 无结果原因 */
   notice?: string
+}
+
+/**
+ * 分段 / 清洗配置：知识源 indexConfig 列（JSON 字符串）反序列化后的形状。
+ * 添加文件向导第二步与知识源「设置」分区共用，字段与后端约定保持一致。
+ */
+export interface IKnowledgeIndexConfig {
+  /** auto=自动分段与清洗 / custom=自定义 */
+  segmentMode: "auto" | "custom"
+  maxSegmentLength: number
+  overlapLength: number
+  removeExtraSpaces: boolean
+  removeUrls: boolean
+  removeEmails: boolean
+  /** 目前仅 auto（系统按文档内容自动选检索方式） */
+  retrievalMode: "auto"
+}
+
+export const DEFAULT_KNOWLEDGE_INDEX_CONFIG: IKnowledgeIndexConfig = {
+  segmentMode: "auto",
+  maxSegmentLength: 500,
+  overlapLength: 50,
+  removeExtraSpaces: true,
+  removeUrls: true,
+  removeEmails: false,
+  retrievalMode: "auto"
+}
+
+/** 解析后端 indexConfig JSON 字符串，缺字段用默认值补齐 */
+export function parseKnowledgeIndexConfig(raw?: string): IKnowledgeIndexConfig {
+  if (!raw) return { ...DEFAULT_KNOWLEDGE_INDEX_CONFIG }
+  try {
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { ...DEFAULT_KNOWLEDGE_INDEX_CONFIG }
+    }
+    return { ...DEFAULT_KNOWLEDGE_INDEX_CONFIG, ...(parsed as Partial<IKnowledgeIndexConfig>) }
+  } catch {
+    return { ...DEFAULT_KNOWLEDGE_INDEX_CONFIG }
+  }
+}
+
+/** 单个知识源详情：进入子路由时按 id 取回实体 */
+export interface IDetailKnowledgeSourceReq {
+  digitalId: string
+  knowledgeSourceId: string
+}
+export interface IDetailKnowledgeSourceRes {
+  source: IKnowledgeSourceItem
+}
+
+/** 检查在线文档链接：只解析 + 鉴权，不建立引用。检查通过才允许确认导入 */
+export interface ICheckKnowledgeSourceDocReq {
+  digitalId: string
+  docUrl: string
+}
+export interface ICheckKnowledgeSourceDocRes {
+  /** 链接可解析且当前用户可见 */
+  valid: boolean
+  /** 解析出的文档 ID */
+  docId?: string
+  /** 文档标题，供确认前预览 */
+  title?: string
+  /** 失败原因（无法解析 / 无权限） */
+  msg?: string
+}
+
+/** 本地文件上传：docx/xlsx 读成 base64 传上来，服务端解析正文后建 file 文档 */
+export interface IUploadKnowledgeSourceDocReq {
+  digitalId: string
+  knowledgeSourceId: string
+  fileName: string
+  /** base64 文件二进制（不含 data: 前缀） */
+  data: string
+  /** doc|faq，默认 doc */
+  docType?: "doc" | "faq"
+}
+export interface IUploadKnowledgeSourceDocRes {
+  documentId?: string
+  title?: string
+  /** 解析出的正文字节数 */
+  byteSize: number
+  msg?: string
 }

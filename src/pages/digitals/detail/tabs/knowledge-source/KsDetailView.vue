@@ -53,6 +53,7 @@
           :digital-id="digitalId"
           :source="source"
           @refresh="emit('refresh')"
+          @add-file="emit('add-file')"
         />
         <KsRetrievePanel
           v-else-if="activeTab === 'retrieve'"
@@ -89,7 +90,7 @@ export default defineComponent({
     digitalId: { type: String, required: true },
     source: { type: Object as PropType<IKnowledgeSourceItem>, required: true }
   },
-  emits: ["back", "refresh", "deleted"],
+  emits: ["back", "refresh", "deleted", "add-file"],
   setup(props, { emit }) {
     const navTabs: { key: TabKey; label: string }[] = [
       { key: "documents", label: "文档" },
