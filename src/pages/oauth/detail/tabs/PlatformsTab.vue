@@ -98,8 +98,8 @@ import { onMounted, reactive, ref, defineComponent, toRefs } from "vue"
 import { ElMessage } from "element-plus"
 import { getOAuthConfigApi, updateOAuthConfigApi } from "@/api/oauth"
 import type { IDesktopOAuthConfig, IH5OAuthConfig, IMobileOAuthConfig } from "@/types/api/oauth"
-import FormCard from "@/pages/oauth/components/FormCard.vue"
-import IdTagsEditor from "@/pages/oauth/components/IdTagsEditor.vue"
+import FormCard from "@/pages/digitals/components/FormCard.vue"
+import IdTagsEditor from "@/pages/digitals/components/IdTagsEditor.vue"
 
 type Platform = "h5" | "desktop" | "mobile"
 

@@ -92,19 +92,6 @@ const router = createRouter({
           }
         },
         {
-          path: "/oauth/create",
-          name: "OAuthCreate",
-          component: () => import("@/pages/oauth/create/index.vue"),
-          meta: {
-            title: "创建 OAuth 应用",
-            requiresAuth: true,
-            group: "身份与接入",
-            module: "OAuth 登录",
-            modulePath: "/oauth",
-            page: "创建应用"
-          }
-        },
-        {
           path: "/oauth/:oauthId",
           name: "OAuthDetail",
           component: () => import("@/pages/oauth/detail/index.vue"),

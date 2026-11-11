@@ -47,6 +47,7 @@ export interface IUpdateOAuthAppReq {
   name?: string
   description?: string
   icon?: string
+  status?: number
 }
 export interface IUpdateOAuthAppRes {}
 

@@ -51,7 +51,7 @@ import { onMounted, ref, defineComponent, toRefs } from "vue"
 import { ElMessage } from "element-plus"
 import { getOAuthScopesApi, updateOAuthScopesApi } from "@/api/oauth"
 import type { IScopeInfo } from "@/types/api/oauth"
-import FormCard from "@/pages/oauth/components/FormCard.vue"
+import FormCard from "@/pages/digitals/components/FormCard.vue"
 
 export default defineComponent({
   name: "ScopesTab",

@@ -17,124 +17,151 @@
   Usage & commercial licensing: https://wsrh8888.github.io/beaver-docs/community/license.html
 
   beaver-open-header-v1
+
+  OAuth 应用详情：设置 / 权限范围 / 端配置 / 开发者选项。
+  「设置」「开发者选项」与智能体、推送机器人同名同骨架，中间两块是 OAuth 独有的能力配置。
 -->
 
 <template>
-  <div>
-    <PageHeader
-      :title="app?.name || (loadFailed ? '应用不可用' : '应用详情')"
-      desc="管理应用信息、凭证、权限范围与各端接入配置。"
-      back-to="/oauth"
-      back-label="返回应用列表"
-      :badge="app ? (app.status === 1 ? '启用' : '禁用') : undefined"
-      :badge-tone="app?.status === 1 ? 'success' : 'neutral'"
-      :loading="loading"
-    />
+  <div class="ws">
+    <header class="ws-head">
+      <button class="ws-back" type="button" @click="goList">
+        <el-icon><ArrowLeft /></el-icon>返回列表
+      </button>
+
+      <div class="ws-head__row">
+        <h1 class="ws-title">{{ app?.name || (loadFailed ? "应用不可用" : "OAuth 应用") }}</h1>
+      </div>
+    </header>
+
+    <TabNav :tabs="tabs" :active="active" @select="select" />
 
     <div v-if="loadFailed" class="ds-notice ds-notice--danger">
       无法加载该应用，请返回列表后重试。
     </div>
 
-    <template v-if="app">
-      <TabNav :tabs="tabs" :active="active" @select="select" />
-
+    <template v-else-if="app">
       <!-- :key 随实体 ID 变化，强制重建分区组件，避免复用时残留上一个实体的表单状态 -->
-      <div :key="oauthId">
-        <OverviewTab v-if="active === 'overview'" :app="app" @refresh="refresh" />
-        <CredentialsTab v-else-if="active === 'credentials'" :app="app" @refresh="refresh" />
+      <div :key="oauthId" v-loading="loading">
+        <SettingsTab v-if="active === 'settings'" :app="app" @refresh="loadDetail" />
         <ScopesTab v-else-if="active === 'scopes'" :oauth-id="app.oauthId" />
         <PlatformsTab v-else-if="active === 'platforms'" :oauth-id="app.oauthId" />
+        <DeveloperTab v-else-if="active === 'developer'" :app="app" />
       </div>
     </template>
   </div>
 </template>
 
-<script lang="ts">
-import { computed, onMounted, ref, watch, defineComponent } from "vue"
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
+import { ArrowLeft } from "@element-plus/icons-vue"
 import { getOAuthAppDetailApi } from "@/api/oauth"
 import type { IOAuthAppInfo } from "@/types/api/oauth"
-import PageHeader from "@/pages/oauth/components/PageHeader.vue"
-import TabNav from "@/pages/oauth/components/TabNav.vue"
-import OverviewTab from "./tabs/OverviewTab.vue"
-import CredentialsTab from "./tabs/CredentialsTab.vue"
+import TabNav from "@/pages/digitals/components/TabNav.vue"
+import SettingsTab from "./tabs/SettingsTab.vue"
 import ScopesTab from "./tabs/ScopesTab.vue"
 import PlatformsTab from "./tabs/PlatformsTab.vue"
+import DeveloperTab from "./tabs/DeveloperTab.vue"
 
-export default defineComponent({
-  name: "OauthDetailPage",
-  components: { PageHeader, TabNav, OverviewTab, CredentialsTab, ScopesTab, PlatformsTab },
-  setup() {
-    /** 分区与 URL ?tab= 双向同步：刷新、分享、浏览器后退都停在同一分区。本页自己用，不抽公共 composable。 */
-    function useTabNav(tabs: { key: string; label: string }[], defaultKey?: string) {
-      const tabRoute = useRoute()
-      const tabRouter = useRouter()
-      const fallback = defaultKey || tabs[0]?.key || ""
-      const active = computed(() => {
-        const queryTab = String(tabRoute.query.tab || "")
-        return tabs.some(item => item.key === queryTab) ? queryTab : fallback
-      })
-      const select = (key: string) => {
-        if (key === active.value) return
-        tabRouter.replace({ query: { ...tabRoute.query, tab: key } })
-      }
-      return { active, select }
-    }
+const route = useRoute()
+const router = useRouter()
 
-    const route = useRoute()
-    const oauthId = computed(() => String(route.params.oauthId || ""))
-    const loading = ref(false)
-    const loadFailed = ref(false)
-    const app = ref<IOAuthAppInfo | null>(null)
+const oauthId = computed(() => String(route.params.oauthId || ""))
+const loading = ref(false)
+const loadFailed = ref(false)
+const app = ref<IOAuthAppInfo | null>(null)
 
-    const tabs = [
-      { key: "overview", label: "概览" },
-      { key: "credentials", label: "凭证" },
-      { key: "scopes", label: "权限范围" },
-      { key: "platforms", label: "端配置" }
-    ]
-    const { active, select } = useTabNav(tabs, "overview")
+const tabs = [
+  { key: "settings", label: "设置" },
+  { key: "scopes", label: "权限范围" },
+  { key: "platforms", label: "端配置" },
+  { key: "developer", label: "开发者选项" }
+]
 
-    const loadDetail = async () => {
-      if (!oauthId.value) {
-        loadFailed.value = true
-        return
-      }
-      loading.value = true
-      loadFailed.value = false
-      try {
-        const res = await getOAuthAppDetailApi({ oauthId: oauthId.value })
-        const info = res?.result?.app
-        if (!info) throw new Error("应用不存在")
-        app.value = info
-        route.meta.entityName = info.name
-        document.title = `${info.name} · Beaver 开放平台`
-      } catch (err) {
-        loadFailed.value = true
-        ElMessage.error((err as Error)?.message || "加载应用详情失败")
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const refresh = async () => { await loadDetail() }
-
-    // 详情页组件在 :oauthId 变化时会复用，必须重新拉取，避免显示上一个应用的数据。
-    watch(oauthId, (id, previous) => {
-      if (id && id !== previous) {
-        route.meta.entityName = undefined
-        loadDetail()
-      }
-    })
-
-    onMounted(loadDetail)
-    return {
-      useTabNav, route, oauthId, loading, loadFailed, app, tabs, active, select, loadDetail,
-      refresh, computed, onMounted, ref, watch, useRoute, useRouter, ElMessage,
-      getOAuthAppDetailApi, PageHeader, TabNav, OverviewTab, CredentialsTab, ScopesTab,
-      PlatformsTab
-    }
-  }
+/** 分区与 URL ?tab= 同步：刷新、分享、浏览器后退都停在同一分区。 */
+const active = computed(() => {
+  const queryTab = String(route.query.tab || "")
+  return tabs.some(item => item.key === queryTab) ? queryTab : "settings"
 })
+
+const select = (key: string) => {
+  if (key === active.value) return
+  router.replace({ query: { ...route.query, tab: key } })
+}
+
+const goList = () => router.push("/oauth")
+
+function errorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error && err.message) return err.message
+  if (err && typeof err === "object" && "msg" in err) {
+    return String((err as { msg?: string }).msg || fallback)
+  }
+  return fallback
+}
+
+async function loadDetail() {
+  const id = oauthId.value
+  if (!id) {
+    loadFailed.value = true
+    return
+  }
+  loading.value = true
+  loadFailed.value = false
+  try {
+    const res = await getOAuthAppDetailApi({ oauthId: id })
+    const info = res?.result?.app
+    if (!info) throw new Error("应用不存在")
+    app.value = info
+    route.meta.entityName = info.name
+  } catch (err) {
+    loadFailed.value = true
+    ElMessage.error(errorMessage(err, "加载应用详情失败"))
+  } finally {
+    loading.value = false
+  }
+}
+
+// 详情页组件在 :oauthId 变化时会复用，必须重新拉取，避免显示上一个应用的数据。
+watch(oauthId, (id, previous) => {
+  if (id && id !== previous) loadDetail()
+})
+
+onMounted(loadDetail)
 </script>
+
+<style lang="less" scoped>
+.ws-head { margin-bottom: var(--ds-space-4); }
+
+.ws-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ds-neutral-600);
+  font-family: inherit;
+  font-size: var(--ds-fs-13);
+  cursor: pointer;
+
+  &:hover { color: var(--ds-brand); }
+}
+
+.ws-head__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-4);
+  margin-top: var(--ds-space-2);
+}
+
+.ws-title {
+  font-size: var(--ds-fs-20);
+  font-weight: var(--ds-weight-bold);
+  line-height: var(--ds-lh-heading);
+  color: var(--ds-neutral-900);
+  word-break: break-all;
+}
+</style>
