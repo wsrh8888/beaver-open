@@ -38,14 +38,10 @@
             aria-label="智能体名称"
           />
           <h1 v-else class="ws-title">{{ digital?.name || "智能体" }}</h1>
-          <p class="ws-sub">{{ subtitle }}</p>
         </div>
         <div v-if="isNew" class="ws-head__actions">
           <span class="ws-draft-tag">草稿 · 未创建</span>
           <el-button type="primary" :loading="creating" @click="createNow">创建智能体</el-button>
-        </div>
-        <div v-else class="ws-head__actions">
-          <el-button v-if="showTopSave" type="primary" :loading="saving" @click="saveConfig">保存</el-button>
         </div>
       </div>
     </header>
@@ -70,14 +66,14 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, provide, ref, watch, defineComponent } from "vue"
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch, defineComponent } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 import { ArrowLeft } from "@element-plus/icons-vue"
 import { createDigitalApi, getDigitalDetailApi, updateDigitalApi } from "@/api/digital"
 import type { IDigitalInfo } from "@/types/api/digital"
 import TabNav from "@/pages/digitals/components/TabNav.vue"
-import { modeDesc, modeText } from "@/pages/digitals/detail/constants"
+import { modeText } from "@/pages/digitals/detail/constants"
 import { credentialFlash, setCredentialFlash } from "./credentialFlash"
 import {
   digitalConfig,
@@ -105,12 +101,6 @@ export default defineComponent({
         return String((err as { msg?: string }).msg || fallback)
       }
       return fallback
-    }
-
-    function visibilityText(value?: string): string {
-      if (value === "public") return "公开"
-      if (value === "partial") return "指定成员"
-      return "私有"
     }
 
     /** 分区与 URL ?tab= 双向同步：刷新、分享、浏览器后退都停在同一分区。本页自己用，不抽公共 composable。 */
@@ -144,8 +134,10 @@ export default defineComponent({
     const draft = digitalDraft
     const config = digitalConfig
     const creating = ref(false)
-    const saving = computed(() => config.saving.value)
     const loadFailed = ref(false)
+    /** 从服务端整份拉取配置期间要抑制自动保存，否则刚加载进来的值会被当成用户改动再写回去。 */
+    const autosaveArmed = ref(false)
+    let autosaveTimer: ReturnType<typeof setTimeout> | undefined
 
     const tabs = [
       { key: "orchestration", label: "编排" },
@@ -163,14 +155,24 @@ export default defineComponent({
     const disabledTabs = computed<string[]>(() => (mode.value === "prompt" ? [] : ["knowledge", "tools"]))
     const legacyWorkflow = computed(() => false)
     const ready = computed(() => isNew.value || !!digital.value)
-    // 顶部「保存」只管编排配置；「设置」自带保存按钮，避免两个保存按钮各存一半
-    const showTopSave = computed(() => !["settings", "developer"].includes(active.value))
+    /**
+     * 编排分区没有独立保存按钮，改动直接在停顿后静默落库：
+     * 只在实体态生效（草稿态仍由顶部「创建智能体」一次性创建 + 保存），失败才提示。
+     */
+    const scheduleAutosave = () => {
+      if (!autosaveArmed.value || !digitalId.value || config.loading.value) return
+      if (autosaveTimer) clearTimeout(autosaveTimer)
+      autosaveTimer = setTimeout(() => {
+        const id = digitalId.value
+        if (!id) return
+        void config.save(id, mode.value)
+      }, 1000)
+    }
 
-    const subtitle = computed(() => {
-      if (isNew.value) return `${modeText(mode.value)} · ${modeDesc(mode.value)}`
-      return [modeText(mode.value), digitalId.value, visibilityText(digital.value?.visibility)]
-        .filter(Boolean)
-        .join(" · ")
+    watch([() => config.prompt, () => config.external], scheduleAutosave, { deep: true })
+
+    onBeforeUnmount(() => {
+      if (autosaveTimer) clearTimeout(autosaveTimer)
     })
 
     const goList = () => router.push("/digitals")
@@ -309,6 +311,7 @@ export default defineComponent({
 
     const syncFromRoute = async () => {
       route.meta.entityName = undefined
+      autosaveArmed.value = false
       if (isNew.value) {
         // 弹窗创建时已把名称/描述写进 draft 并跳到 /create，这里不要再清空，否则白填。
         if (!digitalDraft.name && !digitalDraft.description) {
@@ -325,6 +328,9 @@ export default defineComponent({
       await loadDetail(id)
       // 刚创建完的实体，本地配置已经与服务端一致，不要重新拉取把草稿内容冲掉
       if (config.loadedId.value !== id) await config.load(id)
+      // 等配置赋值触发的 watch 全部跑完再解除抑制，避免加载回来的值又被写回去
+      await nextTick()
+      autosaveArmed.value = true
     }
 
     onMounted(syncFromRoute)
@@ -358,15 +364,15 @@ export default defineComponent({
       goTab
     } satisfies DigitalWorkspace)
     return {
-      errorMessage, visibilityText, useTabNav, route, router, isNew, digitalId, digital,
-      draft, config, creating, saving, loadFailed, tabs, active, select, mode, disabledTabs,
-      legacyWorkflow, ready, showTopSave, subtitle, goList, goTab, loadDetail, refresh,
+      errorMessage, useTabNav, route, router, isNew, digitalId, digital,
+      draft, config, creating, loadFailed, tabs, active, select, mode, disabledTabs,
+      legacyWorkflow, ready, goList, goTab, loadDetail, refresh,
       ensureCreated, saveConfig, createNow, switchMode, syncFromRoute, computed, onMounted,
-      provide, ref, watch, useRoute, useRouter, ElMessage, ArrowLeft, createDigitalApi,
-      getDigitalDetailApi, updateDigitalApi, TabNav, modeDesc, modeText, credentialFlash,
+      onBeforeUnmount, nextTick, provide, ref, watch, useRoute, useRouter, ElMessage, ArrowLeft,
+      createDigitalApi, getDigitalDetailApi, updateDigitalApi, TabNav, modeText, credentialFlash,
       setCredentialFlash, digitalConfig, digitalDraft, digitalWorkspaceKey, modeToRuntime,
       resetDigitalWorkspaceDraft, runtimeToMode, OrchestrationTab, KnowledgeTab, ToolsTab,
-      DeveloperOptionsTab, SettingsTab
+      DeveloperOptionsTab, SettingsTab, autosaveArmed, scheduleAutosave
     }
   }
 })
@@ -422,13 +428,6 @@ export default defineComponent({
     font-weight: var(--ds-weight-bold);
     color: var(--ds-neutral-900);
   }
-}
-
-.ws-sub {
-  margin-top: 2px;
-  font-size: var(--ds-fs-12);
-  line-height: var(--ds-lh-body);
-  color: var(--ds-neutral-500);
 }
 
 .ws-head__actions {

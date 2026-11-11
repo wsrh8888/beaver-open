@@ -43,13 +43,7 @@
     </div>
 
     <div class="ks-head">
-      <div>
-        <h3 class="ks-head__title">知识源</h3>
-        <p class="ks-head__desc">
-          知识源是给这个智能体用的检索分组。把海狸内部的在线文档或本地文件加进来，平台会自动拉取并索引，
-          检索时按引用实时跟随源文档更新，无需把文档搬到知识源里。
-        </p>
-      </div>
+      <h3 class="ks-head__title">知识源</h3>
       <el-button
         type="primary"
         :icon="Plus"
@@ -101,10 +95,6 @@
             <span class="ks-foot__action">管理 →</span>
           </div>
         </button>
-
-        <p v-if="!loading && !needsSave && !sources.length" class="ks-empty">
-          还没有知识源。创建一个，再把海狸内部的在线文档或本地文件加进来。
-        </p>
       </div>
     </div>
   </div>
@@ -202,7 +192,7 @@ onMounted(() => {
 
 .ks-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 16px;
@@ -212,19 +202,6 @@ onMounted(() => {
     font-size: 17px;
     font-weight: 600;
     color: var(--el-text-color-primary);
-  }
-
-  &__desc {
-    margin: 6px 0 0;
-    max-width: 720px;
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--el-text-color-secondary);
-  }
-
-  &__link {
-    font-size: 13px;
-    vertical-align: baseline;
   }
 }
 
@@ -237,14 +214,6 @@ onMounted(() => {
     font-size: 12px;
     color: var(--el-color-primary);
   }
-}
-
-.ks-empty {
-  grid-column: 1 / -1;
-  padding: 28px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--el-text-color-secondary);
 }
 
 .ks-draft {
