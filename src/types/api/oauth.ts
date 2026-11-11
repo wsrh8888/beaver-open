@@ -80,26 +80,6 @@ export interface IResetOAuthSecretRes {
   oauthSecret: string // 明文，仅重置时返回一次
 }
 
-// 权限范围
-export interface IScopeInfo {
-  scope: string
-  name: string
-  description: string
-  enabled: boolean
-  required: boolean
-}
-export interface IGetOAuthScopesReq {
-  oauthId: string
-}
-export interface IGetOAuthScopesRes {
-  scopes: IScopeInfo[]
-}
-export interface IUpdateOAuthScopesReq {
-  oauthId: string
-  scopes: string[]
-}
-export interface IUpdateOAuthScopesRes {}
-
 // OAuth 端配置：config 为 JSON 字符串，服务端按 oauthType 解析
 export interface IGetOAuthConfigReq {
   oauthId: string

@@ -86,7 +86,7 @@ export default defineComponent({
         cards: [
           {
             title: "OAuth 登录",
-            desc: "OAuth 应用、凭证、权限范围与各端接入配置",
+            desc: "OAuth 应用、凭证与各端接入配置",
             unit: "应用",
             path: "/oauth",
             count: 0,

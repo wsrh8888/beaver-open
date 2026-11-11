@@ -249,7 +249,7 @@ function defaultName(): string {
   return "新建知识源"
 }
 
-async function createSource(name: string): Promise<string | null> {
+async function createSource(name: string): Promise<string> {
   const res = await saveKnowledgeSourceApi({ digitalId: digitalId.value, name })
   if (res.code !== 0) throw new Error(res.msg || "创建知识源失败")
   const id = res.result?.knowledgeSourceId

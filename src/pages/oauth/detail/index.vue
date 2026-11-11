@@ -18,8 +18,8 @@
 
   beaver-open-header-v1
 
-  OAuth 应用详情：设置 / 权限范围 / 端配置 / 开发者选项。
-  「设置」「开发者选项」与智能体、推送机器人同名同骨架，中间两块是 OAuth 独有的能力配置。
+  OAuth 应用详情：设置 / 端配置 / 开发者选项。
+  「设置」「开发者选项」与智能体、推送机器人同名同骨架，中间一块是 OAuth 独有的端接入配置。
 -->
 
 <template>
@@ -44,7 +44,6 @@
       <!-- :key 随实体 ID 变化，强制重建分区组件，避免复用时残留上一个实体的表单状态 -->
       <div :key="oauthId" v-loading="loading">
         <SettingsTab v-if="active === 'settings'" :app="app" @refresh="loadDetail" />
-        <ScopesTab v-else-if="active === 'scopes'" :oauth-id="app.oauthId" />
         <PlatformsTab v-else-if="active === 'platforms'" :oauth-id="app.oauthId" />
         <DeveloperTab v-else-if="active === 'developer'" :app="app" />
       </div>
@@ -61,7 +60,6 @@ import { getOAuthAppDetailApi } from "@/api/oauth"
 import type { IOAuthAppInfo } from "@/types/api/oauth"
 import TabNav from "@/pages/digitals/components/TabNav.vue"
 import SettingsTab from "./tabs/SettingsTab.vue"
-import ScopesTab from "./tabs/ScopesTab.vue"
 import PlatformsTab from "./tabs/PlatformsTab.vue"
 import DeveloperTab from "./tabs/DeveloperTab.vue"
 
@@ -75,7 +73,6 @@ const app = ref<IOAuthAppInfo | null>(null)
 
 const tabs = [
   { key: "settings", label: "设置" },
-  { key: "scopes", label: "权限范围" },
   { key: "platforms", label: "端配置" },
   { key: "developer", label: "开发者选项" }
 ]

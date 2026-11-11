@@ -34,10 +34,6 @@ import type {
   IGetOAuthAppListRes,
   IResetOAuthSecretReq,
   IResetOAuthSecretRes,
-  IGetOAuthScopesReq,
-  IGetOAuthScopesRes,
-  IUpdateOAuthScopesReq,
-  IUpdateOAuthScopesRes,
   IGetOAuthConfigReq,
   IGetOAuthConfigRes,
   IUpdateOAuthConfigReq,
@@ -89,23 +85,6 @@ export function resetOAuthSecretApi(data: IResetOAuthSecretReq) {
   return ajax<IResetOAuthSecretRes>({
     method: "POST",
     url: `${config.baseAPI}/api/open_portal/app/v1/reset_secret`,
-    data
-  })
-}
-
-// 权限范围
-export function getOAuthScopesApi(params: IGetOAuthScopesReq) {
-  return ajax<IGetOAuthScopesRes>({
-    method: "GET",
-    url: `${config.baseAPI}/api/open_portal/app/v1/scopes`,
-    params
-  })
-}
-
-export function updateOAuthScopesApi(data: IUpdateOAuthScopesReq) {
-  return ajax<IUpdateOAuthScopesRes>({
-    method: "POST",
-    url: `${config.baseAPI}/api/open_portal/app/v1/scopes/update`,
     data
   })
 }
